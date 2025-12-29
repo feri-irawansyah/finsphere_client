@@ -1,0 +1,27 @@
+// 1) Base style untuk semua icon custom
+%bi-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-color: currentColor;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+}
+
+// 2) Map: nama-class → nama-file-svg
+$icons: (
+    "star-filled": "star-filled",
+);
+
+// 3) Generate class otomatis
+@each $name, $file in $icons {
+    .bi-#{$name} {
+        @extend %bi-icon;
+        mask-image: url('/svg/#{$file}.svg');
+        -webkit-mask-image: url('/svg/#{$file}.svg');
+    }
+}

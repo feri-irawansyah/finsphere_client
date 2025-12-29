@@ -1,0 +1,10 @@
+@use 'modules/variable' as *;
+@use 'modules/grid' as *;
+@use 'modules/figma-icons' as *;
+@use 'modules/form' as *;
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
