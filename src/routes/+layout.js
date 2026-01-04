@@ -24,7 +24,7 @@ export async function load({ url, fetch }) {
         error = `Error fetching session: ${err.message}`;
     }
 
-    const isLoggedIn = true;
+    const isLoggedIn = !!session;
 
     if (!isLoggedIn && !publicRoutes.includes(pathname)) {
         localStorage.setItem("redirectTo", pathname);
