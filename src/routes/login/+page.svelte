@@ -1,4 +1,130 @@
-<div class="public d-flex flex-row">
+<script>
+    import InputPassword from "$lib/directives/inputs/InputPassword.svelte";
+    import { goto } from '$app/navigation';
+    import fetcher from '$lib/fetcher';
+    import Swal from 'sweetalert2';
+
+    let form = $state({
+        email: '',
+        password: ''
+    });
+    
+    let loading = false;
+
+    async function loginSubmit(e) {
+        e.preventDefault();
+        loading = true;
+
+        // bersihin storage kaya Angular
+        localStorage.removeItem('method_mfa');
+        localStorage.removeItem('access_token');
+
+        const email = form.email;
+        const password = form.password;
+
+        const payload = {
+            Email: email,
+            Password: password
+        };
+
+        try {
+            const resp = await fetcher(
+                fetch,
+                `/api/platform/console/login`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                }
+            );
+
+            loading = false;
+
+            localStorage.setItem(
+                'method_mfa',
+                resp.enableMFA ? 'google_auth' : 'email'
+            );
+
+            // === MFA TIDAK AKTIF ===
+            if (!resp.enableMFA) {
+                localStorage.setItem('access_token', resp.accessToken);
+                goto('/usersmfaenable');
+            }
+            // === MFA AKTIF ===
+            else {
+                localStorage.setItem('pending_login_email', email);
+                goto('/loginotp');
+            }
+
+        } catch (err) {
+            loading = false;
+
+            const detail = err?.detail;
+            console.log('err', err);
+            localStorage.setItem('expiredPasswordEmail', email);
+
+            // === PASSWORD EXPIRED ===
+            if (detail === 'Kata sandi Anda telah kedaluwarsa. Silakan melakukan pengaturan ulang kata sandi.') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Password Kedaluwarsa',
+                    text: 'Kami akan mengirimkan kode verifikasi untuk reset password Anda.',
+                    confirmButtonText: 'Lanjutkan'
+                }).then(() => {
+                    triggerExpiredPasswordOtp();
+                });
+                return;
+            }
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Gagal',
+                text: detail || 'Terjadi kesalahan. Silakan coba lagi.'
+            });
+        }
+    }
+
+    async function triggerExpiredPasswordOtp() {
+        Swal.fire({
+            title: 'Memproses...',
+            didOpen: () => Swal.showLoading(),
+            allowOutsideClick: false
+        });
+
+        const email = localStorage.getItem('expiredPasswordEmail');
+
+        try {
+            const res = await fetcher(
+                `/api/${__URL_Platform}/usersexpiredpassword/request`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({ email })
+                }
+            );
+
+            if (res?.success) {
+                localStorage.setItem('expiredPasswordMethod', res.data.method);
+                localStorage.setItem('expiredPasswordState', 'OTP_SENT');
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Kode Verifikasi Dikirim',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+
+                setTimeout(() => {
+                    goto('/usersexpiredpasswordverify');
+                }, 1200);
+            } else {
+                Swal.fire('Error', 'Gagal mengirim OTP.', 'error');
+            }
+        } catch {
+            Swal.fire('Error', 'Terjadi kesalahan saat mengirim OTP.', 'error');
+        }
+    }
+</script>
+
+<div class="login d-flex flex-row">
     <div class="left-section">
         <div class="image-wrapper position-relative">
             <div class="top-right-overlay"></div>
@@ -6,13 +132,27 @@
             <div class="bottom-left-overlay"></div>
         </div>
     </div>
-    <div class="right-section">
-        <h1>Login</h1>
+    <div class="right-section d-flex flex-column justify-content-center align-items-center w-100">
+        <form onsubmit={loginSubmit} class="d-flex flex-column w-50 gap-1">
+            <img src="/favicon.ico" class="my-2" style="width: 2rem;" alt="">
+            <h1 class="text-primary fw-bold" style="font-size: 1.5rem;">Log In to Finsphere Dashboard</h1>
+            <p>Sign in to access your dashboard and stay on top of your financial activity real-time</p>
+
+            <div class="input-group input-group-email mb-3">
+                <span class="input-group-text" id="email-icon"><i class="bi bi-profile"></i></span>
+                <input bind:value={form.email} required type="email" class="form-control" placeholder="Email" aria-label="Email" aria-describedby="email-icon">
+            </div>
+            <InputPassword bind:value={form.password} required/>
+            <div class="my-0 mb-3 text-end">
+                <a href="/forget-password" class="text-primary fw-bold text-decoration-none">Forgot Password</a>
+            </div>
+            <button type="submit" class="btn btn-gradient-primary w-100">Log In</button>
+        </form>
     </div>
 </div>
 
 <style lang="scss">
-    .public {
+    .login {
         height: 100vh;
         width: 100vw;
         overflow: hidden;
@@ -22,7 +162,6 @@
             height: 100%;
 
             .image-wrapper {
-                background-color: saddlebrown;
                 width: 50vw; 
                 height: 100vh;
                 overflow: hidden;
@@ -35,23 +174,34 @@
                     transform: scale(1.07);
                 }
 
-                .top-right-overlay {
-                    position: absolute;
-                    top: 0;
-                    right: 0;
-                    width: 20vh;
-                    height: 40vh;
-                    background: linear-gradient(-180deg, #A966FF00 0%, #A966FF);
-                    z-index: 1;
-                }
-    
                 .bottom-left-overlay {
                     position: absolute;
                     bottom: 0;
                     left: 0;
-                    width: 20vh;
-                    height: 40vh;
-                    background: linear-gradient(#A966FF00 0%, #A966FF);
+                    width: 30vw;
+                    height: 100vh;
+                    background: radial-gradient(
+                        120% 120% at bottom left,
+                        #A966FF,
+                        rgba(169, 102, 255, 0.15),
+                        transparent 90%
+                    );
+                    z-index: 1;
+                }
+
+                .top-right-overlay {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    width: 30vw;
+                    height: 100vh;
+                    background: radial-gradient(
+                        120% 120% at top right,
+                        #A966FF,
+                        rgba(169, 102, 255, 0.15),
+                        transparent 90%
+                    );
+                    z-index: 1;
                 }
             }
         }

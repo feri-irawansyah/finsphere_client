@@ -1,5 +1,7 @@
 <script>
-  import { page } from '$app/state';
+    import { page } from '$app/state';
+    import { initSignalR } from '$lib';
+    import { onMount } from 'svelte';
 
   const { children } = $props();
 
@@ -20,10 +22,14 @@
       )
       .join(' - ');
   });
+
+  onMount(() => {
+      initSignalR();
+  })
 </script>
 
 <svelte:head>
-  <title>Finsphere - {title}</title>
+  <title>Finsphere | {title}</title>
   <link rel="icon" href="/favicon.ico" />
 </svelte:head>
 

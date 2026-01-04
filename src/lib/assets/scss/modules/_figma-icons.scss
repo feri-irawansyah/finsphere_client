@@ -7,6 +7,7 @@
     mask-repeat: no-repeat;
     mask-position: center;
     mask-size: contain;
+    color: #7E7695 !important;
     -webkit-mask-repeat: no-repeat;
     -webkit-mask-position: center;
     -webkit-mask-size: contain;
@@ -15,6 +16,14 @@
 // 2) Map: nama-class → nama-file-svg
 $icons: (
     "star-filled": "star-filled",
+    "lock": "lock",
+    "profile": "profile",
+    "stroke-left": "stroke-left",
+    "stroke-bottom": "stroke-bottom",
+    "searching": "searching",
+    "user": "user",
+    "dashboard": "dashboard",
+    "tenant-bulk": "tenant-bulk",
 );
 
 // 3) Generate class otomatis

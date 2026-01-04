@@ -47,10 +47,61 @@
 body {
     font-family: "Geist", sans-serif;
     color: $dark;
+
+    p,span,ul,li {
+        color: #7E7695;
+    }
 }
 
 .public {
   height: 100vh;
   background: url("/img/public-bg.png");
   background-size: cover;
+}
+
+.btn-gradient-primary {
+  background: #9747FF;
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0) 40%
+  );
+
+  border: 1px solid #8937F5 !important;
+  border-radius: 12px;
+
+//   padding: 12px 28px;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+
+  box-shadow:
+    /* drop shadow */
+    0px 7px 3px -5px rgba(11, 3, 45, 0.19),
+
+    /* inner shadow */
+    inset 0px 4px 4px rgba(165, 189, 213, 0.25);
+
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #8937F5;
+    color: #fff;
+  }
+
+  &:active {
+    background-color: #6A15D8 !important;
+    color: #fff !important;
+  }
+
+  &:focus {
+    background-color: #6A15D8 !important;
+    color: #fff !important;
+  }
+
+  &:disabled {
+    background-color: #C6C1D7 !important;
+    color: #fff !important;
+  }
+
 }
