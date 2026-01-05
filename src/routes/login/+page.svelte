@@ -62,6 +62,14 @@
             console.log('err', err);
             localStorage.setItem('expiredPasswordEmail', email);
 
+            if(err.status === 400) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Login Gagal',
+                    text: detail
+                })
+            }
+
             // === PASSWORD EXPIRED ===
             if (detail === 'Kata sandi Anda telah kedaluwarsa. Silakan melakukan pengaturan ulang kata sandi.') {
                 Swal.fire({
@@ -74,12 +82,6 @@
                 });
                 return;
             }
-
-            Swal.fire({
-                icon: 'error',
-                title: 'Login Gagal',
-                text: detail || 'Terjadi kesalahan. Silakan coba lagi.'
-            });
         }
     }
 

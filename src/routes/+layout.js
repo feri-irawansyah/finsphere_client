@@ -3,6 +3,7 @@ import fetcher from '$lib/fetcher';
 
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import * as bootstrap from 'bootstrap';
+import 'aos/dist/aos.css';
 import '$lib/assets/scss/style.scss';
 
 export const ssr = false;

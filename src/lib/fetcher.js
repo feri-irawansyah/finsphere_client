@@ -71,7 +71,15 @@ async function fetcher(fetch, url, options = {}) {
         });
     }
 
-    throw res;
+    let errorBody;
+    try {
+        errorBody = await res.json();
+    } catch {}
+
+    throw {
+        status: res.status,
+        ...errorBody
+    };
 }
 
 export default fetcher;

@@ -1,4 +1,6 @@
 <script>
+    import { theme } from "$lib";
+
     let {
         label,
         design = "slider",
@@ -9,7 +11,6 @@
 
     // UI state (mirror dari value)
     let checked = $state(false);
-
     const uniqueID = Math.floor(Math.random() * 100000);
 
     // 🔄 SYNC DARI PARENT → SWITCH
@@ -28,7 +29,7 @@
 </script>
 
 {#if design == 'inner'}
-<div class="s s--inner">
+<div class="s s--inner {$theme === 'dark' ? 'dark' : ''}" style="font-size:{fontSize}px">
     <span id={`switch-${uniqueID}`}>{label}</span>
     <button
         role="switch"
@@ -41,7 +42,7 @@
 </div>
 
 {:else if design == 'slider'}
-<div class="s s--slider" style="font-size:{fontSize}px">
+<div class="s s--slider {$theme === 'dark' ? 'dark' : ''}" style="font-size:{fontSize}px">
     <span id={`switch-${uniqueID}`}>{label}</span>
     <button
         role="switch"
@@ -52,7 +53,7 @@
 </div>
 
 {:else}
-<div class="s s--multi">
+<div class="s s--multi {$theme === 'dark' ? 'dark' : ''}">
     <div
         role="radiogroup"
         class="group-container"
@@ -82,6 +83,11 @@
 		--accent-color: #9C52FB;
 		--gray: #fff;
 	}
+
+    .dark {
+        --accent-color: #2A2A2A;
+        --gray: #2C2C2C;
+    }
     /* Inner Design Option */
     .s--inner button {
         padding: 0.5em;
@@ -117,7 +123,7 @@
         position: relative;
         background: var(--gray);
         border: none;
-        border: 1px solid #E0E2E6;
+        border: 1px solid #dce1ec;
     }
 
     .s--slider button::before {
@@ -139,7 +145,7 @@
     .s--slider button[aria-checked='true']::before{
         transform: translateX(1.3em);
         transition: transform 0.3s;
-        background: #fff;
+        background: #0095EB;
     }
 
     .s--slider button:focus {

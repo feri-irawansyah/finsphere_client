@@ -1,0 +1,29 @@
+#dashboard {
+    .card.profile-dashboard {
+        background-color: #EE4169 !important;
+        p {
+            color: #fff !important;
+        }
+
+        .card-title {
+            font-size: 28px !important;
+        }
+
+        .welcome-widget{
+            display: flex;
+            justify-content: space-between;
+            padding: 0;
+
+            .welcome-wrapper {
+                display: flex;
+                flex-direction: column;
+                justify-content: end;
+                align-self: end;
+
+                img {
+                    margin-right: auto;
+                }
+            }
+        }
+    }
+}

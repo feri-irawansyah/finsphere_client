@@ -1,0 +1,77 @@
+/* BASE TRANSITION (WAJIB ADA DI LUAR .dark) */
+html {
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease;
+}
+
+/* GLOBAL ELEMENT TRANSITION */
+body,
+.nav-link,
+.card,
+.dropdown-menu {
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease,
+    border-color 0.5s ease;
+}
+
+html.dark {
+    body {
+        background-color: #151515 !important;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        color: #fff !important;
+    }
+
+    p, span, ul, li {
+        color: #A2A2A2 !important;
+    }
+
+    input {
+        background-color: #2C2C2C !important;
+        border: 1px solid #2A2A2A !important;
+    }
+
+    .card {
+        background-color: #1F201D !important;
+    }
+
+    .main-content {
+        h2 {
+            border: 1px solid #2A2A2A;
+        }
+    }
+
+    .sidebar {
+        background-color: #161616;
+        border: 1px solid #2A2A2A;
+
+        .submenu {
+            background-color: #161616 !important;
+        }
+        .nav-menu-sub{
+            background-color: #161616 !important;
+
+            .active {
+                border: 1px solid transparent !important;
+                background-color: transparent !important;
+                a {
+                    color: #9C52FB !important;
+                }
+            }
+        }
+        
+        .dropdown-menu {
+            background-color: #161616 !important;
+        }
+
+        li.active {
+            border: 1px solid #2A2A2A !important;
+            background-color: #1F201D !important;
+            a {
+                color: #9C52FB !important;
+            }
+        }
+    }
+}

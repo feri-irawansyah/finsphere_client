@@ -6,7 +6,7 @@
     <button class="dropdown-toggle gap-2 text-start d-flex justify-content-between" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         <div class="d-flex gap-2">
             <img src="/img/avatar.png" style="width: 2.25rem; height: 2.25rem;" alt="profile">
-            <div class="d-flex flex-column justify-content-center">
+            <div class="d-flex flex-column justify-content-center profile-desc">
                 <span class="fw-bold text-primary lh-1">{session?.userName || "Satria Baja Ringan"}</span>
                 <span class="text-muted" style="font-size: 14px;">{session?.roleName || "Supernya admin"}</span>
             </div>
