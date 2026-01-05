@@ -2,11 +2,27 @@
     import { getContext } from "svelte";
     import MenuSearch from "../atoms/MenuSearch.svelte";
     import DropdownProfile from "../atoms/DropdownProfile.svelte";
+    import InputSwitch from "$lib/directives/inputs/InputSwitch.svelte";
+    import { theme } from "$lib";
 
     const { data } = $props();
     let search = $state('');
+    let dark = $state(
+    typeof window !== 'undefined'
+        ? localStorage.getItem('theme') === 'dark'
+        : false
+    );
+
     let openMenu = $state({});
     const sidebar = getContext('sidebar');
+
+    $effect(() => {
+        const mode = dark ? 'dark' : 'light';
+
+        theme.set(mode);
+        document.documentElement.setAttribute('data-bs-theme', mode);
+        localStorage.setItem('theme', mode);
+    });
 
     function searchMenu(e) {
         search = e.detail.toLowerCase();
@@ -70,7 +86,6 @@
             .filter(Boolean);
     });
 </script>
-
 
 <div class="sidebar {sidebar.show ? 'show' : ''}">
     <div class="sidebar-header d-flex justify-content-between">
@@ -139,17 +154,17 @@
         </ul>
     </div>
     <div class="sidebar-footer">
-        <div class="d-flex align-items-center">
-            <div class="input-group">
-                <span class="input-group-text">$</span>
-                <span class="form-control">Dark Mode</span>
-                <span class="input-group-text">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" role="switch" id="switchCheckChecked" checked>
-                    </div>
-                </span>
-            </div>
+        <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-theme"></i></span>
+            <span class="form-control">Dark Mode</span>
+            <span class="input-group-text">
+                <InputSwitch bind:value={dark}/>
+            </span>
         </div>
+        <button class="logout" type="button" onclick={() => {}}>
+            <i class="bi bi-logout"></i>
+            <span>Log Out</span>
+        </button>
     </div>
 </div>
 
@@ -248,6 +263,39 @@
 
         .sidebar-footer {
             padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+
+            .input-group {
+                padding: 1rem 0;
+                border: none;
+                background-color: transparent;
+
+                .input-group-text {
+                    background-color: transparent;
+                    padding: 0;
+                    border: none;
+                }
+
+                .form-control {
+                    border: none;
+                    background-color: transparent;
+                }
+            }
+
+            .logout {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                border: none;
+                background-color: transparent;
+                color: #EE4169;
+
+                i, span {
+                    color: #EE4169 !important;
+                }
+            }
         }
 
     }

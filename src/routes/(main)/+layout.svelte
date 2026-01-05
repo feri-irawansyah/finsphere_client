@@ -19,3 +19,11 @@
 <div class="main-content">
     {@render children()}
 </div>
+
+<style lang="scss">
+    .main-content {
+        position: absolute;
+        right: 0;
+        width: calc(100% - 22.5rem);
+    }
+</style>

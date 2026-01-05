@@ -47,3 +47,5 @@ export function sendMessage(message) {
     if (!connection) return;
     connection.invoke("SendToAll", message);
 }
+
+export const theme = writable('light');
