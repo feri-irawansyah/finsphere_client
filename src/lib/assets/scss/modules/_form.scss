@@ -1,4 +1,4 @@
-input {
+input, select {
     background-color: #fff !important;
     &::placeholder {
         color: #C6C1D7 !important;
@@ -6,7 +6,21 @@ input {
     }
 }
 
+select {
+    border: 1px solid #E0E2E6 !important;
+}
+
 .input-group-email {
+    input {
+        border-left: none;
+    }
+    .input-group-text{
+        border-right: none;
+        background-color: transparent;
+    }
+}
+.input-group-search {
+    display: inline-flex;
     input {
         border-left: none;
     }

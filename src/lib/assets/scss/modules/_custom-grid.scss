@@ -1,0 +1,83 @@
+@use 'variable' as *;
+
+#finsphereGrid {
+    /* Styling the main status bar */
+    .ag-status-bar {
+        background-color: #F5F7F9; 
+        border-top: 1px solid #E0E2E6; 
+        height: 58px; 
+        padding: 0 10px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between;
+        .ag-status-bar-left {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: start;
+
+            .custom-button-info {
+                display: flex;
+                gap: 6px;
+
+                button {
+                    padding: 0;
+                    border: 1px solid #E0E2E6;
+                    background-color: #fff;
+                    padding: 8px 10px 4px 10px;
+                    border-radius: 12px;
+
+                    i {
+                        font-size: 1rem;
+                        padding: 0;
+                        margin: 0;
+                        margin: auto;
+                    }
+                }
+
+            }
+            
+            .page-seze-select {
+                border: none;
+            }
+
+            .custom-pagination-info {
+                display: flex;
+                margin-left: 6px;
+            }
+        }
+        .ag-status-bar-right {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: end;
+
+            .custom-pagination-buttons {
+                button {
+                    border-radius: 10px;
+                    padding: 4px 10px;
+                    border: 1px solid #E0E2E6;
+                    background-color: #fff;
+
+                    i {
+                        font-size: 10px;
+                        margin: 0;
+                        padding: 0;
+                    }
+
+                    &.active {
+                        background-color: $primary;
+                        color: #fff;
+                        border-color: $primary;
+                    }
+                    &.disabled {
+                        opacity: 0.5;
+                        pointer-events: none;
+                        background-color: #E0E2E6;
+                    }
+                }
+            }
+        }
+    }
+
+}

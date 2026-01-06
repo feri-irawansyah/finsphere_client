@@ -10,7 +10,7 @@ export function initSignalR() {
     if (connection) return connection; // biar ga double connect
 
     connection = new HubConnectionBuilder()
-        .withUrl("/api/webhub", {
+        .withUrl("/api/hubs/progress", {
             skipNegotiation: true,
             transport: HttpTransportType.WebSockets,
             withCredentials: true

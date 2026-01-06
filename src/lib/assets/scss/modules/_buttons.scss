@@ -1,0 +1,215 @@
+@use 'variable' as *;
+
+.btn-default {
+    background: #fff;
+    border: 1px solid #DCDCDC;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #0B032D;
+    padding: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: background 0.25s ease, box-shadow 0.2s ease;
+
+    span, i {
+        margin: 0 !important;
+        padding: 0 !important;
+        color: #0B032D !important;
+    }
+
+    &:hover {
+        background-color: #f5f5f5;
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba($primary, 0.35);
+        border: 1px solid #c3c3c3 !important;
+    }
+
+    &:active, &:focus {
+        box-shadow: 0 0 0 2px rgba($primary, 0.35);
+        border: 1px solid #c3c3c3 !important;
+    }
+
+    &:disabled {
+        background-color: #C6C1D7 !important;
+        border-color: #C6C1D7;
+        cursor: not-allowed;
+
+        span, i {
+            color: #fff !important;
+        }
+    }
+}
+
+$btn-colors: (
+    primary: $primary,
+    secondary: $secondary,
+    success: $success,
+    danger: $danger,
+    warning: $warning,
+    info: $info,
+    dark: $dark,
+    light: $light
+);
+
+$btn-gradient-colors: (
+    primary: $primary,
+    success: $success,
+    warning: $warning,
+    danger: $danger
+);
+
+@mixin btn-solid($color, $text-color: #fff) {
+    background-color: $color !important;
+    border: 1px solid darken($color, 10%);
+    color: $text-color !important;
+    transition: background 0.25s ease, box-shadow 0.2s ease, transform 0.15s ease;
+
+    span, i {
+        color: $text-color !important;
+    }
+
+    &:hover {
+        background-color: darken($color, 8%) !important;
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba($color, 0.35);
+    }
+
+    &:active {
+        background-color: darken($color, 15%) !important;
+        transform: translateY(1px);
+    }
+
+    &:disabled {
+        background-color: #C6C1D7 !important;
+        border-color: #C6C1D7;
+        cursor: not-allowed;
+        color: #fff !important;
+
+        span, i {
+            color: #fff !important;
+        }
+    }
+}
+
+@mixin btn-outline($color) {
+    background: transparent !important;
+    border: 1px solid $color;
+    color: $color !important;
+    transition: background 0.25s ease, box-shadow 0.2s ease, transform 0.15s ease;
+
+    span, i {
+        color: $color !important;
+    }
+
+    &:hover {
+        background-color: rgba($color, 0.1) !important;
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba($color, 0.35);
+    }
+
+    &:active {
+        background-color: rgba($color, 0.2) !important;
+        transform: translateY(1px);
+    }
+
+    &:disabled {
+        border-color: #C6C1D7;
+        color: #C6C1D7 !important;
+        cursor: not-allowed;
+
+        span, i {
+            color: #C6C1D7 !important;
+        }
+    }
+}
+
+@mixin gradient-button($color) {
+    background: linear-gradient(
+        to bottom,
+        lighten($color, 10%),
+        darken($color, 10%)
+    ) !important;
+
+    border: 1px solid darken($color, 12%);
+    border-radius: 6px;
+    color: #fff !important;
+    cursor: pointer;
+    transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+
+    span, i {
+        color: #fff !important;
+    }
+
+    &:hover {
+        background: linear-gradient(
+            to bottom,
+            lighten($color, 15%),
+            darken($color, 15%)
+        ) !important;
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba($color, 0.35);
+    }
+
+    &:active {
+        background: linear-gradient(
+            to bottom,
+            darken($color, 5%),
+            darken($color, 20%)
+        ) !important;
+
+        box-shadow: inset 0 2px 6px rgba(0,0,0,0.25);
+        transform: translateY(1px);
+    }
+
+    &:disabled {
+        background: #C6C1D7 !important;
+        border-color: #C6C1D7;
+        cursor: not-allowed;
+    }
+}
+
+@each $name, $color in $btn-colors {
+
+    @if $name == light {
+        .btn-light {
+            @include btn-solid($color, #0B032D);
+
+            &:hover {
+                background-color: darken($color, 5%) !important;
+            }
+
+            &:active {
+                background-color: darken($color, 10%) !important;
+            }
+        }
+    }
+    @else {
+        .btn-#{$name} {
+            @include btn-solid($color);
+        }
+    }
+
+    .btn-outline-#{$name} {
+        @include btn-outline($color);
+    }
+}
+
+@each $name, $color in $btn-gradient-colors {
+    .btn-gradient-#{$name} {
+        @include gradient-button($color);
+    }
+}

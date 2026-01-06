@@ -69,3 +69,6 @@ This application use [Atomic Design](https://atomicdesign.bradfrost.com/table-of
 - [Apexcharts](https://apexcharts.com/) - charting library
 - [Ag Grid](https://www.ag-grid.com/) - data grid
 - [Svelte Select](https://svelte-select-examples.vercel.app/examples) - select dropdown component
+- [AOS Js](https://michalsnik.github.io/aos/) - animation on scroll
+- [SignalR](https://www.npmjs.com/package/@microsoft/signalr) - Websocket
+- [Moment](https://momentjs.com/) - date and time library

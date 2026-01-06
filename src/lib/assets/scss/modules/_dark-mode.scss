@@ -1,3 +1,5 @@
+@use 'variable' as *;
+
 /* BASE TRANSITION (WAJIB ADA DI LUAR .dark) */
 html {
   transition:
@@ -25,16 +27,26 @@ html.dark {
     }
 
     p, span, ul, li {
-        color: #A2A2A2 !important;
+        color: #A2A2A2;
     }
 
-    input {
+    input, select {
         background-color: #2C2C2C !important;
         border: 1px solid #2A2A2A !important;
+
+        color: #fff !important;
+    }
+
+    .input-group-email, .input-group-search {
+        .input-group-text {
+            background-color: #2C2C2C !important;
+            border: 1px solid #2A2A2A !important;
+        }
     }
 
     .card {
         background-color: #1F201D !important;
+        border: 1px solid #2A2A2A !important;
     }
 
     .main-content {
@@ -71,6 +83,103 @@ html.dark {
             background-color: #1F201D !important;
             a {
                 color: #9C52FB !important;
+            }
+        }
+    }
+    
+    .btn-default {
+        background-color: #2C2C2C !important;
+        border: 1px solid #2A2A2A !important;
+        color: #fff;
+
+        span, i {
+            color: #fff !important;
+        }
+    }
+
+    #finsphereGrid {
+        .ag-root-wrapper {
+            background-color: #1F201D !important;
+            border: #2A2A2A !important;
+        }
+        .ag-header {
+            background-color: #1F201D !important;
+            border: 1px solid #2A2A2A !important;
+
+            .ag-pinned-left-header, .ag-pinned-right-header {
+                background-color: #1F201D !important;
+                border-color: #2A2A2A !important;
+            }
+
+            .ag-header-cell {
+                background-color: #1F201D !important;
+                border-color: #2A2A2A !important;
+
+                .ag-header-cell-resize, .ag-header-cell-resize::after, .ag-header-cell-resize::before {
+                    border-color: #cfd1d4ff !important;
+                }
+            }
+        }
+
+        .ag-body {
+            background-color: #1F201D !important;
+            border: 1px solid #2A2A2A !important;
+
+            .ag-row {
+                background-color: #1F201D !important;
+                // border-color: #2A2A2A !important;
+                color: #E0E2E6;
+
+                .ag-pinned-left-cols-container {
+                    background-color: #1F201D !important;
+                    border-color: #cfd1d4ff !important;
+                }
+            }
+        }
+
+        .ag-status-bar {
+            background-color: #1F201D;
+            border: 1px solid #2A2A2A;
+
+            .ag-status-bar-left {
+                button {
+                    background-color: #2A2A2A;
+                    border: 1px solid #4B4B4D;
+                    color: #E0E2E6;
+
+                    span, i {
+                        color: #E0E2E6;
+                    }
+                }
+
+                select.page-seze-select{
+                    background-color: #2A2A2A !important;
+                    border: 1px solid #4B4B4D !important;
+                    color: #E0E2E6 !important;
+                }
+            }
+
+            .ag-status-bar-right {
+                button {
+                    background-color: #2A2A2A !important;
+                    border: 1px solid #4B4B4D !important;
+                    color: #E0E2E6 !important;
+
+                    span, i {
+                        color: #E0E2E6;
+                    }
+
+                    &.active {
+                        background-color: $primary !important;
+                        color: #fff;
+                        border-color: $primary !important;
+                    }
+                    &.disabled {
+                        opacity: 0.5;
+                        pointer-events: none;
+                        background-color: #4B4B4D !important;
+                    }
+                }
             }
         }
     }

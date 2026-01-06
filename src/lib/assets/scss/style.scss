@@ -2,7 +2,9 @@
 @use 'modules/grid' as *;
 @use 'modules/figma-icons' as *;
 @use 'modules/form' as *;
+@use 'modules/custom-grid' as *;
 @use 'modules/sidebar/sidebar' as *;
+@use 'modules/buttons' as *;
 @use 'modules/dark-mode' as *;
 @use 'modules/dashboard/index' as *;
 
@@ -53,6 +55,15 @@ body {
 
     p,span,ul,li {
         color: #7E7695;
+    }
+
+    a {
+        cursor: pointer !important;
+    }
+
+    .card {
+        border: none;
+        border: 1px solid #E0E2E6;
     }
 }
 
