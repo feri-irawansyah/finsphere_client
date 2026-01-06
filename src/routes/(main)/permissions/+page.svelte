@@ -1,58 +1,62 @@
 <script>
     import ClientGrid from "$lib/directives/grids/ClientGrid.svelte";
     import { getContext } from "svelte";
+    import Swal from "sweetalert2";
 
     const pageInfo = getContext("title");
-    pageInfo.title = "Users List";
-    const tableName = 'users';
+    pageInfo.title = "Permission List";
     let quickFilterFn = $state(null);
     let refresh = $state(null);
     let excel = $state(null);
     
     const columns = [
         {
-            headerName: "No.",
-            valueGetter: "node.rowIndex + 1",
-            width: 10,
-            pinned: 'left',
-            filter: false,
-            menuTabs: [],
-            cellClass: 'text-center',
-            headerClass: 'text-center',
+          headerName: "No.",
+          valueGetter: "node.rowIndex + 1",
+          width: 50,
+          pinned: 'left',
+          filter: false,
+          menuTabs: [],
+          cellClass: 'text-center',
+          headerClass: 'text-center',
         },
         {
-            headerName: 'User Uid',
-            field: 'userUid',
-            hide: true,
+          headerName: 'Permission UID',
+          field: 'permissionUid',
+          hide: true,
         },
         {
-            headerName: 'Email',
-            field: 'email',
-            pinned: 'left',
+          headerName: 'Permission ID',
+          field: 'permissionId',
+          pinned: 'left',
         },
         {
-            headerName: 'Name',
-            field: 'name',
+          headerName: 'Name',
+          field: 'name',
         },
         {
-            headerName: 'Password Expired Date',
-            field: 'pwdExpDate',
+          headerName: 'Description',
+          field: 'description',
         },
         {
-            headerName: 'Entry Time',
-            field: 'entryTime',
+          headerName: 'Service ID',
+          field: 'serviceId',
         },
         {
-            headerName: 'Update Time',
-            field: 'updateTime',
+          headerName: 'Entry Time',
+          field: 'entryTime',
         },
         {
-            headerName: 'Version',
-            field: 'version',
+          headerName: 'Update Time',
+          field: 'updateTime',
         },
         {
-            headerName: 'Status',
-            field: 'status',
+          headerName: 'Version',
+          field: 'version',
+        },
+        {
+          headerName: 'Status',
+          field: 'status',
         },
     ];
 
@@ -64,13 +68,33 @@
 
 <ClientGrid 
     {columns} 
-    url="/api/platform/console/users"
+    url="/api/platform/console/permissions"
     height={100}
     layout={85}
     on:selected={(e) => console.log('selected', e.detail)} 
     on:quickFilter={(e) => quickFilterFn = e.detail} 
     on:refresh={(e) => refresh = e.detail}
-    on:excel={(e) => excel = e.detail}>
+    on:excel={(e) => excel = e.detail}
+    on:doubleClicked={(e) => {
+        Swal.fire({
+            title: 'Double Click',
+            text: JSON.stringify(e.detail),
+            icon: 'info'
+        })
+    }}
+    clickRightRow={[
+        {
+            name: 'Open Detail',
+            icon: '<i class="bi bi-eye"></i>',
+            action: () => {
+                Swal.fire({
+                    title: 'Right Click',
+                    text: 'Open Detail',
+                    icon: 'info'
+                })
+            }
+        }
+    ]}>
 
     <div class="d-flex justify-content-between">
         <div class="flex-row align-items-start">

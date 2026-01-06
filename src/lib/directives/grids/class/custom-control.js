@@ -21,7 +21,7 @@ class CustomControlsComponent {
         // this.pageSizeSelect.style.border = "1px solid #E0E2E6";
         // this.pageSizeSelect.style.backgroundColor = "#FFF";
 
-        const sizes = [10, 50, 100, 500];
+        const sizes = [10, 50, 100, 500, 1000];
         sizes.forEach(size => {
             const option = document.createElement('option');
             option.value = size;

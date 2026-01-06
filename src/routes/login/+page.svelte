@@ -8,7 +8,7 @@
         email: '',
         password: ''
     });
-    
+
     let loading = false;
 
     async function loginSubmit(e) {

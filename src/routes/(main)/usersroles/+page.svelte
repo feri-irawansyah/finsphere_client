@@ -1,77 +1,84 @@
 <script>
     import ClientGrid from "$lib/directives/grids/ClientGrid.svelte";
     import { getContext } from "svelte";
+    import Swal from "sweetalert2";
 
     const pageInfo = getContext("title");
-    pageInfo.title = "Users List";
-    const tableName = 'users';
+    pageInfo.title = "Users Role List";
+    let excel = $state(null);
+    const tableName = 'usersroles';
     let quickFilterFn = $state(null);
     let refresh = $state(null);
-    let excel = $state(null);
-    
+
     const columns = [
         {
-            headerName: "No.",
-            valueGetter: "node.rowIndex + 1",
-            width: 10,
-            pinned: 'left',
-            filter: false,
-            menuTabs: [],
-            cellClass: 'text-center',
-            headerClass: 'text-center',
+          headerName: "No.",
+          valueGetter: "node.rowIndex + 1",
+          width: 50,
+          pinned: 'left',
+          filter: false,
+          menuTabs: [],
+          cellClass: 'text-center',
+          headerClass: 'text-center',
         },
         {
-            headerName: 'User Uid',
-            field: 'userUid',
-            hide: true,
+          headerName: 'User Roles UID',
+          field: 'userRoleUid',
+          hide: true,
         },
         {
-            headerName: 'Email',
-            field: 'email',
-            pinned: 'left',
+          headerName: 'Entry Time',
+          field: 'entryTime',
         },
         {
-            headerName: 'Name',
-            field: 'name',
+          headerName: 'Update Time',
+          field: 'updateTime',
         },
         {
-            headerName: 'Password Expired Date',
-            field: 'pwdExpDate',
+          headerName: 'Version',
+          field: 'version',
         },
         {
-            headerName: 'Entry Time',
-            field: 'entryTime',
-        },
-        {
-            headerName: 'Update Time',
-            field: 'updateTime',
-        },
-        {
-            headerName: 'Version',
-            field: 'version',
-        },
-        {
-            headerName: 'Status',
-            field: 'status',
+          headerName: 'Status',
+          field: 'status',
         },
     ];
 
-    function setQuickFilter(val) {
-        quickFilterFn(val);
-    }
-    
 </script>
 
 <ClientGrid 
     {columns} 
-    url="/api/platform/console/users"
+    url="/api/platform/console/usersroles"
     height={100}
     layout={85}
-    on:selected={(e) => console.log('selected', e.detail)} 
-    on:quickFilter={(e) => quickFilterFn = e.detail} 
+    {tableName}
+    on:selected={(e) => console.log('selected', e.detail)}
+    on:excel={(e) => excel = e.detail}
     on:refresh={(e) => refresh = e.detail}
-    on:excel={(e) => excel = e.detail}>
-
+    clickRightRow={[
+        {
+            name: 'Open Detail',
+            icon: '<i class="bi bi-eye"></i>',
+            action: () => {
+                Swal.fire({
+                    title: 'Right Click',
+                    text: 'Open Detail',
+                    icon: 'info'
+                })
+            }
+        },
+        {
+            name: 'Open Bro',
+            icon: '<i class="bi bi-eye"></i>',
+            action: () => {
+                Swal.fire({
+                    title: 'Right Bro',
+                    text: 'Open Detail',
+                    icon: 'info'
+                })
+            }
+        }
+    ]}>
     <div class="d-flex justify-content-between">
         <div class="flex-row align-items-start">
             <label for="quick-filter">
@@ -96,4 +103,5 @@
             </button>
         </div>
     </div>
+
 </ClientGrid>

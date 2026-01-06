@@ -11,10 +11,12 @@
 
     const { 
         columns = [], 
-        tableName, 
-        height = 500, 
+        url = "", 
+        height = 100, 
         children, 
-        layout = 80
+        layout = 80,
+        tableName = "",
+        clickRightRow = []
      } = $props();
 
     const dispatch = createEventDispatcher();
@@ -73,6 +75,31 @@
             onRowSelected: (params) => {
                 dispatch("selected", params.node.data);
             },
+            onRowDoubleClicked: (params) => {
+                dispatch("doubleClicked", params.node.data);
+            },
+            getContextMenuItems: (params) => {
+                const items = [
+                    'copy',
+                    'copyWithHeaders',
+                    'paste'
+                ];
+
+                if (Array.isArray(clickRightRow) && clickRightRow.length > 0) {
+                    items.push('separator');
+
+                    clickRightRow.forEach(menu => {
+                        items.push({
+                            name: menu.name,
+                            icon: menu.icon,
+                            disabled: menu.disabled,
+                            action: () => menu.action(params)
+                        });
+                    });
+                }
+
+                return items;
+            }
         };
 
         gridApi = createGrid(gridDiv, gridOptions);
@@ -87,7 +114,7 @@
 
         // ✅ fetch data ke serer
         const loadData = async (params) => {
-            const data = await fetcher(fetch, `/api/platform/console/${tableName}`);
+            const data = await fetcher(fetch, `${url}`);
             params.setGridOption("rowData", data);
         }
 
