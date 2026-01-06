@@ -1,6 +1,5 @@
 class CustomControlsComponent {
     init(params) {
-        console.log('params', params);
         this.params = params;
 
         this.eGui = document.createElement('div');

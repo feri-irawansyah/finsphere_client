@@ -54,14 +54,14 @@ const modules = [
     QuickFilterModule,
     CellSelectionModule,
     ClipboardModule,
-    // ContextMenuModule,
+    ContextMenuModule,
     ExcelExportModule,
     CellStyleModule,
     SideBarModule,
     ColumnsToolPanelModule,
     StatusBarModule,
     EventApiModule,
-    // ColumnMenuModule,
+    ColumnMenuModule,
     RenderApiModule,
 ];
 
