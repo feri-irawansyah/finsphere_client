@@ -1,10 +1,6 @@
 <script>
     import ClientGrid from "$lib/directives/grids/ClientGrid.svelte";
-    import { getContext } from "svelte";
     import Swal from "sweetalert2";
-
-    const pageInfo = getContext("title");
-    pageInfo.title = "Users Role List";
     let excel = $state(null);
     const tableName = 'usersroles';
     let quickFilterFn = $state(null);

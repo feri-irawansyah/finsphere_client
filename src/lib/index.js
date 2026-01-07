@@ -49,3 +49,12 @@ export function sendMessage(message) {
 }
 
 export const theme = writable('light');
+
+const createModalStore = () => {
+    const { subscribe, set, update } = writable(false);
+    return {
+        subscribe,
+        open: () => update(() => true),
+        close: () => update(() => false)
+    };
+}

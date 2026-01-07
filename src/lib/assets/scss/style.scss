@@ -53,6 +53,23 @@ body {
     font-family: "Geist", sans-serif;
     color: $dark;
 
+    h2.page-title {
+        flex: 0 0 auto;
+        font-size: 1.5rem;
+        color: #0B032D;
+        font-weight: 600;
+        border-bottom: 1px solid #E0E2E6;
+        padding: 1.5rem;
+    }
+
+    section#section {
+        padding: 0;
+        .row {
+            padding: 0.5rem;
+            margin: 0 !important;
+        }
+    }
+
     p,span,ul,li {
         color: #7E7695;
     }

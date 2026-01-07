@@ -9,11 +9,13 @@ export const load = async ({ fetch, parent }) => {
     if(menus.length > 0) {
         return {
             menus: menus,
-            session: data.session
+            session: data.session,
+            title: 'Dashboard'
         };
     }
 
     return {
-        session: data.session
+        session: data.session,
+        title: 'Dashboard'
     };
 };

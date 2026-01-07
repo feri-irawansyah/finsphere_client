@@ -12,7 +12,13 @@ export default defineConfig({
 				ws: true,
 				changeOrigin: true,
 				rewrite: path => path.replace(/^\/api/, '')
-			}
+			},
+            '/orion': {
+                target: 'http://localhost:5052',
+                ws: true,
+                changeOrigin: true,
+                rewrite: path => path.replace(/^\/orion/, '')
+            }
 		}
 	},
 });

@@ -1,13 +1,33 @@
 <script>
-    import ClientGrid from "$lib/directives/grids/ClientGrid.svelte";
-    import Swal from "sweetalert2";
+    import ClientGrid from '$lib/directives/grids/ClientGrid.svelte';
+    import { setModal } from '$lib/directives/modal/functions/modal-store.js';
+    import { onMount } from 'svelte';
+    import Swal from 'sweetalert2';
 
     const { data } = $props();
 
     let quickFilterFn = $state(null);
     let refresh = $state(null);
     let excel = $state(null);
-    
+
+    function doubleClientGrid(e) {
+        Swal.fire({
+            title: 'Double Click',
+            text: JSON.stringify(e.detail),
+            icon: 'info'
+        })
+    }
+
+    onMount(() => {
+        setModal({
+            id: 'modal-tenants',
+            size: 'lg',
+            component: 'ModalTenants',
+            params: {
+                title: 'Create new tenant'
+            }
+        });
+    });
 </script>
 
 <section id="section">
@@ -16,20 +36,16 @@
         <div class="col-12">
             <ClientGrid 
                 columns={data.columns}
-                tableName={data.tableName}
-                url="/api/platform/console/permissions"
+                url="/api/platform/console/tenants"
                 height={100}
                 layout={85}
-                on:selected={(e) => console.log('selected', e.detail)} 
+                tableName={data.tableName}
+                on:selected={(e) => console.log('selected', e.detail)}
                 on:quickFilter={(e) => quickFilterFn = e.detail} 
                 on:refresh={(e) => refresh = e.detail}
                 on:excel={(e) => excel = e.detail}
                 on:doubleClicked={(e) => {
-                    Swal.fire({
-                        title: 'Double Click',
-                        text: JSON.stringify(e.detail),
-                        icon: 'info'
-                    })
+                    doubleClientGrid(e)
                 }}
                 clickRightRow={[
                     {
@@ -42,9 +58,8 @@
                                 icon: 'info'
                             })
                         }
-                    }
+                    },
                 ]}>
-            
                 <div class="d-flex justify-content-between">
                     <div class="flex-row align-items-start">
                         <label for="quick-filter">
@@ -63,7 +78,7 @@
                             <i class="bi bi-file-earmark-excel"></i>
                             <span>Excel</span>
                         </button>
-                        <button type="button" class="btn btn-gradient-primary">
+                        <button type="button" class="btn btn-gradient-primary"  data-bs-toggle="modal" data-bs-target="#modal-tenants">
                             <i class="bi bi-person-plus"></i>
                             <span>Add New Users</span>
                         </button>
