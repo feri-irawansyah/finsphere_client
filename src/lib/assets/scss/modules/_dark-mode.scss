@@ -31,10 +31,63 @@ html.dark {
     }
 
     input, select {
-        background-color: #2C2C2C !important;
+        background-color: #2C2C2C;
         border: 1px solid #2A2A2A !important;
 
         color: #fff !important;
+    }
+
+    .svelte-select {
+        background-color: #2C2C2C;
+        border: 1px solid #2A2A2A !important;
+        color: #fff !important;
+
+        .selected-item {
+            color: #fff !important;
+        }
+
+        input#select {
+            background-color: transparent ;
+            border: 1px solid #2A2A2A;
+            color: #fff !important;
+        }
+
+        .svelte-select-list {
+            background-color: #2C2C2C !important;
+            border: 1px solid #2A2A2A !important;
+            color: #fff !important;
+
+            .list-item {
+                background-color: #2C2C2C !important;
+                border: 1px solid #2A2A2A !important;
+                color: #fff !important;
+                
+                .list {
+                    background-color: #2C2C2C !important;
+                    border: 1px solid #2A2A2A !important;
+                    color: #fff !important;
+                }
+                .hover {
+                    background-color: #2C2C2C !important;
+                    border: 1px solid #2A2A2A !important;
+                    color: #fff !important;
+                }
+
+                .first { 
+                    background-color: $primary !important;
+                }
+            }
+
+            .list-item:hover {
+                background-color: $primary !important;
+                .list {
+                    background-color: $primary !important;
+                }
+                .hover {
+                    background-color: $primary !important;
+                }
+            }
+        }
     }
 
     .input-group-email, .input-group-search {

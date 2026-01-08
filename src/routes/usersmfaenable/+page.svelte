@@ -1,3 +1,14 @@
+<script>
+    import { goto } from "$app/navigation";
+
+    function mybeLetter() {
+        localStorage.removeItem("method_mfa");
+        localStorage.removeItem("pending_login_email");
+
+        goto('/');
+    }
+</script>
+
 <div class="public d-flex flex-column justify-content-center align-items-center">
     <div class="bottom-left-overlay"></div>
         <div class="otp-container">
@@ -13,7 +24,7 @@
 
                 <form>
                     <button type="submit" class="otp-btn btn btn-gradient-primary mb-3">Aktifkan MFA</button>
-                    <a class="otp-maybe-latter text-decoration-none text-muted" onclick={() => console.log("")} href={null}>
+                    <a class="otp-maybe-latter text-decoration-none text-muted" onclick={() => mybeLetter()} href={null}>
                         Lewati untuk Sekarang
                     </a>
                 </form>

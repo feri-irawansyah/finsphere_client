@@ -1,7 +1,6 @@
 <script>
     import { page } from '$app/state';
     import { initSignalR } from '$lib';
-    import ModalRegistry from '$lib/directives/modal/functions/modal-registry';
     import modalStore from '$lib/directives/modal/functions/modal-store';
     import ModalContainer from '$lib/directives/modal/ModalContainer.svelte';
     import AOS from 'aos';
@@ -33,8 +32,6 @@
             duration: 600
         });
         initSignalR();
-
-        console.log($modalStore)
     });
 </script>
 
@@ -43,13 +40,5 @@
   <link rel="icon" href="/favicon.ico" />
 </svelte:head>
 
-{#if $modalStore.open}
-    <ModalContainer id={$modalStore.id} size={$modalStore.size}>
-        <!-- svelte-ignore svelte_component_deprecated -->
-        <svelte:component
-            this={ModalRegistry[$modalStore.component]}
-            {...$modalStore.params}
-        />
-    </ModalContainer>
-{/if}
+<ModalContainer />
 {@render children()}

@@ -1,6 +1,7 @@
 <script>
+    import ModalUsers from "$lib/components/molecules/modals/ModalUsers.svelte";
     import ClientGrid from "$lib/directives/grids/ClientGrid.svelte";
-    import modalStore, { setModal } from "$lib/directives/modal/functions/modal-store.js";
+    import modalStore from "$lib/directives/modal/functions/modal-store.js";
     import { onMount } from "svelte";
 
     const { data } = $props();
@@ -10,13 +11,11 @@
     let excel = $state(null);
 
     onMount(() => {
-        setModal({
-            id: 'modal-users',
-            size: 'lg',
-            component: 'ModalUsers',
-            params: {
-                title: 'Add New Journal'
-            }
+        modalStore.setup({
+            id: "modal-users",
+            size: "lg",
+            component: ModalUsers,
+            params: { mode: "create" }
         });
     });
     
@@ -55,7 +54,7 @@
                             <i class="bi bi-file-earmark-excel"></i>
                             <span>Excel</span>
                         </button>
-                        <button type="button" class="btn btn-gradient-primary"  data-bs-toggle="modal" data-bs-target="#modal-users">
+                        <button type="button" class="btn btn-gradient-primary"  data-bs-toggle="modal" data-bs-target="#modal-users" onclick={() => modalStore.open()}>
                             <i class="bi bi-person-plus"></i>
                             <span>Add New Users</span>
                         </button>

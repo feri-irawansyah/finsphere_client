@@ -29,3 +29,14 @@ select {
         background-color: transparent;
     }
 }
+
+.svelte-select {
+    .indicators {
+        button.clear-select {
+            cursor: pointer;
+            svg {
+                width: 12px;
+            }
+        }
+    }
+}

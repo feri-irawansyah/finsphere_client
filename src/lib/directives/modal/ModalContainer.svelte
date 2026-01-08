@@ -3,53 +3,59 @@
     import { Modal } from "bootstrap";
     import modalStore from "./functions/modal-store";
 
-    const { children, id, size = "md" } = $props();
-
-    let modalInstance;
     let modalEl;
+    let modalInstance;
 
-    // 🔹 OPEN / CLOSE BASED ON STORE
+    const state = $derived($modalStore);
+
+    function onHidden() {
+        modalStore.resetRuntime();
+    }
+
     $effect(() => {
-        if (!$modalStore) return;
+        if (!modalInstance) return;
 
-        if ($modalStore.open) {
-            modalInstance?.show();
-        } else {
-            modalInstance?.hide();
-        }
+        state.open
+            ? modalInstance.show()
+            : modalInstance.hide();
     });
 
     onMount(() => {
+        console.log(state.id, " Mounted");
         modalInstance = new Modal(modalEl, {
-            backdrop: 'static',
+            backdrop: "static",
             keyboard: false
         });
+
+        modalEl.addEventListener('hidden.bs.modal', onHidden);
     });
 
     onDestroy(() => {
-        modalInstance?.hide();
+        console.log(state.id, " Destroyed");
+        modalEl?.removeEventListener('hidden.bs.modal', onHidden);
         modalInstance?.dispose();
     });
+
 </script>
 
 <div
     bind:this={modalEl}
     class="modal fade"
-    {id}
+    id={state.id}
     tabindex="-1"
-    aria-hidden="true"
 >
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-{size}">
+    <div class="modal-dialog modal-dialog-centered modal-{state.size}">
         <div class="modal-content">
-            {@render children()}
+            <!-- {#if state.component}
+                {@render state.component({ params: state.params })}
+            {/if} -->
+            <div class="modal-content">
+                {#if state.component}
+                    {#key state.instanceKey}
+                        {@render state.component?.()}
+                    {/key}
+                {/if}
+            </div>
         </div>
     </div>
 </div>
-
-<style lang="scss">
-.modal-content {
-    padding: 0 !important;
-    display: flex;
-    flex-direction: column;
-}
-</style>

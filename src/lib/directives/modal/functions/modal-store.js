@@ -1,35 +1,71 @@
-// ================================
-// Store global modal
-// ================================
-
 import { writable } from "svelte/store";
 
-const modalStore = writable({
-    open: false,
+const initialConfig = {
     id: null,
-    size: 'md',
+    size: "md",
     component: null,
-    params: {}
-});
+};
 
-export function setModal({ id, size = 'md', component, params = {} }) {
-    modalStore.set({
-        open: true,
-        id,
-        size,
-        component,
-        params
+const initialRuntime = {
+    open: false,
+    params: {},
+    instanceKey: 0
+};
+
+function createModalStore() {
+    const { subscribe, set, update } = writable({
+        ...initialConfig,
+        ...initialRuntime
     });
+
+    return {
+        subscribe,
+
+        setup({ id, size = "md", component, params = {} }) {
+            update(m => ({
+                ...m,
+                id,
+                size,
+                component,
+                params
+            }));
+        },
+
+        open(params = {}) {
+            update(m => ({
+                ...m,
+                open: true,
+                params
+            }));
+        },
+
+        close() {
+            update(m => ({
+                ...m,
+                open: false
+            }));
+        },
+
+        /** RESET YANG AMAN */
+        resetRuntime() {
+            update(m => ({
+                ...m,
+                open: false,
+                params: {},
+                instanceKey: m.instanceKey + 1 // 🔥 PAKSA REMOUNT
+            }));
+        },
+
+        /** HARD RESET (RARE) */
+        resetAll() {
+            set({
+                ...initialConfig,
+                ...initialRuntime
+            });
+        }
+    };
 }
 
-export function closeModal() {
-    modalStore.set({
-        open: false,
-        id: null,
-        size: 'md',
-        component: null,
-        params: {}
-    });
-}
+const modalStore = createModalStore();
 
 export default modalStore;

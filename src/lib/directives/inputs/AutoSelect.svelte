@@ -24,6 +24,10 @@
     $effect(() => {
         if (!lookup_name && !withApi) {
             items = customOptions;
+            if (value && !selection) {
+                const match = items.find((x) => x.value == value);
+                if (match) selection = match;
+            }
             return
         };
         loadOptions(lookup_name);
@@ -69,6 +73,7 @@
 
 <Select
     {...props}
+    required={required}
     value={selection}
     {items}
     on:select={handleChange}

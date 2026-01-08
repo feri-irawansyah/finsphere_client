@@ -1,6 +1,7 @@
 <script>
+    import ModalTenants from '$lib/components/molecules/modals/ModalTenants.svelte';
     import ClientGrid from '$lib/directives/grids/ClientGrid.svelte';
-    import { setModal } from '$lib/directives/modal/functions/modal-store.js';
+    import modalStore  from '$lib/directives/modal/functions/modal-store.js';
     import { onMount } from 'svelte';
     import Swal from 'sweetalert2';
 
@@ -19,13 +20,11 @@
     }
 
     onMount(() => {
-        setModal({
-            id: 'modal-tenants',
-            size: 'lg',
-            component: 'ModalTenants',
-            params: {
-                title: 'Create new tenant'
-            }
+        modalStore.setup({
+            id: "modal-tenants",
+            size: "lg",
+            component: ModalTenants,
+            params: data
         });
     });
 </script>
@@ -78,9 +77,9 @@
                             <i class="bi bi-file-earmark-excel"></i>
                             <span>Excel</span>
                         </button>
-                        <button type="button" class="btn btn-gradient-primary"  data-bs-toggle="modal" data-bs-target="#modal-tenants">
+                        <button type="button" class="btn btn-gradient-primary"  data-bs-toggle="modal" data-bs-target="#modal-tenants" onclick={() => modalStore.open(data)}>
                             <i class="bi bi-person-plus"></i>
-                            <span>Add New Users</span>
+                            <span>Add New Tenants</span>
                         </button>
                     </div>
                 </div>
