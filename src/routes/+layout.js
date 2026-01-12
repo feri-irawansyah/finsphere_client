@@ -3,8 +3,9 @@ import fetcher from '$lib/fetcher';
 
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import * as bootstrap from 'bootstrap';
-import 'aos/dist/aos.css';
 import '$lib/assets/scss/style.scss';
+import { applicationStore } from '$lib/stores/applicationStore';
+import { get } from 'svelte/store';
 
 export const ssr = false;
 export const prerender = false;
@@ -14,10 +15,13 @@ export async function load({ url, fetch }) {
     const pathname = url.pathname;
 
     let session = null;
+    
+    const app = get(applicationStore);
 
     // ✅ fetch session di SEMUA route
     try {
-        session = await fetcher(fetch, '/api/platform/console/authuserinfo');
+        // $inspect($applicationStore.urlPlatformConsole)
+        session = await fetcher(fetch, `${app.urlPlatformConsole}/authuserinfo`);
     } catch {
         session = null;
     }

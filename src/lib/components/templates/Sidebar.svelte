@@ -8,6 +8,7 @@
     import fetcher from "$lib/fetcher";
     import { goto } from "$app/navigation";
     import Swal from "sweetalert2";
+    import { applicationStore } from "$lib/stores/applicationStore";
 
     const { data } = $props();
     let search = $state('');
@@ -187,7 +188,7 @@
         </div>
         <button class="logout" type="button" onclick={async() => {
             try {
-                const res = await fetcher(fetch, '/api/platform/console/logout', {
+                const res = await fetcher(fetch, `${$applicationStore.urlPlatformConsole}/logout`, {
                     method: 'POST'
                 });
 

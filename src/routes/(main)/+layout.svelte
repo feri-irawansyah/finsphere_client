@@ -1,21 +1,22 @@
 <script>
-    import { page } from '$app/state';
-    import Header from '$lib/components/templates/Header.svelte';
-    import Sidebar from '$lib/components/templates/Sidebar.svelte';
-    import { setContext } from 'svelte';
+    import { page } from "$app/state";
+    import Header from "$lib/components/templates/Header.svelte";
+    import Sidebar from "$lib/components/templates/Sidebar.svelte";
+    import { setContext } from "svelte";
 
-	const { children, data } = $props();
+    const { children, data } = $props();
 
     let show = $state(true);
 
-    setContext('sidebar', {
-        get show() { return show; },
-        toggle: () => show = !show
+    setContext("sidebar", {
+        get show() {
+            return show;
+        },
+        toggle: () => (show = !show),
     });
-
 </script>
 
-<Sidebar {data}/>
+<Sidebar {data} />
 <div class="main-content {show ? 'show' : ''}">
     <div class="content p-0 m-0 z-0">
         {@render children()}
@@ -40,7 +41,7 @@
 
         .content {
             flex: 1;
-            min-height: 0;   /* 🔥 PENTING BANGET */
+            min-height: 0; /* 🔥 PENTING BANGET */
             overflow-y: auto;
         }
     }

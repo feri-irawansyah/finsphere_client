@@ -58,3 +58,5 @@ const createModalStore = () => {
         close: () => update(() => false)
     };
 }
+
+export const refreshTable = writable(null);

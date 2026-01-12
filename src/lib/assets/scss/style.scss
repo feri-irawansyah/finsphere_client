@@ -9,38 +9,38 @@
 @use 'modules/dashboard/index' as *;
 
 @font-face {
-  font-family: "Geist";
-  src: url("../fonts/Geist-Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
+    font-family: "Geist";
+    src: url("../fonts/Geist-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: "Geist";
-  src: url("../fonts/Geist-Medium.ttf") format("truetype");
-  font-weight: 500;
-  font-style: normal;
+    font-family: "Geist";
+    src: url("../fonts/Geist-Medium.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: "Geist";
-  src: url("../fonts/Geist-SemiBold.ttf") format("truetype");
-  font-weight: 600;
-  font-style: normal;
+    font-family: "Geist";
+    src: url("../fonts/Geist-SemiBold.ttf") format("truetype");
+    font-weight: 600;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: "Geist";
-  src: url("../fonts/Geist-Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
+    font-family: "Geist";
+    src: url("../fonts/Geist-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
 }
 
 @font-face {
-  font-family: "Geist";
-  src: url("../fonts/Geist-ExtraBold.ttf") format("truetype");
-  font-weight: 800;
-  font-style: normal;
+    font-family: "Geist";
+    src: url("../fonts/Geist-ExtraBold.ttf") format("truetype");
+    font-weight: 800;
+    font-style: normal;
 }
 
 * {
@@ -55,22 +55,27 @@ body {
 
     h2.page-title {
         flex: 0 0 auto;
-        font-size: 1.5rem;
+        font-size: 1.35945rem;
         color: #0B032D;
         font-weight: 600;
         border-bottom: 1px solid #E0E2E6;
-        padding: 1.5rem;
+        padding: 1.4rem;
+        padding-left: 1.2rem;
     }
 
     section#section {
         padding: 0;
+
         .row {
             padding: 0.5rem;
             margin: 0 !important;
         }
     }
 
-    p,span,ul,li {
+    p,
+    span,
+    ul,
+    li {
         color: #7E7695;
     }
 
@@ -85,56 +90,40 @@ body {
 }
 
 .public {
-  height: 100vh;
-  width: 100vw;
-  background: url("/img/public-bg.png");
-  background-size: cover;
+    height: 100vh;
+    width: 100vw;
+    background: url("/img/public-bg.png");
+    background-size: cover;
 }
 
 .btn-gradient-primary {
-  background: #9747FF;
-  background-image: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.12) 0%,
-    rgba(255, 255, 255, 0) 40%
-  );
+    background: linear-gradient(to bottom, #b275ff, #8a2eff);
+    border: none;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 8px;
+    box-shadow: 0 1px 0 #6820c5, 0 4px 12px rgba(138, 46, 255, 0.4);
+    transition: all 0.15s ease-in-out;
 
-  border: 1px solid #8937F5 !important;
-  border-radius: 12px;
+    &:hover {
+        background-color: #8937F5;
+        color: #fff;
+    }
 
-//   padding: 12px 28px;
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
+    &:active {
+        background-color: #6A15D8 !important;
+        color: #fff !important;
+    }
 
-  box-shadow:
-    /* drop shadow */
-    0px 7px 3px -5px rgba(11, 3, 45, 0.19),
+    &:focus {
+        background-color: #6A15D8 !important;
+        color: #fff !important;
+    }
 
-    /* inner shadow */
-    inset 0px 4px 4px rgba(165, 189, 213, 0.25);
-
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: #8937F5;
-    color: #fff;
-  }
-
-  &:active {
-    background-color: #6A15D8 !important;
-    color: #fff !important;
-  }
-
-  &:focus {
-    background-color: #6A15D8 !important;
-    color: #fff !important;
-  }
-
-  &:disabled {
-    background-color: #C6C1D7 !important;
-    color: #fff !important;
-  }
+    &:disabled {
+        background-color: #C6C1D7 !important;
+        color: #fff !important;
+    }
 
 }
 
@@ -144,12 +133,10 @@ body {
     left: 0;
     width: 10vw;
     height: 40vh;
-    background: radial-gradient(
-        100% 100% at bottom left,
-        #A966FF,
-        rgba(169, 102, 255, 0.8),
-        transparent 100%
-    );
+    background: radial-gradient(100% 100% at bottom left,
+            #A966FF,
+            rgba(169, 102, 255, 0.8),
+            transparent 100%);
     z-index: 999;
 }
 
@@ -159,11 +146,88 @@ body {
     right: 0;
     width: 30vw;
     height: 100vh;
-    background: radial-gradient(
-        120% 120% at top right,
-        #A966FF,
-        rgba(169, 102, 255, 0.15),
-        transparent 90%
-    );
+    background: radial-gradient(120% 120% at top right,
+            #A966FF,
+            rgba(169, 102, 255, 0.15),
+            transparent 90%);
     z-index: 999;
 }
+
+/* #region modal override*/
+@media (min-width: 992px) {
+
+    .modal-lg,
+    .modal-xl {
+        --dx-modal-width: 40rem;
+    }
+}
+
+@media (min-width: 576px) {
+    .modal-dialog {
+        margin-right: auto;
+        margin-left: auto;
+    }
+}
+
+.modal-dialog-centered {
+    min-height: calc(100%) !important;
+
+    .modal-content {
+        border-radius: 24px;
+    }
+
+    .modal-header,
+    .modal-footer {
+        border: none;
+    }
+
+    .modal-header .modal-title {
+        font-size: 24px;
+    }
+
+    .modal-body {
+        padding-right: 36px;
+        padding-left: 36px;
+        padding-top: 26px;
+        padding-bottom: 26px;
+    }
+}
+
+/* #endregion modal override */
+
+.btn {
+    --bs-btn-font-size: 0.875rem;
+}
+
+.text-muted {
+    color: #958CAF !important;
+}
+
+.form-label {
+    margin-bottom: .35rem !important;
+    font-size: .875rem;
+}
+
+.row {
+    --bs-gutter-x: 0.75rem;
+}
+
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-top: 0;
+    margin-bottom: .625rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+// switch

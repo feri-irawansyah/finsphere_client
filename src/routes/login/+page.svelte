@@ -3,6 +3,7 @@
     import { goto } from '$app/navigation';
     import fetcher from '$lib/fetcher';
     import Swal from 'sweetalert2';
+    import { applicationStore } from "$lib/stores/applicationStore";
 
     let form = $state({
         email: '',
@@ -30,7 +31,7 @@
         try {
             const resp = await fetcher(
                 fetch,
-                `/api/platform/console/login`,
+                `${$applicationStore.urlPlatformConsole}/login`,
                 {
                     method: 'POST',
                     body: JSON.stringify(payload)

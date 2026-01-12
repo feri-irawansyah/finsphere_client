@@ -2,7 +2,9 @@
     import ModalUsers from "$lib/components/molecules/modals/ModalUsers.svelte";
     import ClientGrid from "$lib/directives/grids/ClientGrid.svelte";
     import modalStore from "$lib/directives/modal/functions/modal-store.js";
+    import { applicationStore } from "$lib/stores/applicationStore.js";
     import { onMount } from "svelte";
+    import Swal from "sweetalert2";
 
     const { data } = $props();
 
@@ -12,55 +14,43 @@
 
     onMount(() => {
         modalStore.setup({
-            id: "modal-users",
-            size: "lg",
+            id: `modal-${data.tableName}`,
+            size: "md",
             component: ModalUsers,
-            params: { mode: "create" }
+            params: data,
         });
     });
-    
 </script>
 
 <section id="section">
     <h2 class="page-title">{data.title}</h2>
-    <div class="row" id="users" data-aos="fade-left">
+    <div class="row" id={data.tableName} data-aos="fade-left">
         <div class="col-12">
-            <ClientGrid 
+            <ClientGrid
                 columns={data.columns}
-                url="/api/platform/console/users"
+                url={`${$applicationStore.urlPlatformConsole}/${data.tableName}`}
                 height={100}
                 layout={85}
                 tableName={data.tableName}
-                on:selected={(e) => console.log('selected', e.detail)} 
-                on:quickFilter={(e) => quickFilterFn = e.detail} 
-                on:refresh={(e) => refresh = e.detail}
-                on:excel={(e) => excel = e.detail}>
-            
-                <div class="d-flex justify-content-between">
-                    <div class="flex-row align-items-start">
-                        <label for="quick-filter">
-                            <div class="input-group rounded input-group-search">
-                                <span class="input-group-text bg-transparent" id="search"><i class="bi bi-searching"></i></span>
-                                <input type="text" class="form-control" placeholder="Search here ..." oninput={(e) => quickFilterFn(e.target.value)}>
-                            </div>
-                        </label>
-                        <button type="button" class="btn btn-default mb-2" onclick={refresh}>
-                            <i class="bi bi-refresh-cw"></i>
-                            <span>Refresh Table</span>
-                        </button>
-                    </div>
-                    <div class="flex-column">
-                        <button type="button" class="btn btn-outline-success" onclick={excel}>
-                            <i class="bi bi-file-earmark-excel"></i>
-                            <span>Excel</span>
-                        </button>
-                        <button type="button" class="btn btn-gradient-primary"  data-bs-toggle="modal" data-bs-target="#modal-users" onclick={() => modalStore.open()}>
-                            <i class="bi bi-person-plus"></i>
-                            <span>Add New Users</span>
-                        </button>
-                    </div>
-                </div>
-            </ClientGrid>
+                {quickFilterFn}
+                {excel}
+                {refresh}
+                createNewLabel={{
+                    label: "Create New User",
+                    title: "Create new user",
+                    subTitle: "",
+                    icon: "bi-person-plus",
+                }}
+                on:selected={(e) => console.log("selected", e.detail)}
+                on:quickFilter={(e) => (quickFilterFn = e.detail)}
+                on:refresh={(e) => (refresh = e.detail)}
+                on:excel={(e) => (excel = e.detail)}
+                on:doubleClicked={(e) =>
+                    modalStore.open("Update user", "", {
+                        actions: "update",
+                        uid: e.detail.userUid,
+                    })}
+            />
         </div>
     </div>
 </section>

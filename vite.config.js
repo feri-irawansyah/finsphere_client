@@ -11,7 +11,7 @@ export default defineConfig({
 				target: 'http://localhost:8090', // backend server address
 				ws: true,
 				changeOrigin: true,
-				rewrite: path => path.replace(/^\/api/, '')
+				// rewrite: path => path.replace(/^\/api/, '')
 			},
             '/orion': {
                 target: 'http://localhost:5052',
