@@ -15,7 +15,7 @@
     onMount(() => {
         modalStore.setup({
             id: `modal-${data.tableName}`,
-            size: "md",
+            size: "lg",
             component: ModalUsers,
             params: data,
         });

@@ -37,7 +37,7 @@ function createModalStore() {
             }));
         },
 
-        open(title, subTitle, component, params = {}) {
+        open(title, subTitle, params = {}) {
             update(m => ({
                 ...m,
                 title,
@@ -46,7 +46,6 @@ function createModalStore() {
                 params: {
                     ...m.params,   // ⬅ params lama
                     ...params,     // ⬅ overwrite sebagian
-                    ...component,
                     isFormDisabled: params.actions == "update"
                         ? true
                         : m.params.isFormDisabled

@@ -29,6 +29,9 @@
     });
 
     $effect(() => {
+
+        console.log("state.params", state.params)
+
         if (!modalInstance) return;
 
         state.open ? modalInstance.show() : modalInstance.hide();
@@ -60,6 +63,7 @@
             <div class="modal-footer row gx-3 m-0">
                 <div class="row">
                     <!-- CLOSE full width jika VIEW ONLY -->
+                    <!-- ng-if="formDisabled && formViewOnly" -->
                     {#if state.params.isFormDisabled && state.params.isFormViewOnly}
                         <div class="col-12 mt-2">
                             <button

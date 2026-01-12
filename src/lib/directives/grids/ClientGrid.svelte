@@ -151,73 +151,66 @@
     });
 </script>
 
+<div class="d-flex justify-content-between">
+    <div class="flex-row align-items-start">
+        <!-- quick filter / search -->
+        {#if quickFilterFn}
+            <label for="quick-filter">
+                <div class="input-group rounded input-group-search">
+                    <span class="input-group-text bg-transparent" id="search"
+                        ><i class="bi bi-searching"></i></span
+                    >
+                    <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Search here ..."
+                        oninput={(e) => quickFilterFn(e.target.value)}
+                    />
+                </div>
+            </label>
+        {/if}
+
+        <!-- refresh table -->
+        {#if refresh}
+            <button
+                type="button"
+                id="refreshTableToolbar"
+                class="btn btn-default mb-2"
+                onclick={refresh}
+            >
+                <i class="bi bi-refresh-cw pe-2"></i>
+                <span>Refresh Table</span>
+            </button>
+        {/if}
+    </div>
+    <div class="flex-column">
+        <!-- export to excel -->
+        {#if excel}
+            <button type="button" class="btn btn-light" onclick={excel}>
+                <i class="bi bi-file-earmark-excel pe-2"></i>
+                <span>Excel</span>
+            </button>
+        {/if}
+
+        <!-- create new modal -->
+        <button
+            type="button"
+            class="btn btn-gradient-primary"
+            data-bs-toggle="modal"
+            data-bs-target={`#modal-${tableName}`}
+            onclick={() =>
+                modalStore.open(createNewLabel.title, createNewLabel.subTitle, {
+                    actions: "create",
+                })}
+        >
+            <i class="bi {createNewLabel.icon} pe-2"></i>
+            <span>{createNewLabel.label}</span>
+        </button>
+    </div>
+</div>
 <div class="grid-layout" style="height: {layout}vh;">
     <!-- HEADER SLOT -->
     <div class="grid-header mb-3">
-        <div class="d-flex justify-content-between">
-            <div class="flex-row align-items-start">
-                <!-- quick filter / search -->
-                {#if quickFilterFn}
-                    <label for="quick-filter">
-                        <div class="input-group rounded input-group-search">
-                            <span
-                                class="input-group-text bg-transparent"
-                                id="search"
-                                ><i class="bi bi-searching"></i></span
-                            >
-                            <input
-                                type="text"
-                                class="form-control"
-                                placeholder="Search here ..."
-                                oninput={(e) => quickFilterFn(e.target.value)}
-                            />
-                        </div>
-                    </label>
-                {/if}
-
-                <!-- refresh table -->
-                {#if refresh}
-                    <button
-                        type="button"
-                        id="refreshTableToolbar"
-                        class="btn btn-default mb-2"
-                        onclick={refresh}
-                    >
-                        <i class="bi bi-refresh-cw pe-2"></i>
-                        <span>Refresh Table</span>
-                    </button>
-                {/if}
-            </div>
-            <div class="flex-column">
-                <!-- export to excel -->
-                {#if excel}
-                    <button type="button" class="btn btn-light" onclick={excel}>
-                        <i class="bi bi-file-earmark-excel pe-2"></i>
-                        <span>Excel</span>
-                    </button>
-                {/if}
-
-                <!-- create new modal -->
-                <button
-                    type="button"
-                    class="btn btn-gradient-primary"
-                    data-bs-toggle="modal"
-                    data-bs-target={`#modal-${tableName}`}
-                    onclick={() =>
-                        modalStore.open(
-                            createNewLabel.title,
-                            createNewLabel.subTitle,
-                            {
-                                actions: "create",
-                            },
-                            "modal-usersroles",
-                        )}
-                >
-                    <i class="bi {createNewLabel.icon} pe-2"></i>
-                    <span>{createNewLabel.label}</span>
-                </button>
-            </div>
-        </div>
         {@render children?.()}
     </div>
 
