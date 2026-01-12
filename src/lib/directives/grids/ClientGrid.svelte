@@ -199,7 +199,7 @@
             data-bs-toggle="modal"
             data-bs-target={`#modal-${tableName}`}
             onclick={() =>
-                modalStore.open(createNewLabel.title, createNewLabel.subTitle, {
+                modalStore.open(`modal-${tableName}`, createNewLabel.title, createNewLabel.subTitle, {
                     actions: "create",
                 })}
         >

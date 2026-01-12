@@ -7,6 +7,7 @@ const initialConfig = {
     subTitle: "",
     id: null,
     size: "md",
+    component: null
 };
 
 const initialRuntime = {
@@ -20,74 +21,226 @@ const initialRuntime = {
 
 function createModalStore() {
     const { subscribe, set, update } = writable({
-        ...initialConfig,
-        ...initialRuntime
+        modals: [], // Array of modal configurations
+        activeModal: null, // Index of active modal
+        currentModal: { ...initialConfig, ...initialRuntime } // Current modal to display
     });
 
     return {
         subscribe,
 
-        setup({ id, size = "md", component, params = {} }) {
-            update(m => ({
-                ...m,
-                id,
-                size,
-                component,
-                params
-            }));
+        // Setup single modal (backward compatible)
+        setup(config) {
+            // Handle both single object and array
+            const configs = Array.isArray(config) ? config : [config];
+            
+            update(state => {
+                const newModals = [...state.modals];
+                
+                configs.forEach(config => {
+                    const existingIndex = newModals.findIndex(m => m.id === config.id);
+                    
+                    if (existingIndex >= 0) {
+                        // Update existing
+                        newModals[existingIndex] = {
+                            ...newModals[existingIndex],
+                            ...config,
+                            params: {
+                                ...newModals[existingIndex].params,
+                                ...config.params
+                            }
+                        };
+                    } else {
+                        // Add new
+                        newModals.push({
+                            ...initialConfig,
+                            ...initialRuntime,
+                            ...config
+                        });
+                    }
+                });
+                
+                return {
+                    ...state,
+                    modals: newModals
+                };
+            });
         },
 
-        open(title, subTitle, params = {}) {
-            update(m => ({
-                ...m,
-                title,
-                subTitle,
-                open: true,
-                params: {
-                    ...m.params,   // ⬅ params lama
-                    ...params,     // ⬅ overwrite sebagian
-                    isFormDisabled: params.actions == "update"
-                        ? true
-                        : m.params.isFormDisabled
+        // Open modal by ID
+        open(modalId, title = "", subTitle = "", params = {}) {
+            update(state => {
+                const modalIndex = state.modals.findIndex(m => m.id === modalId);
+                if (modalIndex === -1) {
+                    console.warn(`Modal ${modalId} not found. Make sure to setup() first.`);
+                    return state;
                 }
-            }));
+
+                const modal = state.modals[modalIndex];
+                
+                const updatedModal = {
+                    ...modal,
+                    title,
+                    subTitle,
+                    open: true,
+                    params: {
+                        ...modal.params,
+                        ...params,
+                        isFormDisabled: params.actions == "update"
+                            ? true
+                            : modal.params.isFormDisabled
+                    }
+                };
+
+                // Update the modal in array
+                const newModals = [...state.modals];
+                newModals[modalIndex] = updatedModal;
+
+                return {
+                    ...state,
+                    modals: newModals,
+                    activeModal: modalIndex,
+                    currentModal: updatedModal
+                };
+            });
         },
 
+        // Close current modal
         close() {
-            update(m => ({
-                ...m,
-                open: false
-            }));
+            update(state => {
+                if (state.activeModal === null) return state;
+                
+                const modalIndex = state.activeModal;
+                const modal = state.modals[modalIndex];
+                
+                if (!modal) return state;
+
+                const updatedModal = {
+                    ...modal,
+                    open: false
+                };
+
+                const newModals = [...state.modals];
+                newModals[modalIndex] = updatedModal;
+
+                return {
+                    ...state,
+                    modals: newModals,
+                    currentModal: {
+                        ...state.currentModal,
+                        open: false
+                    }
+                };
+            });
         },
 
         /** RESET YANG AMAN */
         resetRuntime() {
-            update(m => ({
-                ...m,
-                open: false,
-                params: {},
-                instanceKey: m.instanceKey + 1 // 🔥 PAKSA REMOUNT
-            }));
+            update(state => {
+                if (state.activeModal === null) return state;
+                
+                const modalIndex = state.activeModal;
+                const modal = state.modals[modalIndex];
+                
+                if (!modal) return state;
+
+                const updatedModal = {
+                    ...modal,
+                    open: false,
+                    params: {},
+                    instanceKey: modal.instanceKey + 1
+                };
+
+                const newModals = [...state.modals];
+                newModals[modalIndex] = updatedModal;
+
+                return {
+                    ...state,
+                    modals: newModals,
+                    activeModal: null,
+                    currentModal: {
+                        ...initialConfig,
+                        ...initialRuntime
+                    }
+                };
+            });
         },
 
         /** HARD RESET (RARE) */
         resetAll() {
             set({
-                ...initialConfig,
-                ...initialRuntime
+                modals: [],
+                activeModal: null,
+                currentModal: { ...initialConfig, ...initialRuntime }
             });
         },
 
         editMode(isFormDisabled = false) {
-            update(m => ({
-                ...m,
-                params: {
-                    ...m.params,
-                    isFormDisabled
-                }
-            }));
-        }
+            update(state => {
+                if (state.activeModal === null) return state;
+                
+                const modalIndex = state.activeModal;
+                const modal = state.modals[modalIndex];
+                
+                if (!modal) return state;
 
+                const updatedModal = {
+                    ...modal,
+                    params: {
+                        ...modal.params,
+                        isFormDisabled
+                    }
+                };
+
+                const newModals = [...state.modals];
+                newModals[modalIndex] = updatedModal;
+
+                return {
+                    ...state,
+                    modals: newModals,
+                    currentModal: {
+                        ...state.currentModal,
+                        params: updatedModal.params
+                    }
+                };
+            });
+        },
+
+        // Helper to get modal by ID
+        getModal(id) {
+            let modal = null;
+            const unsubscribe = subscribe(state => {
+                modal = state.modals.find(m => m.id === id) || null;
+            });
+            unsubscribe();
+            return modal;
+        },
+
+        // Update specific modal
+        updateModal(id, updates) {
+            update(state => {
+                const modalIndex = state.modals.findIndex(m => m.id === id);
+                if (modalIndex === -1) return state;
+
+                const modal = state.modals[modalIndex];
+                const updatedModal = { ...modal, ...updates };
+                
+                const newModals = [...state.modals];
+                newModals[modalIndex] = updatedModal;
+
+                const newState = {
+                    ...state,
+                    modals: newModals
+                };
+
+                // If the updated modal is currently active, update currentModal
+                if (state.activeModal === modalIndex) {
+                    newState.currentModal = updatedModal;
+                }
+
+                return newState;
+            });
+        }
     };
 }
 

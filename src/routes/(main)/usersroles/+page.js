@@ -33,7 +33,7 @@ export const load = ({ parent }) => {
                     a.onclick = (e) => {
                         e.preventDefault();
 
-                        modalStore.open("View user", "",
+                        modalStore.open("modal-users", "View user", "",
                             {
                                 actions: "update",
                                 uid: e.detail.userUid,
@@ -53,7 +53,7 @@ export const load = ({ parent }) => {
                     a.onclick = (e) => {
                         e.preventDefault();
 
-                        modalStore.open("View role", "",
+                        modalStore.open("modal-roles", "View role", "",
                             {
                                 actions: "update",
                                 uid: e.detail.roleUid,

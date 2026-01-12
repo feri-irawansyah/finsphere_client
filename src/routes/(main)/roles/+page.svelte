@@ -1,5 +1,7 @@
 <script>
     import ClientGrid from '$lib/directives/grids/ClientGrid.svelte';
+    import modalStore from '$lib/directives/modal/functions/modal-store.js';
+    import { onMount } from 'svelte';
     import Swal from 'sweetalert2';
 
     const { data } = $props();
@@ -11,6 +13,17 @@
             icon: 'info'
         })
     }
+
+    onMount(() => {
+        modalStore.setup([
+            {
+                id: `modal-${data.tableName}`,
+                size: "lg",
+                component: ModalUsersRoles,
+                params: data,
+            },
+        ]);
+    });
 </script>
 
 <section id="section">

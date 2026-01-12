@@ -1,6 +1,4 @@
-import { writable } from "svelte/store";
-
-export const applicationStore = writable({
+export const applicationStore = {
     urlPlatformConsole: "/api/platform/console",
     urlPlatformOMS: "/api/direct-trading/oms",
-});
+};
