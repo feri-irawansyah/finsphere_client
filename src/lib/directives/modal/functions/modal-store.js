@@ -11,6 +11,12 @@ const initialConfig = {
 
 const initialRuntime = {
     open: false,
+    loading: false,
+    wizard: {
+        enabled: false,
+        step: 0,
+        total: 0,
+    },
     params: {
         isFormDisabled: false,
         isFormViewOnly: false
@@ -37,7 +43,9 @@ function createModalStore() {
             }));
         },
 
-        open(title, subTitle, params = {}) {
+        open(title, subTitle, params = {}, wizard = {}) {
+
+            console.log("eiz",wizard)
             update(m => ({
                 ...m,
                 title,
@@ -49,6 +57,9 @@ function createModalStore() {
                     isFormDisabled: params.actions == "update"
                         ? true
                         : m.params.isFormDisabled
+                },
+                wizard: {
+                    ...wizard
                 }
             }));
         },
@@ -66,9 +77,19 @@ function createModalStore() {
                 ...m,
                 open: false,
                 params: {},
+                wizard: {
+                    enabled: false,
+                    step: 0,
+                    total: 0,
+                },
                 instanceKey: m.instanceKey + 1 // 🔥 PAKSA REMOUNT
             }));
         },
+
+        // 20250112_RK: Bugfix wizard prev/next tetap terbawa ke modal lain
+        // resetRuntime() {
+        //     update(() => structuredClone(initialRuntime));
+        // },
 
         /** HARD RESET (RARE) */
         resetAll() {
@@ -86,7 +107,47 @@ function createModalStore() {
                     isFormDisabled
                 }
             }));
-        }
+        },
+
+        setWizard({ step = 0, total = 0, enabled = false }) {
+            update(m => ({
+                ...m,
+                wizard: {
+                    enabled,
+                    step,
+                    total
+                }
+            }));
+        },
+
+        nextStep() {
+            update(m => {
+                if (m.wizard.step >= m.wizard.total) return m;
+                return {
+                    ...m,
+                    wizard: { ...m.wizard, step: m.wizard.step + 1 }
+                };
+            });
+        },
+
+        prevStep() {
+            update(m => {
+                if (m.wizard.step <= 0) return m;
+                return {
+                    ...m,
+                    wizard: { ...m.wizard, step: m.wizard.step - 1 }
+                };
+            });
+        },
+
+        setLoading(loading = true) {
+            update(m => ({
+                ...m,
+                loading
+            }));
+        },
+
+
 
     };
 }
@@ -96,22 +157,21 @@ const modalStore = createModalStore();
 export async function submitDataModal(e, payload, url, method) {
 
     try {
-        //   if (URLMethod == "PUT")
-        //     data[PKName] = formData[PKName];
-
-        console.log("axaa 1");
+        modalStore.setLoading();
 
         const rst = await fetcher(fetch, url, {
             method: method,
             body: JSON.stringify(payload),
         });
 
-        console.log("axaa 2", rst);
+        const footerMessage = "";
 
-        let footerMessage = "";
+        if (rst?.message) {
 
-        if (rst.message) {
-            if (rst.ref.length > 0) footerMessage = rst.ref[0];
+            const footerMessage =
+                Array.isArray(rst?.ref) && rst.ref.length
+                    ? rst.ref[0]
+                    : "";
 
             Swal.fire({
                 title: "Success",
@@ -125,8 +185,6 @@ export async function submitDataModal(e, payload, url, method) {
                 document.getElementById("refreshTableToolbar").click();
                 modalStore.close();
             });
-
-            console.log("aaa 3");
         }
     } catch (err) {
         let textSwal = "";
@@ -137,8 +195,15 @@ export async function submitDataModal(e, payload, url, method) {
                     "Not authorized, please check role or permission.";
             else if (err.status == "400") {
                 const errors = err.errors;
-                const firstKey = Object.keys(errors)[0];
-                textSwal = errors[firstKey][0];
+
+                if (errors && typeof errors === "object") {
+                    const firstKey = Object.keys(errors)[0];
+                    textSwal = Array.isArray(errors[firstKey])
+                        ? errors[firstKey][0]
+                        : String(errors[firstKey]);
+                } else {
+                    textSwal = err.message || "Bad request";
+                }
             } else if (err.status == "500")
                 textSwal =
                     "There is a problem connecting to the server, please try again later.";
@@ -153,6 +218,10 @@ export async function submitDataModal(e, payload, url, method) {
             confirmButtonText: "OK",
             timerProgressBar: true,
         });
+    }
+    finally {
+
+        modalStore.setLoading(false);
     }
 }
 

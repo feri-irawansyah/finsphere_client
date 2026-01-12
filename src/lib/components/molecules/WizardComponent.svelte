@@ -1,13 +1,20 @@
-<script>
+<!-- <script>
     const { wizardHeader, activeTab, children, wizardTitle, subTitle } = $props();
 
     const activeIndex = $derived(wizardHeader.findIndex(h => h.tabId === activeTab));
+</script> -->
+
+<script>
+    import modalStore from "$lib/directives/modal/functions/modal-store";
+    const { wizardHeader, activeTab, children, wizardTitle, subTitle } =
+        $props();
+
+    const state = $derived($modalStore);
+
+    const activeIndex = $derived(state.wizard.step);
 </script>
 
 <div class="wizard-component">
-    <h3 class="wizard-title">{wizardTitle}</h3>
-    <p class="wizard-subtitle">{subTitle}</p>
-
     <div class="wizard-header">
         {#each wizardHeader as tab, i}
             <div class="wizard-item">
@@ -23,7 +30,7 @@
                     class:active={i === activeIndex}
                     class:completed={i < activeIndex}
                 >
-                    <i class={i === activeIndex ? "bi bi-pen" : i < activeIndex ? "bi bi-check" : tab.icon}></i>
+                    <i class={i < activeIndex ? "bi bi-check" : tab.icon}></i>
                 </div>
 
                 {#if i !== wizardHeader.length - 1}
@@ -39,7 +46,7 @@
     </div>
 
     <div class="wizard-content">
-        {@render children(activeTab)}
+        {@render children(activeIndex)}
     </div>
 </div>
 
@@ -78,12 +85,12 @@
         top: calc(#{$step-size} / 2);
         width: 100%; /* Garis mengisi seluruh ruang antar step */
         height: $line-height;
-        background: #E0E2E6;
+        background: #e0e2e6;
     }
 
     .wizard-line.filled {
         // gradient #A966FF00 0% dan #7B16FE
-        background: linear-gradient(to right, #A966FF00 0%, #7B16FE 100%);
+        background: linear-gradient(to right, #a966ff00 0%, #7b16fe 100%);
     }
 
     .wizard-line.left {
@@ -101,7 +108,7 @@
         width: $step-size;
         height: $step-size;
         border-radius: 50%;
-        background: #F5F7F9;
+        background: #f5f7f9;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -109,12 +116,12 @@
         position: relative;
 
         i {
-            color: #7E7695;
+            color: #7e7695;
         }
     }
 
     .wizard-step.active {
-        background: linear-gradient(to bottom, #d2b0ff 0%, #7B16FE 100%);
+        background: linear-gradient(to bottom, #d2b0ff 0%, #7b16fe 100%);
         color: white;
         box-shadow: 0 0 0 4px rgba(185, 13, 253, 0.2);
 
@@ -124,7 +131,7 @@
     }
 
     .wizard-step.completed {
-        background: linear-gradient(to bottom, #d2b0ff 0%, #7B16FE 100%);
+        background: linear-gradient(to bottom, #d2b0ff 0%, #7b16fe 100%);
         color: white;
 
         i {

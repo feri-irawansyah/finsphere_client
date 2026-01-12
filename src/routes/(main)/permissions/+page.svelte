@@ -3,7 +3,6 @@
     import ClientGrid from "$lib/directives/grids/ClientGrid.svelte";
     import modalStore from "$lib/directives/modal/functions/modal-store.js";
     import { applicationStore } from "$lib/stores/applicationStore";
-    import { _paramToVariableName } from "ag-grid-community";
     import { onMount } from "svelte";
     import Swal from "sweetalert2";
 
@@ -16,7 +15,7 @@
     onMount(() => {
         modalStore.setup({
             id: `modal-${data.tableName}`,
-            size: "sm",
+            size: "xl",
             component: ModalPermissions,
             params: data,
         });
@@ -40,14 +39,14 @@
                     label: "Create New Permission",
                     title: "Create new permission",
                     subTitle: "",
-                    icon: "bi-person-fill-gear",
+                    icon: "bi-card-checklist",
                 }}
                 on:selected={(e) => console.log("selected", e.detail)}
                 on:quickFilter={(e) => (quickFilterFn = e.detail)}
                 on:refresh={(e) => (refresh = e.detail)}
                 on:excel={(e) => (excel = e.detail)}
                 on:doubleClicked={(e) =>
-                    modalStore.open("Update permission", "", {
+                    modalStore.open("Update data permission", "", {
                         actions: "update",
                         uid: e.detail.permissionUid,
                     })}

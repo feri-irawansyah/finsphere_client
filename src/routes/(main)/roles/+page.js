@@ -1,7 +1,7 @@
 export const load = () => {
     
     const metaPage = {
-        title: 'Role List',
+        title: 'Roles List',
         tableName: 'roles',
         columns: [
         {

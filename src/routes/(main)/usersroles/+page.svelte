@@ -38,8 +38,8 @@
                 {excel}
                 {refresh}
                 createNewLabel={{
-                    label: "Create New User Roles",
-                    title: "Create new user roles",
+                    label: "Create New User Role",
+                    title: "Create new user role",
                     subTitle: "",
                     icon: "bi-person-check-fill",
                 }}

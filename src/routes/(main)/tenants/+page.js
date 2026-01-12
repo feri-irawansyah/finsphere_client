@@ -1,7 +1,7 @@
 import Swal from "sweetalert2";
 
 export const load = () => {
-    
+
     const metaPage = {
         title: 'Tenant List',
         tableName: 'tenants',
@@ -17,13 +17,8 @@ export const load = () => {
                 headerClass: 'text-center',
             },
             {
-                headerName: 'Role UID',
-                field: 'roleUid',
-                hide: true
-            },
-            {
-                headerName: 'Role ID',
-                field: 'roleId',
+                headerName: 'Tenant ID',
+                field: 'tenantId',
                 pinned: 'left',
             },
             {
@@ -31,8 +26,8 @@ export const load = () => {
                 field: 'name',
             },
             {
-                headerName: 'Description',
-                field: 'description',
+                headerName: 'MV Tenant Category',
+                field: 'mvTenantCategory',
             },
             {
                 headerName: 'Entry Time',
@@ -52,9 +47,8 @@ export const load = () => {
             },
         ],
         wizardHeader: [
-            { tabId: 1, title: 'Tenant Information', icon: 'bi bi-person-vcard' },
-            { tabId: 2, title: 'User Information', icon: 'bi bi-person-fill' },
-            { tabId: 3, title: 'User Information', icon: 'bi bi-box-fill' },
+            { tabId: 0, title: 'Tenant Information', icon: 'bi bi-person-vcard' },
+            { tabId: 1, title: 'User Information', icon: 'bi bi-person-fill' },
         ],
         nextStepWizard: (e, nextTab) => {
             e.preventDefault();
@@ -78,7 +72,7 @@ export const load = () => {
                 icon: 'success',
             })
         }
-    } 
+    }
 
     return metaPage;
 }

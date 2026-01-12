@@ -1,8 +1,9 @@
 <script>
+    import InputPassword from "$lib/directives/inputs/InputPassword.svelte";
     import modalStore, {
         submitDataModal,
     } from "$lib/directives/modal/functions/modal-store";
-    import fetcher from "$lib/fetcher"
+    import fetcher from "$lib/fetcher";
     import { applicationStore } from "$lib/stores/applicationStore";
     import moment from "moment";
     import { onMount } from "svelte";
@@ -62,7 +63,7 @@
             <div class="col-12 mb-3">
                 <h6 class="text-muted fw-bold">DATA INFORMATION</h6>
             </div>
-            <div class="col-12 col-md-6 mb-4">
+            <div class="col-12 col-md-6 mb-3">
                 <label class="form-label" for="name">Name</label>
                 <input
                     id="name"
@@ -74,7 +75,7 @@
                     required
                 />
             </div>
-            <div class="col-12 col-md-6 mb-4">
+            <div class="col-12 col-md-6 mb-3">
                 <label class="form-label" for="email">Email</label>
                 <input
                     id="email"
@@ -86,19 +87,11 @@
                     required
                 />
             </div>
-            <div class="col-12 col-md-6 mb-4">
+            <div class="col-12 col-md-6 mb-3">
                 <label class="form-label" for="password">Password</label>
-                <input
-                    id="password"
-                    type="password"
-                    class="form-control"
-                    autocomplete="one-time-code"
-                    disabled={$modalStore.params.isFormDisabled}
-                    bind:value={formData.pwd}
-                    required
-                />
+                <InputPassword bind:value={formData.pwd} required withicon="false" id="pwd" disabled={$modalStore.params.isFormDisabled}/>
             </div>
-            <div class="col-12 col-md-6 mb-4">
+            <div class="col-12 col-md-6 mb-3">
                 <label class="form-label" for="pwdExpDate"
                     >Password Expired Date</label
                 >
@@ -113,7 +106,7 @@
                 />
             </div>
             {#if formData.userUid}
-                <div class="col-12 col-md-6 mb-4">
+                <div class="col-12 col-md-6 mb-3">
                     <label class="form-label" for="entryTime">Entry Time</label>
                     <input
                         id="entryTime"
@@ -123,11 +116,12 @@
                         disabled
                     />
                 </div>
-                <div class="col-12 col-md-6 mb-4">
-                    <label class="form-label" for="entryTime">Update Time</label
+                <div class="col-12 col-md-6 mb-3">
+                    <label class="form-label" for="updateTime"
+                        >Update Time</label
                     >
                     <input
-                        id="entryTime"
+                        id="updateTime"
                         type="text"
                         class="form-control"
                         bind:value={formData.updateTime}
@@ -135,7 +129,7 @@
                     />
                 </div>
             {/if}
-            <div class="col-12">
+            <div class="col-12 my-2">
                 <h6 class="text-muted">ACCESS CONTROL</h6>
             </div>
             <div class="col-12">
@@ -143,7 +137,7 @@
                     class="d-flex flex-wrap justify-content-between align-items-center gap-2"
                 >
                     <div class="flex-grow-1">
-                        <h6 class="mb-1 fw-normal">Enable Login Access.</h6>
+                        <h6 class="mb-1 fw-normal">Enable Login Access</h6>
                     </div>
                     <div class="form-check form-switch">
                         <input

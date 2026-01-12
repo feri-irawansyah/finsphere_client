@@ -11,17 +11,16 @@
 
     let formData = $state({
         name: "",
-        email: "",
-        pwd: "",
-        pwdExpDate: "",
-        entryTime: "",
-        updateTime: "",
-        isEnabled: true,
+        description: "",
+        serviceId: "",
+        mvServiceCategory: "",
+        tenantCategoryFlags: "",
+        tenantCategoryFlagsList: ""
     });
 
     const { actions, uid } = $derived($modalStore.params);
 
-    const url = `${$applicationStore.urlPlatformConsole}/permissions`;
+    const url = `${$applicationStore.urlPlatformConsole}/services`;
 
     $effect(async () => {
         if (!uid) return;
@@ -33,10 +32,12 @@
 
     async function onSubmit(e, formData) {
         let payload = {
-            permissionId: formData.permissionId,
             name: formData.name,
             description: formData.description,
             serviceId: formData.serviceId,
+            mvServiceCategory: formData.mvServiceCategory,
+            tenantCategoryFlags: formData.tenantCategoryFlags || 0,
+            tenantCategoryFlagsList: formData.tenantCategoryFlagsList,
         };
 
         let method = "";
@@ -44,7 +45,7 @@
         if (actions == "create") method = "POST";
         else if (actions == "update") {
             method = "PUT";
-            payload.permissionUid = formData.permissionUid;
+            payload.serviceUid = formData.serviceUid;
         }
 
         await submitDataModal(e, payload, url, method);
@@ -57,19 +58,19 @@
 >
     <div class="modal-body">
         <div class="row">
-            <div class="col-12 mb-4">
-                <label class="form-label" for="permissionId">Permission ID</label>
+            <div class="col-12 mb-3">
+                <label class="form-label" for="serviceId">Service ID</label>
                 <input
-                    id="permissionId"
+                    id="serviceId"
                     type="text"
                     class="form-control"
-                    bind:value={formData.permissionId}
+                    bind:value={formData.serviceId}
                     disabled={$modalStore.params.isFormDisabled}
-                    placeholder="e.g. Permission Add"
+                    placeholder="e.g. ORDER_HANDLING"
                     required
                 />
             </div>
-            <div class="col-12 mb-4">
+            <div class="col-12 mb-3">
                 <label class="form-label" for="name">Name</label>
                 <input
                     id="name"
@@ -77,11 +78,11 @@
                     class="form-control"
                     bind:value={formData.name}
                     disabled={$modalStore.params.isFormDisabled}
-                    placeholder="e.g. Permission Open"
+                    placeholder="e.g. Order Handling Service"
                     required
                 />
             </div>
-            <div class="col-12 mb-4">
+            <div class="col-12 mb-3">
                 <label class="form-label" for="description">Description</label>
                 <textarea
                     id="description"
@@ -93,14 +94,26 @@
                     required
                 ></textarea>
             </div>
-            <div class="col-12 mb-4">
-                <label class="form-label" for="serviceId">Service ID</label>
+            <div class="col-12 mb-3">
+                <label class="form-label" for="serviceUid">Service Category</label>
                 <AutoSelect
-                    lookup="services"
-                    bind:value={formData.serviceId}
-                    labelKey={["serviceId", "name"]}
-                    valueKey="serviceId"
+                    lookup="mastervalues/SERVICE_CATEGORY"
+                    bind:value={formData.mvServiceCategory}
+                    labelKey={["code"]}
+                    valueKey="code"
                     placeholder="Please choose one option"
+                    required
+                    disabled={$modalStore.params.isFormDisabled}
+                />
+            </div>
+            <div class="col-12 mb-3">
+                <label class="form-label" for="serviceUid">Tenant Category Flags</label>
+                <AutoSelect
+                    lookup="mastervalues/TENANT_CATEGORY"
+                    bind:value={formData.mvServiceCategory}
+                    labelKey={["code"]}
+                    valueKey="code"
+                    placeholder="Please choose options"
                     required
                     disabled={$modalStore.params.isFormDisabled}
                 />

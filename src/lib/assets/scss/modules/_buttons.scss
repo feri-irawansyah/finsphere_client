@@ -35,7 +35,7 @@
     }
 
     &:disabled {
-        background-color: #C6C1D7 !important;
+        // background-color: #C6C1D7 !important;
         border-color: #C6C1D7;
         cursor: not-allowed;
 
@@ -178,7 +178,7 @@ $btn-gradient-colors: (
     }
 
     &:disabled {
-        background: #C6C1D7 !important;
+        // background: #C6C1D7 !important;
         border-color: #C6C1D7;
         cursor: not-allowed;
     }

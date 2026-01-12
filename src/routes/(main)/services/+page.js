@@ -3,8 +3,8 @@ import modalStore from '$lib/directives/modal/functions/modal-store.js';
 export const load = ({ parent }) => {
 
     const metaPage = {
-        title: 'Permissions List',
-        tableName: 'permissions',
+        title: 'Services List',
+        tableName: 'services',
         columns: [
             {
                 headerName: "No.",
@@ -17,29 +17,34 @@ export const load = ({ parent }) => {
                 headerClass: 'text-center',
             },
             {
-                headerName: 'Permission Uid',
-                field: 'permissionUid',
+                headerName: 'Service Uid',
+                field: 'serviceUid',
                 hide: true,
-            },
-            {
-                headerName: 'Permission ID',
-                field: 'permissionId',
-                minWidth: 350,
-            },
-            {
-                headerName: 'Name',
-                field: 'name',
-                minWidth: 250,
-            },
-            {
-                headerName: 'Description',
-                field: 'description',
-                minWidth: 200,
             },
             {
                 headerName: 'Service ID',
                 field: 'serviceId',
-                minWidth: 180,
+                pinned: 'left',
+            },
+            {
+                headerName: 'Name',
+                field: 'name',
+                minWidth: 195,
+            },
+            {
+                headerName: 'Description',
+                field: 'description',
+                minWidth: 195,
+            },
+            {
+                headerName: 'Service Category',
+                field: 'mvServiceCategory',
+                minWidth: 195,
+            },
+            {
+                headerName: 'Tenant Category Flags',
+                field: 'tenantCategoryFlags',
+                minWidth: 285,
             },
             {
                 headerName: 'Entry Time',

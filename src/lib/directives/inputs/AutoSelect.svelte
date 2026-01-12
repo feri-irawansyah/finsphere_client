@@ -74,6 +74,7 @@
             items = res.map((x) => ({
                 value: x[valueKey],
                 label: buildLabel(x),
+                allData: x,
             }));
         } catch (ex) {
             console.error("AutoSelect API:", ex);
@@ -83,19 +84,31 @@
     }
 
     /* sync value -> selection */
+    // $effect(() => {
+    //     if (!value || !items.length) return;
+
+    //     const match = items.find((i) => i.value === value);
+    //     if (match && match !== selection) {
+    //         selection = match;
+    //     }
+    // });
+
     $effect(() => {
-        if (!value || !items.length) return;
+        if (!items.length) return;
+
+        if (value == null) {
+            selection = null;
+            return;
+        }
 
         const match = items.find((i) => i.value === value);
-        if (match && match !== selection) {
-            selection = match;
-        }
+        selection = match ?? null;
     });
 
     function handleChange(e) {
         selection = e.detail;
         value = e.detail?.value ?? null;
-        dispatch("change", value);
+        dispatch("change", selection);
     }
 </script>
 

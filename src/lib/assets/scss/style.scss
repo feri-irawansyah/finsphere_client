@@ -119,12 +119,6 @@ body {
         background-color: #6A15D8 !important;
         color: #fff !important;
     }
-
-    &:disabled {
-        background-color: #C6C1D7 !important;
-        color: #fff !important;
-    }
-
 }
 
 .bottom-left-overlay {
@@ -155,10 +149,11 @@ body {
 
 /* #region modal override*/
 @media (min-width: 992px) {
-
-    .modal-lg,
+    .modal-lg {
+        --bs-modal-width: 40rem;
+    }
     .modal-xl {
-        --dx-modal-width: 40rem;
+        --bs-modal-width: 52rem;
     }
 }
 

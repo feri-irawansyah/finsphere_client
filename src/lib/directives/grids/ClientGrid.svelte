@@ -23,6 +23,7 @@
         refresh = null,
         quickFilterFn = null,
         createNewLabel = {},
+        wizardParams = {},
     } = $props();
 
     const dispatch = createEventDispatcher();
@@ -199,9 +200,14 @@
             data-bs-toggle="modal"
             data-bs-target={`#modal-${tableName}`}
             onclick={() =>
-                modalStore.open(createNewLabel.title, createNewLabel.subTitle, {
-                    actions: "create",
-                })}
+                modalStore.open(
+                    createNewLabel.title,
+                    createNewLabel.subTitle,
+                    {
+                        actions: "create",
+                    },
+                    createNewLabel.wizardParams,
+                )}
         >
             <i class="bi {createNewLabel.icon} pe-2"></i>
             <span>{createNewLabel.label}</span>

@@ -39,7 +39,7 @@
                     label: "Create New User",
                     title: "Create new user",
                     subTitle: "",
-                    icon: "bi-person-plus",
+                    icon: "bi-person-plus-fill",
                 }}
                 on:selected={(e) => console.log("selected", e.detail)}
                 on:quickFilter={(e) => (quickFilterFn = e.detail)}

@@ -1,47 +1,56 @@
 <script>
+    import ModalRoles from '$lib/components/molecules/modals/ModalRoles.svelte';
     import ClientGrid from '$lib/directives/grids/ClientGrid.svelte';
+    import modalStore from '$lib/directives/modal/functions/modal-store.js';
+    import { applicationStore } from '$lib/stores/applicationStore.js';
+    import { onMount } from 'svelte';
     import Swal from 'sweetalert2';
 
     const { data } = $props();
 
-    function doubleClientGrid(e) {
-        Swal.fire({
-            title: 'Double Click',
-            text: JSON.stringify(e.detail),
-            icon: 'info'
-        })
-    }
+    let quickFilterFn = $state(null);
+    let refresh = $state(null);
+    let excel = $state(null);
+
+    onMount(() => {
+        modalStore.setup({
+            id: `modal-${data.tableName}`,
+            size: "lg",
+            component: ModalRoles,
+            params: data,
+        });
+    });
 </script>
 
 <section id="section">
     <h2 class="page-title">{data.title}</h2>
-    <div class="row" id="users" data-aos="fade-left">
+    <div class="row" id={data.tableName} data-aos="fade-left">
         <div class="col-12">
-            <ClientGrid 
+            <ClientGrid
                 columns={data.columns}
-                url="/api/platform/console/roles"
+                url={`${$applicationStore.urlPlatformConsole}/${data.tableName}`}
                 height={100}
-                layout={85}
+                layout={84}
                 tableName={data.tableName}
-                on:selected={(e) => console.log('selected', e.detail)}
-                on:doubleClicked={(e) => {
-                    doubleClientGrid(e)
+                {quickFilterFn}
+                {excel}
+                {refresh}
+                createNewLabel={{
+                    label: "Create New Role",
+                    title: "Create new role",
+                    subTitle: "",
+                    icon: "bi-person-fill-gear",
                 }}
-                clickRightRow={[
-                    {
-                        name: 'Open Detail',
-                        icon: '<i class="bi bi-eye"></i>',
-                        action: () => {
-                            Swal.fire({
-                                title: 'Right Click',
-                                text: 'Open Detail',
-                                icon: 'info'
-                            })
-                        }
-                    },
-                ]}>
-                <h1>Okeh</h1>
-            </ClientGrid>
+                on:selected={(e) => console.log("selected", e.detail)}
+                on:quickFilter={(e) => (quickFilterFn = e.detail)}
+                on:refresh={(e) => (refresh = e.detail)}
+                on:excel={(e) => (excel = e.detail)}
+                on:doubleClicked={(e) =>
+                    modalStore.open("Update role", "", {
+                        actions: "update",
+                        uid: e.detail.roleUid,
+                    })}
+            />
         </div>
     </div>
 </section>
