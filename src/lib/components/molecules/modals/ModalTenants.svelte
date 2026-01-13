@@ -12,6 +12,7 @@
     let activeTab = $state(1);
 
     const { params, wizard } = $derived($modalStore.currentModal);
+    const uid = $derived(params.uid);
 
     let formData = $state({
         tenantId: "",
@@ -26,9 +27,9 @@
     const url = `${applicationStore.urlPlatformConsole}/tenants`;
 
     $effect(async () => {
-        if (!params.uid) return;
+        if (!uid) return;
 
-        const res = await fetcher(fetch, `${url}/${params.uid}`);
+        const res = await fetcher(fetch, `${url}/${uid}`);
 
         formData = res;
     });
@@ -142,22 +143,20 @@
                 {/if}
 
                 <!-- STEP 2 -->
-                {#if id === 1 || id === 2}
-                    {#if wizard.step != 2}
-                        <div class="mb-3">
-                            <label class="form-label" for="email">Email</label>
-                            <input
-                                id="email"
-                                type="email"
-                                class="form-control"
-                                bind:value={formData.email}
-                                autocomplete="one-time-code"
-                                disabled={params.isFormDisabled}
-                                placeholder="e.g. johndoe@gmail.com"
-                                required
-                            />
-                        </div>
-                    {/if}
+                {#if id === 1}
+                    <div class="mb-3">
+                        <label class="form-label" for="email">Email</label>
+                        <input
+                            id="email"
+                            type="email"
+                            class="form-control"
+                            bind:value={formData.email}
+                            autocomplete="one-time-code"
+                            disabled={params.isFormDisabled}
+                            placeholder="e.g. johndoe@gmail.com"
+                            required
+                        />
+                    </div>
                     <div class="mb-3">
                         <label class="form-label" for="name">User Name</label>
                         <input
@@ -171,19 +170,17 @@
                             required
                         />
                     </div>
-                    {#if wizard.step != 2}
-                        <div class="mb-3">
-                            <label class="form-label" for="pwd">Password</label>
-                            <InputPassword
-                                id="pwd"
-                                bind:value={formData.pwd}
-                                autocomplete="one-time-code"
-                                required
-                                withicon="false"
-                                disabled={params.isFormDisabled}
-                            />
-                        </div>
-                    {/if}
+                    <div class="mb-3">
+                        <label class="form-label" for="pwd">Password</label>
+                        <InputPassword
+                            id="pwd"
+                            bind:value={formData.pwd}
+                            autocomplete="one-time-code"
+                            required
+                            withicon="false"
+                            disabled={params.isFormDisabled}
+                        />
+                    </div>
                 {/if}
             </form>
         {/snippet}

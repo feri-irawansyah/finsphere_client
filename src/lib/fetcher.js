@@ -1,3 +1,5 @@
+import modalStore from "./directives/modal/functions/modal-store";
+
 let isRefreshing = false;
 let requestQueue = [];
 
@@ -30,56 +32,65 @@ function retryQueuedRequests(fetch, newToken) {
 async function fetcher(fetch, url, options = {}) {
     const token = localStorage.getItem('access_token');
 
-    const config = {
-        credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json',
-            ...options.headers
-        },
-        ...options
-    };
+    modalStore.setLoading();
 
-    if (!url.includes('/console/refresh') && token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    const res = await fetch(`/api${url}`, config);
-
-    if (res.ok) {
-        return res.json();
-    }
-
-    if (res.status === 401 && !url.includes('/console/refresh')) {
-        return new Promise((resolve, reject) => {
-            requestQueue.push({ resolve, reject, config: { url, ...config } });
-
-            if (!isRefreshing) {
-                isRefreshing = true;
-
-                refreshToken(fetch)
-                    .then(token => {
-                        retryQueuedRequests(fetch, token);
-                        isRefreshing = false;
-                    })
-                    .catch(() => {
-                        isRefreshing = false;
-                        requestQueue = [];
-                        localStorage.removeItem('access_token');
-                        reject(new Error('UNAUTHORIZED'));
-                    });
-            }
-        });
-    }
-
-    let errorBody;
     try {
-        errorBody = await res.json();
-    } catch {}
 
-    throw {
-        status: res.status,
-        ...errorBody
-    };
+        const config = {
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            },
+            ...options
+        };
+
+        if (!url.includes('/console/refresh') && token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        const res = await fetch(`/api${url}`, config);
+
+        if (res.ok) {
+            return res.json();
+        }
+
+        if (res.status === 401 && !url.includes('/console/refresh')) {
+            return new Promise((resolve, reject) => {
+                requestQueue.push({ resolve, reject, config: { url, ...config } });
+
+                if (!isRefreshing) {
+                    isRefreshing = true;
+
+                    refreshToken(fetch)
+                        .then(token => {
+                            retryQueuedRequests(fetch, token);
+                            isRefreshing = false;
+                        })
+                        .catch(() => {
+                            isRefreshing = false;
+                            requestQueue = [];
+                            localStorage.removeItem('access_token');
+                            reject(new Error('UNAUTHORIZED'));
+                        });
+                }
+            });
+        }
+
+        let errorBody;
+        try {
+            errorBody = await res.json();
+        } catch { }
+
+        throw {
+            status: res.status,
+            ...errorBody
+        };
+    } catch { }
+    finally {
+        modalStore.setLoading(false);
+
+    }
 }
 
 export default fetcher;

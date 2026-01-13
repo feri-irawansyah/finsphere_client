@@ -19,20 +19,19 @@
         isEnabled: true,
     });
 
-    const { params } = $derived(
-        $modalStore.currentModal
-    );
+    const { params } = $derived($modalStore.currentModal);
+    const uid = $derived(params.uid);
 
     const url = `${applicationStore.urlPlatformConsole}/users`;
 
     $effect(async () => {
-        if (!params.uid) return;
+        if (!uid) return;
 
-        const res = await fetcher(fetch, `${url}/${params.uid}`);
+        const res = await fetcher(fetch, `${url}/${uid}`);
 
         formData = res;
-        formData.entryTime = moment(formData.entryTime).format("LL - LTS");
-        formData.updateTime = moment(formData.updateTime).format("LL - LTS");
+        formData.entryTime = moment(res.entryTime).format("LL - LTS");
+        formData.updateTime = moment(res.updateTime).format("LL - LTS");
     });
 
     async function onSubmit(e, formData) {
@@ -91,7 +90,13 @@
             </div>
             <div class="col-12 col-md-6 mb-3">
                 <label class="form-label" for="password">Password</label>
-                <InputPassword bind:value={formData.pwd} required withicon="false" id="pwd" disabled={params.isFormDisabled}/>
+                <InputPassword
+                    bind:value={formData.pwd}
+                    required
+                    withicon="false"
+                    id="pwd"
+                    disabled={params.isFormDisabled}
+                />
             </div>
             <div class="col-12 col-md-6 mb-3">
                 <label class="form-label" for="pwdExpDate"
@@ -145,7 +150,6 @@
                         <input
                             id="isEnabled"
                             bind:checked={formData.isEnabled}
-                            
                             class="form-check-input btn-lg"
                             type="checkbox"
                         />

@@ -18,13 +18,14 @@
     });
 
     const { params } = $derived($modalStore.currentModal);
+    const uid = $derived(params.uid);
 
     const url = `${applicationStore.urlPlatformConsole}/serviceregistrations`;
 
     $effect(async () => {
-        if (!params.uid) return;
+        if (!uid) return;
 
-        const res = await fetcher(fetch, `${url}/${params.uid}`);
+        const res = await fetcher(fetch, `${url}/${uid}`);
 
         formData = res;
 

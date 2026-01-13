@@ -3,7 +3,7 @@
     import modalStore, {
         submitDataModal,
     } from "$lib/directives/modal/functions/modal-store";
-    import fetcher from "$lib/fetcher"
+    import fetcher from "$lib/fetcher";
     import { applicationStore } from "$lib/stores/applicationStore";
     import moment from "moment";
     import { onMount } from "svelte";
@@ -19,16 +19,15 @@
         isEnabled: true,
     });
 
-    const { params } = $derived(
-        $modalStore.currentModal
-    );
+    const { params } = $derived($modalStore.currentModal);
+    const uid = $derived(params.uid);
 
     const url = `${applicationStore.urlPlatformConsole}/permissions`;
 
     $effect(async () => {
-        if (!params.uid) return;
+        if (!uid) return;
 
-        const res = await fetcher(fetch, `${url}/${params.uid}`);
+        const res = await fetcher(fetch, `${url}/${uid}`);
 
         formData = res;
     });
@@ -60,7 +59,9 @@
     <div class="modal-body">
         <div class="row">
             <div class="col-12 mb-4">
-                <label class="form-label" for="permissionId">Permission ID</label>
+                <label class="form-label" for="permissionId"
+                    >Permission ID</label
+                >
                 <input
                     id="permissionId"
                     type="text"

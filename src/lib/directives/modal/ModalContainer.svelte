@@ -5,12 +5,12 @@
 
     let modalEl;
     let modalInstance;
-    
+
     // Gunakan currentModal dari store
     const state = $derived($modalStore.currentModal);
 
-    $inspect("state",state)
-    
+    $inspect("state", state);
+
     // Flag untuk cek apakah modal sudah di-mount
     let isMounted = $state(false);
 
@@ -21,7 +21,7 @@
     onMount(() => {
         isMounted = true;
         console.log("ModalContainer Mounted");
-        
+
         // Hanya inisialisasi Modal jika modalEl ada
         if (modalEl) {
             modalInstance = new Modal(modalEl, {
@@ -40,8 +40,7 @@
     });
 
     $effect(() => {
-
-        $inspect("state",state)
+        $inspect("state", state);
         if (!modalInstance || !isMounted) return;
 
         console.log("Modal state changed:", state.open, state.id);
@@ -55,10 +54,10 @@
 </script>
 
 <!-- Modal container selalu ada di DOM -->
-<div 
-    bind:this={modalEl} 
-    class="modal fade" 
-    id="dynamic-modal" 
+<div
+    bind:this={modalEl}
+    class="modal fade"
+    id="dynamic-modal"
     tabindex="-1"
     data-bs-backdrop="static"
     data-bs-keyboard="false"
@@ -137,7 +136,7 @@
                         {/if}
 
                         <!-- SAVE -->
-                        {#if !state.params.isFormDisabled && !state.wizard.enabled}
+                        {#if !state.params.isFormDisabled && !state.wizard.enabled && !state.loading}
                             <div class="col-12 col-md-8 mt-2">
                                 <button
                                     type="submit"
@@ -146,6 +145,19 @@
                                     disabled={state.loading}
                                 >
                                     <span>Save</span>
+                                </button>
+                            </div>
+                        {:else if !state.params.isFormDisabled && !state.wizard.enabled && state.loading}
+                            <div class="col-12 col-md-8 mt-2">
+                                <button
+                                    type="submit"
+                                    class="btn btn-gradient-primary w-100"
+                                    disabled={state.loading}
+                                    form="formSubmit-{$modalStore.id}"
+                                    ><span
+                                        class="spinner-border spinner-border-sm me-2"
+                                    ></span>
+                                    Saving ...
                                 </button>
                             </div>
                         {/if}
