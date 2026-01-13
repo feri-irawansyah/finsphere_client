@@ -75,9 +75,8 @@ function createModalStore() {
 
         // Open modal by ID
         open(modalId, title = "", subTitle = "", params = {}, wizard = {}) {
-
             update(state => {
-                
+                console.log(params)
                 const modalIndex = state.modals.findIndex(m => m.id === modalId);
                 if (modalIndex === -1) {
                     console.warn(`Modal ${modalId} not found. Make sure to setup() first.`);
@@ -106,6 +105,8 @@ function createModalStore() {
                 // Update the modal in array
                 const newModals = [...state.modals];
                 newModals[modalIndex] = updatedModal;
+
+                console.log("newModals",newModals[modalIndex])
 
                 return {
                     ...state,

@@ -14,15 +14,36 @@
     // Flag untuk cek apakah modal sudah di-mount
     let isMounted = $state(false);
 
+    // function onHidden() {
+    //     modalStore.resetRuntime();
+    // }
+
     function onHidden() {
+        modalEl?.removeEventListener("hidden.bs.modal", onHidden);
+        modalInstance?.dispose();
+        modalInstance = null;
+
         modalStore.resetRuntime();
     }
 
-    onMount(() => {
-        isMounted = true;
-        console.log("ModalContainer Mounted");
+    // onMount(() => {
+    //     isMounted = true;
+    //     console.log("ModalContainer Mounted");
 
-        // Hanya inisialisasi Modal jika modalEl ada
+    //     // Hanya inisialisasi Modal jika modalEl ada
+    //     if (modalEl) {
+    //         modalInstance = new Modal(modalEl, {
+    //             backdrop: "static",
+    //             keyboard: false,
+    //         });
+
+    //         modalEl.addEventListener("hidden.bs.modal", onHidden);
+    //     }
+    // });
+
+    onMount(() => {
+        $inspect("xxm", modalEl);
+        isMounted = true; // 🔥 INI YANG HILANG
         if (modalEl) {
             modalInstance = new Modal(modalEl, {
                 backdrop: "static",
@@ -39,17 +60,31 @@
         modalInstance?.dispose();
     });
 
+    // $effect(() => {
+    //     if (!modalInstance || !isMounted) return;
+
+    //     console.log("Modal state changed:", state.open, state.id);
+
+    //     if (state.open && state.component) {
+    //         modalInstance.show();
+    //     } else {
+    //         modalInstance.hide();
+    //     }
+    // });
     $effect(() => {
-        $inspect("state", state);
-        if (!modalInstance || !isMounted) return;
+        if (!isMounted) return;
+        if (!state.open || !state.component) return;
 
-        console.log("Modal state changed:", state.open, state.id);
+        if (!modalInstance && modalEl) {
+            modalInstance = new Modal(modalEl, {
+                backdrop: "static",
+                keyboard: false,
+            });
 
-        if (state.open && state.component) {
-            modalInstance.show();
-        } else {
-            modalInstance.hide();
+            modalEl.addEventListener("hidden.bs.modal", onHidden);
         }
+
+        modalInstance.show();
     });
 </script>
 

@@ -52,7 +52,7 @@
         else if (params.actions == "update") {
             method = "PUT";
             payload.serviceRegistrationUid = formData.serviceRegistrationUid;
-            delete data.registerTime;
+            delete payload.registerTime;
         }
 
         await submitDataModal(e, payload, url, method);

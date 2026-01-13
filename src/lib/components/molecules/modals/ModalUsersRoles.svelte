@@ -11,18 +11,19 @@
 
     let formData = $state({
         userUid: "",
-        roleUid: "",
+        roleUid: ""
     });
 
-    const { params } = $derived($modalStore.currentModal);
-    const uid = $derived(params.uid);
+    const { params } = $derived(
+        $modalStore.currentModal
+    );
 
     const url = `${applicationStore.urlPlatformConsole}/usersroles`;
 
     $effect(async () => {
-        if (!uid) return;
+        if (!params.uid) return;
 
-        const res = await fetcher(fetch, `${url}/${uid}`);
+        const res = await fetcher(fetch, `${url}/${params.uid}`);
 
         formData = res;
     });
@@ -45,6 +46,7 @@
     }
 
     $inspect(formData);
+
 </script>
 
 <form

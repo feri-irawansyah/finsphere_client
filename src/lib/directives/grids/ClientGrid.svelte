@@ -205,7 +205,7 @@
                 }, createNewModal.wizardParams)}
         >
             <i class="bi {createNewModal.icon} pe-2"></i>
-            <span>{createNewModal.label}</span>
+            <span>{createNewModal.label} {tableName}</span>
         </button>
     </div>
 </div>
