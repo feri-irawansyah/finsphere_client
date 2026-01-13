@@ -28,7 +28,7 @@
         <div class="col-12">
             <ClientGrid
                 columns={data.columns}
-                url={`${$applicationStore.urlPlatformConsole}/${data.tableName}`}
+                url={`${applicationStore.urlPlatformConsole}/${data.tableName}`}
                 height={100}
                 layout={84}
                 tableName={data.tableName}

@@ -16,7 +16,7 @@ export async function load({ url, fetch }) {
 
     let session = null;
     
-    const app = get(applicationStore);
+    const app = applicationStore;
 
     // ✅ fetch session di SEMUA route
     try {

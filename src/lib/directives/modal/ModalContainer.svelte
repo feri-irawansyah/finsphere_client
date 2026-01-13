@@ -5,38 +5,61 @@
 
     let modalEl;
     let modalInstance;
-
-    const state = $derived($modalStore);
+    
+    // Gunakan currentModal dari store
+    const state = $derived($modalStore.currentModal);
+    
+    // Flag untuk cek apakah modal sudah di-mount
+    let isMounted = $state(false);
 
     function onHidden() {
         modalStore.resetRuntime();
     }
 
     onMount(() => {
-        console.log(state.id, " Mounted");
-        modalInstance = new Modal(modalEl, {
-            backdrop: "static",
-            keyboard: false,
-        });
+        isMounted = true;
+        console.log("ModalContainer Mounted");
+        
+        // Hanya inisialisasi Modal jika modalEl ada
+        if (modalEl) {
+            modalInstance = new Modal(modalEl, {
+                backdrop: "static",
+                keyboard: false,
+            });
 
-        modalEl.addEventListener("hidden.bs.modal", onHidden);
+            modalEl.addEventListener("hidden.bs.modal", onHidden);
+        }
     });
 
     onDestroy(() => {
-        console.log(state.id, " Destroyed");
+        console.log("ModalContainer Destroyed");
         modalEl?.removeEventListener("hidden.bs.modal", onHidden);
         modalInstance?.dispose();
     });
 
     $effect(() => {
-        if (!modalInstance) return;
+        if (!modalInstance || !isMounted) return;
 
-        state.open ? modalInstance.show() : modalInstance.hide();
+        console.log("Modal state changed:", state.open, state.id);
+
+        if (state.open && state.component) {
+            modalInstance.show();
+        } else {
+            modalInstance.hide();
+        }
     });
 </script>
 
-<div bind:this={modalEl} class="modal fade" id={state.id} tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-{state.size}">
+<!-- Modal container selalu ada di DOM -->
+<div 
+    bind:this={modalEl} 
+    class="modal fade" 
+    id="dynamic-modal" 
+    tabindex="-1"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
+>
+    <div class="modal-dialog modal-dialog-centered modal-{state.size || 'md'}">
         <div class="modal-content">
             <!-- header -->
             <div class="modal-header flex-column justify-content-center pb-2">

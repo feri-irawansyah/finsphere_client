@@ -31,7 +31,7 @@
         try {
             const resp = await fetcher(
                 fetch,
-                `${$applicationStore.urlPlatformConsole}/login`,
+                `${applicationStore.urlPlatformConsole}/login`,
                 {
                     method: 'POST',
                     body: JSON.stringify(payload)

@@ -200,14 +200,9 @@
             data-bs-toggle="modal"
             data-bs-target={`#modal-${tableName}`}
             onclick={() =>
-                modalStore.open(
-                    createNewLabel.title,
-                    createNewLabel.subTitle,
-                    {
-                        actions: "create",
-                    },
-                    createNewLabel.wizardParams,
-                )}
+                modalStore.open(`modal-${tableName}`, createNewLabel.title, createNewLabel.subTitle, {
+                    actions: "create",
+                })}
         >
             <i class="bi {createNewLabel.icon} pe-2"></i>
             <span>{createNewLabel.label}</span>

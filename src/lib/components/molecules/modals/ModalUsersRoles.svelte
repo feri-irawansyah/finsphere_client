@@ -11,13 +11,12 @@
 
     let formData = $state({
         userUid: "",
-        roleUid: "",
-        roleUids: []
+        roleUid: ""
     });
 
-    const { actions, uid } = $derived($modalStore.params);
+    const { actions, uid, isFormDisabled } = $derived($modalStore.currentModal.params);
 
-    const url = `${$applicationStore.urlPlatformConsole}/usersroles`;
+    const url = `${applicationStore.urlPlatformConsole}/usersroles`;
 
     $effect(async () => {
         if (!uid) return;
@@ -43,6 +42,9 @@
 
         await submitDataModal(e, payload, url, method);
     }
+
+    $inspect(formData);
+
 </script>
 
 <form
@@ -61,7 +63,7 @@
                     valueKey="userUid"
                     placeholder="Please choose one option"
                     required
-                    disabled={$modalStore.params.isFormDisabled}
+                    disabled={isFormDisabled}
                 />
             </div>
             <div class="col-12 mb-3">
@@ -74,7 +76,7 @@
                     valueKey="roleUid"
                     placeholder="Please choose one option"
                     required
-                    disabled={$modalStore.params.isFormDisabled}
+                    disabled={isFormDisabled}
                 />
             </div>
         </div>

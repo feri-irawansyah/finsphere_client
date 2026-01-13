@@ -188,7 +188,7 @@
         </div>
         <button class="logout" type="button" onclick={async() => {
             try {
-                const res = await fetcher(fetch, `${$applicationStore.urlPlatformConsole}/logout`, {
+                const res = await fetcher(fetch, `${applicationStore.urlPlatformConsole}/logout`, {
                     method: 'POST'
                 });
 

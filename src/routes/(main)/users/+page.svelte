@@ -13,12 +13,14 @@
     let excel = $state(null);
 
     onMount(() => {
-        modalStore.setup({
-            id: `modal-${data.tableName}`,
-            size: "lg",
-            component: ModalUsers,
-            params: data,
-        });
+        modalStore.setup([
+            {
+                id: `modal-${data.tableName}`,
+                size: "lg",
+                component: ModalUsers,
+                params: data,
+            },
+        ]);
     });
 </script>
 
@@ -28,7 +30,7 @@
         <div class="col-12">
             <ClientGrid
                 columns={data.columns}
-                url={`${$applicationStore.urlPlatformConsole}/${data.tableName}`}
+                url={`${applicationStore.urlPlatformConsole}/${data.tableName}`}
                 height={100}
                 layout={85}
                 tableName={data.tableName}
@@ -46,7 +48,7 @@
                 on:refresh={(e) => (refresh = e.detail)}
                 on:excel={(e) => (excel = e.detail)}
                 on:doubleClicked={(e) =>
-                    modalStore.open("Update user", "", {
+                    modalStore.open(`modal-${data.tableName}`, "Update user", "", {
                         actions: "update",
                         uid: e.detail.userUid,
                     })}

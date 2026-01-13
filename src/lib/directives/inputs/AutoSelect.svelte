@@ -1,29 +1,8 @@
-<!-- examples -->
-<!-- without api:: -->
-<!-- <AutoSelect
-    bind:value={formData.roleUid}
-    options={[
-        { value: 5, label: "Active X" },
-        { value: 1, label: "Active" },
-        { value: 0, label: "Inactive" },
-    ]}
-/> -->
-
-<!-- with api:: -->
-<!-- <AutoSelect
-    lookup="users"
-    bind:value={formData.roleUid}
-    labelKey={["name", "email"]}
-    valueKey="userUid"
-    labelSeparator = " x ",
-    placeholder="Select User"
-    required
-/> -->
-
 <script>
     import Select from "svelte-select";
     import fetcher from "$lib/fetcher";
     import { createEventDispatcher } from "svelte";
+    import { applicationStore } from "$lib/stores/applicationStore";
 
     const dispatch = createEventDispatcher();
 
@@ -35,6 +14,8 @@
         disabled = false,
         value = $bindable(),
         placeholder = "Select...",
+        mapGroup = "urlPlatformConsole",
+        multiple,
         labelSeparator = " - ",
         required = false,
     } = $props();
@@ -69,7 +50,7 @@
         loading = true;
 
         try {
-            const res = await fetcher(fetch, `/api/platform/console/${lookup}`);
+            const res = await fetcher(fetch, `${applicationStore[mapGroup]}/${lookup}`);
 
             items = res.map((x) => ({
                 value: x[valueKey],
@@ -101,14 +82,24 @@
             return;
         }
 
-        const match = items.find((i) => i.value === value);
-        selection = match ?? null;
+        if(multiple) {
+            selection = items.filter((i) => value.includes(i.value));
+        } else {
+            const match = items.find((i) => i.value === value);
+            if (match && match !== selection) {
+                selection = match;
+            }
+        }
     });
 
     function handleChange(e) {
-        selection = e.detail;
-        value = e.detail?.value ?? null;
-        dispatch("change", selection);
+        console.log("handleChange", e.detail);
+        if (multiple) {
+            value = e.detail.map((i) => i.value);
+        } else {
+            value = e.detail?.value ?? null;
+        }
+        dispatch("change", e.detail);
     }
 </script>
 
@@ -117,7 +108,9 @@
     bind:value={selection}
     {placeholder}
     {required}
-    on:select={handleChange}
+    on:change={handleChange}
     {loading}
     {disabled}
+    {multiple}
+    multiFullItemClearable={multiple ? true : false}
 />

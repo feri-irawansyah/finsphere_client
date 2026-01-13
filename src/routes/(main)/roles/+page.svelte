@@ -2,7 +2,6 @@
     import ModalRoles from '$lib/components/molecules/modals/ModalRoles.svelte';
     import ClientGrid from '$lib/directives/grids/ClientGrid.svelte';
     import modalStore from '$lib/directives/modal/functions/modal-store.js';
-    import { applicationStore } from '$lib/stores/applicationStore.js';
     import { onMount } from 'svelte';
     import Swal from 'sweetalert2';
 
@@ -28,7 +27,7 @@
         <div class="col-12">
             <ClientGrid
                 columns={data.columns}
-                url={`${$applicationStore.urlPlatformConsole}/${data.tableName}`}
+                url={`${applicationStore.urlPlatformConsole}/${data.tableName}`}
                 height={100}
                 layout={84}
                 tableName={data.tableName}

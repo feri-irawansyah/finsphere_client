@@ -19,9 +19,9 @@
         isEnabled: true,
     });
 
-    const { actions, uid } = $derived($modalStore.params);
+    const { actions, uid, isFormDisabled } = $derived($modalStore.currentModal.params);
 
-    const url = `${$applicationStore.urlPlatformConsole}/users`;
+    const url = `${applicationStore.urlPlatformConsole}/users`;
 
     $effect(async () => {
         if (!uid) return;
@@ -70,7 +70,7 @@
                     type="text"
                     class="form-control"
                     bind:value={formData.name}
-                    disabled={$modalStore.params.isFormDisabled}
+                    disabled={isFormDisabled}
                     placeholder="e.g. Administrator XX Sekuritas Indonesia"
                     required
                 />
@@ -82,7 +82,7 @@
                     type="email"
                     class="form-control"
                     bind:value={formData.email}
-                    disabled={$modalStore.params.isFormDisabled}
+                    disabled={isFormDisabled}
                     placeholder="e.g. Administrator XX Sekuritas Indonesia"
                     required
                 />
@@ -99,7 +99,7 @@
                     id="pwdExpDate"
                     type="date"
                     class="form-control"
-                    disabled={$modalStore.params.isFormDisabled}
+                    disabled={isFormDisabled}
                     bind:value={formData.pwdExpDate}
                     parse-date
                     required
@@ -143,7 +143,7 @@
                         <input
                             id="isEnabled"
                             bind:checked={formData.isEnabled}
-                            disabled={$modalStore.params.isFormDisabled}
+                            
                             class="form-check-input btn-lg"
                             type="checkbox"
                         />

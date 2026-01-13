@@ -21,7 +21,7 @@
 
     const { actions, uid } = $derived($modalStore.params);
 
-    const url = `${$applicationStore.urlPlatformConsole}/permissions`;
+    const url = `${applicationStore.urlPlatformConsole}/permissions`;
 
     $effect(async () => {
         if (!uid) return;
