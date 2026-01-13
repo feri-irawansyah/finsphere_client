@@ -78,13 +78,12 @@
             pagination: true,
             suppressPaginationPanel: true,
             onFilterChanged: (params) => {
-                console.log("onFilterChanged", params.api.getFilterModel());
+                // console.log("onFilterChanged", params.api.getFilterModel());
             },
             onRowSelected: (params) => {
                 dispatch("selected", params.node.data);
             },
             onRowDoubleClicked: (params) => {
-                console.log("params");
                 dispatch("doubleClicked", params.node.data);
             },
             getContextMenuItems: (params) => {
@@ -197,15 +196,13 @@
         <button
             type="button"
             class="btn btn-gradient-primary"
-            data-bs-toggle="modal"
-            data-bs-target={`#modal-${tableName}`}
             onclick={() =>
                 modalStore.open(`modal-${tableName}`, createNewModal.title, createNewModal.subTitle, {
                     actions: "create",
                 }, createNewModal.wizardParams)}
         >
             <i class="bi {createNewModal.icon} pe-2"></i>
-            <span>{createNewModal.label} {tableName}</span>
+            <span>{createNewModal.label}</span>
         </button>
     </div>
 </div>
