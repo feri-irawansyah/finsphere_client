@@ -31,7 +31,7 @@
             },
             {
                 id: `modal-roles`,
-                size: "lg",
+                size: "xl",
                 component: ModalRoles,
                 params: data,
             },

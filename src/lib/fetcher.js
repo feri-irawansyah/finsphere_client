@@ -86,7 +86,9 @@ async function fetcher(fetch, url, options = {}) {
             status: res.status,
             ...errorBody
         };
-    } catch { }
+    } catch (err) {
+        throw err; // 20250113_RK: Add ini untuk mengembalikan error utk di olah di swal
+    }
     finally {
         modalStore.setLoading(false);
 

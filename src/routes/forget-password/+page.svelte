@@ -47,7 +47,7 @@
                 overflow: hidden;
 
                 img {
-                    width: 120%;
+                    width: 101%;
                     height: 130%;
                     object-fit: cover;
                     object-position: top;

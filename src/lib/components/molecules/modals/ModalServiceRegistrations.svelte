@@ -22,20 +22,24 @@
 
     const url = `${applicationStore.urlPlatformConsole}/serviceregistrations`;
 
-    $effect(async () => {
-        if (!uid) return;
+    onMount(async () => {
+        try {
+            if (!uid) return;
 
-        const res = await fetcher(fetch, `${url}/${uid}`);
+            const res = await fetcher(fetch, `${url}/${uid}`);
 
-        formData = res;
+            formData = res;
 
-        // get tenant:
-        const tenantUid = await fetcher(
-            fetch,
-            `${applicationStore.urlPlatformConsole}/tenants/${formData.tenantUid}`,
-        );
+            // get tenant:
+            const tenantUid = await fetcher(
+                fetch,
+                `${applicationStore.urlPlatformConsole}/tenants/${formData.tenantUid}`,
+            );
 
-        formData.mvTenantCategory = tenantUid.mvTenantCategory;
+            formData.mvTenantCategory = tenantUid.mvTenantCategory;
+        } catch (error) {
+            console.error("error", error);
+        }
     });
 
     async function onSubmit(e, formData) {
@@ -63,7 +67,7 @@
     id="formSubmit-{$modalStore.id}"
     onsubmit={async (e) => await onSubmit(e, formData)}
 >
-    <div class="modal-body">
+    <div class="modal-body modal-scroll">
         <div class="row">
             <div class="col-12 mb-3">
                 <label class="form-label" for="tenantUid">Tenant ID</label>
@@ -74,13 +78,13 @@
                     labelKey={["tenantId", "name"]}
                     valueKey="tenantUid"
                     placeholder="Please choose one option"
+                    disabled={params.isFormDisabled}
                     on:change={(e) => {
                         formData.mvTenantCategory =
                             e.detail.allData.mvTenantCategory;
                         formData.serviceUid = "";
                     }}
                     required
-                    disabled={params.isFormDisabled}
                 />
             </div>
             {#if formData.mvTenantCategory}
@@ -108,7 +112,6 @@
                     id="registerTime"
                     type="date"
                     class="form-control"
-                    disabled={params.isFormDisabled}
                     bind:value={formData.registerTime}
                     parse-date
                     required
@@ -125,7 +128,6 @@
                         <input
                             id="isDisabled"
                             bind:checked={formData.isDisabled}
-                            disabled={params.isFormDisabled}
                             class="form-check-input btn-lg"
                             type="checkbox"
                         />

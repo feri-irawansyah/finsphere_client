@@ -23,12 +23,16 @@
 
     const url = `${applicationStore.urlPlatformConsole}/services`;
 
-    $effect(async () => {
-        if (!uid) return;
+    onMount(async () => {
+        try {
+            if (!uid) return;
 
-        const res = await fetcher(fetch, `${url}/${uid}`);
+            const res = await fetcher(fetch, `${url}/${uid}`);
 
-        formData = res;
+            formData = res;
+        } catch (error) {
+            console.error("error", error);
+        }
     });
 
     async function onSubmit(e, formData) {
@@ -57,7 +61,7 @@
     id="formSubmit-{$modalStore.id}"
     onsubmit={async (e) => await onSubmit(e, formData)}
 >
-    <div class="modal-body">
+    <div class="modal-body modal-scroll">
         <div class="row">
             <div class="col-12 mb-3">
                 <label class="form-label" for="serviceId">Service ID</label>
@@ -66,7 +70,6 @@
                     type="text"
                     class="form-control"
                     bind:value={formData.serviceId}
-                    disabled={params.isFormDisabled}
                     placeholder="e.g. ORDER_HANDLING"
                     required
                 />
@@ -78,7 +81,6 @@
                     type="text"
                     class="form-control"
                     bind:value={formData.name}
-                    disabled={params.isFormDisabled}
                     placeholder="e.g. Order Handling Service"
                     required
                 />
@@ -90,7 +92,6 @@
                     type="text"
                     class="form-control"
                     rows="6"
-                    disabled={params.isFormDisabled}
                     bind:value={formData.description}
                     required
                 ></textarea>
@@ -122,8 +123,8 @@
                     valueKey="code"
                     placeholder="Please choose options"
                     required
-                    disabled={params.isFormDisabled}
                     multiple
+                    disabled={params.isFormDisabled}
                 />
             </div>
         </div>

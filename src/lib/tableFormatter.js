@@ -7,6 +7,7 @@ const createTableFormatter = (columns) => {
         // Inject formatter otomatis berdasarkan nama field
         switch(c.field) {
             case "registerTime":
+            case "activityAt":
             case "entryTime":
             case "updateTime":
                 const columnName = c.field;

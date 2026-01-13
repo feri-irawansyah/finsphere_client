@@ -1,13 +1,13 @@
 <script>
     import InputPassword from "$lib/directives/inputs/InputPassword.svelte";
-    import { goto } from '$app/navigation';
-    import fetcher from '$lib/fetcher';
-    import Swal from 'sweetalert2';
+    import { goto } from "$app/navigation";
+    import fetcher from "$lib/fetcher";
+    import Swal from "sweetalert2";
     import { applicationStore } from "$lib/stores/applicationStore";
 
     let form = $state({
-        email: '',
-        password: ''
+        email: "",
+        password: "",
     });
 
     let loading = false;
@@ -17,15 +17,15 @@
         loading = true;
 
         // bersihin storage kaya Angular
-        localStorage.removeItem('method_mfa');
-        localStorage.removeItem('access_token');
+        localStorage.removeItem("method_mfa");
+        localStorage.removeItem("access_token");
 
         const email = form.email;
         const password = form.password;
 
         const payload = {
             Email: email,
-            Password: password
+            Password: password,
         };
 
         try {
@@ -33,51 +33,53 @@
                 fetch,
                 `${applicationStore.urlPlatformConsole}/login`,
                 {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                }
+                    method: "POST",
+                    body: JSON.stringify(payload),
+                },
             );
 
             loading = false;
 
             localStorage.setItem(
-                'method_mfa',
-                resp.enableMFA ? 'google_auth' : 'email'
+                "method_mfa",
+                resp.enableMFA ? "google_auth" : "email",
             );
 
             // === MFA TIDAK AKTIF ===
             if (!resp.enableMFA) {
-                localStorage.setItem('access_token', resp.accessToken);
-                goto('/usersmfaenable');
+                localStorage.setItem("access_token", resp.accessToken);
+                goto("/usersmfaenable");
             }
             // === MFA AKTIF ===
             else {
-                localStorage.setItem('pending_login_email', email);
-                goto('/loginotp');
+                localStorage.setItem("pending_login_email", email);
+                goto("/loginotp");
             }
-
         } catch (err) {
             loading = false;
 
             const detail = err?.detail;
-            console.log('err', err);
-            localStorage.setItem('expiredPasswordEmail', email);
+            console.log("err", err);
+            localStorage.setItem("expiredPasswordEmail", email);
 
-            if(err.status === 400) {
+            if (err.status === 400) {
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Login Gagal',
-                    text: detail
-                })
+                    icon: "error",
+                    title: "Login Gagal",
+                    text: detail,
+                });
             }
 
             // === PASSWORD EXPIRED ===
-            if (detail === 'Kata sandi Anda telah kedaluwarsa. Silakan melakukan pengaturan ulang kata sandi.') {
+            if (
+                detail ===
+                "Kata sandi Anda telah kedaluwarsa. Silakan melakukan pengaturan ulang kata sandi."
+            ) {
                 Swal.fire({
-                    icon: 'warning',
-                    title: 'Password Kedaluwarsa',
-                    text: 'Kami akan mengirimkan kode verifikasi untuk reset password Anda.',
-                    confirmButtonText: 'Lanjutkan'
+                    icon: "warning",
+                    title: "Password Kedaluwarsa",
+                    text: "Kami akan mengirimkan kode verifikasi untuk reset password Anda.",
+                    confirmButtonText: "Lanjutkan",
                 }).then(() => {
                     triggerExpiredPasswordOtp();
                 });
@@ -88,41 +90,41 @@
 
     async function triggerExpiredPasswordOtp() {
         Swal.fire({
-            title: 'Memproses...',
+            title: "Memproses...",
             didOpen: () => Swal.showLoading(),
-            allowOutsideClick: false
+            allowOutsideClick: false,
         });
 
-        const email = localStorage.getItem('expiredPasswordEmail');
+        const email = localStorage.getItem("expiredPasswordEmail");
 
         try {
             const res = await fetcher(
                 `/api/${__URL_Platform}/usersexpiredpassword/request`,
                 {
-                    method: 'POST',
-                    body: JSON.stringify({ email })
-                }
+                    method: "POST",
+                    body: JSON.stringify({ email }),
+                },
             );
 
             if (res?.success) {
-                localStorage.setItem('expiredPasswordMethod', res.data.method);
-                localStorage.setItem('expiredPasswordState', 'OTP_SENT');
+                localStorage.setItem("expiredPasswordMethod", res.data.method);
+                localStorage.setItem("expiredPasswordState", "OTP_SENT");
 
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Kode Verifikasi Dikirim',
+                    icon: "success",
+                    title: "Kode Verifikasi Dikirim",
                     timer: 1500,
-                    showConfirmButton: false
+                    showConfirmButton: false,
                 });
 
                 setTimeout(() => {
-                    goto('/usersexpiredpasswordverify');
+                    goto("/usersexpiredpasswordverify");
                 }, 1200);
             } else {
-                Swal.fire('Error', 'Gagal mengirim OTP.', 'error');
+                Swal.fire("Error", "Gagal mengirim OTP.", "error");
             }
         } catch {
-            Swal.fire('Error', 'Terjadi kesalahan saat mengirim OTP.', 'error');
+            Swal.fire("Error", "Terjadi kesalahan saat mengirim OTP.", "error");
         }
     }
 </script>
@@ -131,25 +133,45 @@
     <div class="left-section">
         <div class="image-wrapper position-relative">
             <div class="top-right-overlay"></div>
-            <img src="/img/login-banner.jpg" alt="Login banner">
+            <img src="/img/login-banner.jpg" alt="Login banner" />
             <div class="bottom-left-overlay"></div>
         </div>
     </div>
-    <div class="right-section d-flex flex-column justify-content-center align-items-center w-100">
+    <div
+        class="right-section d-flex flex-column justify-content-center align-items-center w-100"
+    >
         <form onsubmit={loginSubmit} class="d-flex flex-column w-50 gap-1">
-            <img src="/favicon.ico" class="my-2" style="width: 2rem;" alt="">
-            <h1 class="text-primary fw-bold" style="font-size: 1.5rem;">Log In to Finsphere Dashboard</h1>
-            <p>Sign in to access your dashboard and stay on top of your financial activity real-time</p>
+            <h1 class="text-gradient fw-bold m-0" style="font-size: 1.5rem;">
+                Log In to Finsphere Dashboard
+            </h1>
+            <p>
+                Sign in to access your dashboard and stay on top of your
+                financial activity real-time
+            </p>
 
             <div class="input-group input-group-email mb-3">
-                <span class="input-group-text" id="email-icon"><i class="bi bi-profile"></i></span>
-                <input bind:value={form.email} required type="email" class="form-control" placeholder="Email" aria-label="Email" aria-describedby="email-icon">
+                <span class="input-group-text" id="email-icon"
+                    ><i class="bi bi-profile"></i></span
+                >
+                <input
+                    bind:value={form.email}
+                    required
+                    type="email"
+                    class="form-control"
+                    placeholder="Email"
+                    aria-label="Email"
+                    aria-describedby="email-icon"
+                />
             </div>
-            <InputPassword bind:value={form.password} required/>
-            <div class="my-0 mb-3 text-end">
-                <a href="/forget-password" class="text-primary fw-bold text-decoration-none">Forgot Password</a>
+            <InputPassword bind:value={form.password} required />
+            <div class="mt-3 mb-3 text-end">
+                <a href="/forget-password" class="text-muted text-decoration-none"
+                    >Forgot Password?</a
+                >
             </div>
-            <button type="submit" class="btn btn-gradient-primary w-100">Log In</button>
+            <button type="submit" class="btn btn-gradient-primary w-100"
+                >Log In</button
+            >
         </form>
     </div>
 </div>
@@ -165,16 +187,17 @@
             height: 100%;
 
             .image-wrapper {
-                width: 50vw; 
+                width: 50vw;
                 height: 100vh;
                 overflow: hidden;
 
                 img {
-                    width: 120%;
+                    width: 111%;
                     height: 130%;
                     object-fit: cover;
                     object-position: top;
-                    transform: scale(1.07);
+                    transform: scale(1.27);
+                    
                 }
 
                 .bottom-left-overlay {
@@ -185,7 +208,7 @@
                     height: 100vh;
                     background: radial-gradient(
                         120% 120% at bottom left,
-                        #A966FF,
+                        #a966ff,
                         rgba(169, 102, 255, 0.15),
                         transparent 90%
                     );
@@ -200,7 +223,7 @@
                     height: 100vh;
                     background: radial-gradient(
                         120% 120% at top right,
-                        #A966FF,
+                        #a966ff,
                         rgba(169, 102, 255, 0.15),
                         transparent 90%
                     );
@@ -208,5 +231,13 @@
                 }
             }
         }
+    }
+
+    .text-gradient {
+        background: linear-gradient(183deg, #358ffc, #358ffc, #ec4899);
+        filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.04))
+            drop-shadow(0 4px 3px rgba(0, 0, 0, 0.1));
+        color: transparent;
+        -webkit-background-clip: text;
     }
 </style>

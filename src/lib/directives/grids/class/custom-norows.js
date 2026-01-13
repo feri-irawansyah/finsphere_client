@@ -13,19 +13,19 @@ class CustomNoRowsOverlay {
                         <h4>No data available</h4>
                         <span>Add new data or adjust your filters to see result.</span>
                     </div>
-                    <a class="btn btn-primary overlay-add-btn">
+                    <!-- <a class="btn btn-primary overlay-add-btn">
                         <span class="mx-1 text-white">Refresh Data</span>
-                    </a>
+                    </a> -->
                 </div>
             `;
 
             // simpan handler
-            this.onButtonClick = () => {
-                if (typeof refresh === "function") refresh();
-            };
+            // this.onButtonClick = () => {
+            //     if (typeof refresh === "function") refresh();
+            // };
 
-            this.button = this.eGui.querySelector(".overlay-add-btn");
-            this.button.addEventListener("click", this.onButtonClick);
+            // this.button = this.eGui.querySelector(".overlay-add-btn");
+            // this.button.addEventListener("click", this.onButtonClick);
     }
 
     getGui() {

@@ -1,10 +1,10 @@
 <script>
-    import ModalRoles from '$lib/components/molecules/modals/ModalRoles.svelte';
-    import ClientGrid from '$lib/directives/grids/ClientGrid.svelte';
-    import modalStore from '$lib/directives/modal/functions/modal-store.js';
-    import { applicationStore } from '$lib/stores/applicationStore.js';
-    import { onMount } from 'svelte';
-    import Swal from 'sweetalert2';
+    import ModalRoles from "$lib/components/molecules/modals/ModalRoles.svelte";
+    import ClientGrid from "$lib/directives/grids/ClientGrid.svelte";
+    import modalStore from "$lib/directives/modal/functions/modal-store.js";
+    import { applicationStore } from "$lib/stores/applicationStore.js";
+    import { onMount } from "svelte";
+    import Swal from "sweetalert2";
 
     const { data } = $props();
 
@@ -15,7 +15,7 @@
     onMount(() => {
         modalStore.setup({
             id: `modal-${data.tableName}`,
-            size: "lg",
+            size: "xl",
             component: ModalRoles,
             params: data,
         });
@@ -46,10 +46,15 @@
                 on:refresh={(e) => (refresh = e.detail)}
                 on:excel={(e) => (excel = e.detail)}
                 on:doubleClicked={(e) =>
-                    modalStore.open("Update role", "", {
-                        actions: "update",
-                        uid: e.detail.roleUid,
-                    })}
+                    modalStore.open(
+                        `modal-${data.tableName}`,
+                        "Update role",
+                        "",
+                        {
+                            actions: "update",
+                            uid: e.detail.roleUid,
+                        },
+                    )}
             />
         </div>
     </div>

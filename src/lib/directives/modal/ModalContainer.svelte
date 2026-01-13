@@ -38,13 +38,11 @@
     });
 
     $effect(() => {
-
         if (!modalInstance || !isMounted) return;
 
-        if (state.open && state.component)
-            modalInstance.show();
-        else 
-            modalInstance.hide();
+        if (state.open && state.component) modalInstance.show();
+        else modalInstance.hide();
+
     });
 </script>
 
@@ -61,16 +59,24 @@
         <div class="modal-content">
             <!-- header -->
             <div class="modal-header flex-column justify-content-center pb-2">
-                <h5 class="modal-title">{state.title}</h5>
+                <h5 class="modal-title">
+                    {state.title}
+
+                    {#if state.loading}<span
+                            class="spinner-border spinner-border-sm me-2 mb-1"
+                        ></span>{/if}
+                </h5>
                 {#if state.subTitle}
                     <p class="text-muted text-center mt-1 px-5">
                         {state.subTitle}
                     </p>
                 {/if}
             </div>
-
+            
             <!-- body -->
-            <fieldset disabled={state.loading}>
+            <fieldset
+                disabled={state.params.isFormDisabled}
+            >
                 {#if state.component}
                     {#key state.instanceKey}
                         {@render state.component?.()}
@@ -100,8 +106,7 @@
                                 <button
                                     type="button"
                                     class="btn btn-outline-danger w-100"
-                                    data-bs-dismiss="modal"
-                                    disabled={state.loading}>Close</button
+                                    data-bs-dismiss="modal">Close</button
                                 >
                             </div>
                         {/if}
@@ -124,8 +129,7 @@
                                 <button
                                     type="button"
                                     class="btn btn-outline-danger w-100"
-                                    data-bs-dismiss="modal"
-                                    disabled={state.loading}>Close</button
+                                    data-bs-dismiss="modal">Close</button
                                 >
                             </div>
                         {/if}
@@ -145,10 +149,10 @@
                         {:else if !state.params.isFormDisabled && !state.wizard.enabled && state.loading}
                             <div class="col-12 col-md-8 mt-2">
                                 <button
-                                    type="submit"
+                                    type="button"
                                     class="btn btn-gradient-primary w-100"
-                                    disabled={state.loading}
                                     form="formSubmit-{$modalStore.id}"
+                                    disabled={state.loading}
                                     ><span
                                         class="spinner-border spinner-border-sm me-2"
                                     ></span>
@@ -164,8 +168,7 @@
                         <button
                             type="button"
                             class="btn btn-outline-danger px-5"
-                            data-bs-dismiss="modal"
-                            disabled={state.loading}>Close</button
+                            data-bs-dismiss="modal">Close 1</button
                         >
                     </div>
                     <div>
@@ -198,8 +201,8 @@
                             <button
                                 type="submit"
                                 class="btn btn-gradient-primary px-5 me-2"
-                                disabled={state.loading}
                                 form="formSubmit-{$modalStore.id}"
+                                disabled={state.loading}
                             >
                                 Create tenant
                             </button>
@@ -207,37 +210,25 @@
                             <button
                                 type="submit"
                                 class="btn btn-gradient-primary px-5 me-2"
-                                disabled={state.loading}
                                 form="formSubmit-{$modalStore.id}"
+                                disabled={state.loading}
                                 ><span
                                     class="spinner-border spinner-border-sm me-2"
                                 ></span>
                                 Creating tenant ...
                             </button>
                         {/if}
-                        <!-- <button
-                            type="button"
-                            class="btn btn-3d-outline-light px-10 me-2"
-                            >Previous</button
-                        >
-                        <button
-                            type="button"
-                            class="btn btn-3d-purple px-10 me-2">Next</button
-                        >
-                        <button
-                            type="submit"
-                            class="btn btn-3d-purple px-10 me-2"
-                        >
-                            <span ng-if="!isSubmitting">XX</span>
-                            <span ng-if="isSubmitting"
-                                ><span
-                                    class="spinner-border spinner-border-sm me-2"
-                                ></span>Creating tenant ...</span
-                            ></button
-                        > -->
                     </div>
                 </div>
             {/if}
         </div>
     </div>
 </div>
+
+<style>
+    .modal-title .spinner-border {
+        right: 15px;
+        position: absolute;
+        top: 23px;
+    }
+</style>

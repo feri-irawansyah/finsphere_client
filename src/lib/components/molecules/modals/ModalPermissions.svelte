@@ -23,13 +23,17 @@
     const uid = $derived(params.uid);
 
     const url = `${applicationStore.urlPlatformConsole}/permissions`;
+    
+    onMount(async () => {
+        try {
+            if (!uid) return;
 
-    $effect(async () => {
-        if (!uid) return;
+            const res = await fetcher(fetch, `${url}/${uid}`);
 
-        const res = await fetcher(fetch, `${url}/${uid}`);
-
-        formData = res;
+            formData = res;
+        } catch (error) {
+            console.error("error", error);
+        }
     });
 
     async function onSubmit(e, formData) {
@@ -56,7 +60,7 @@
     id="formSubmit-{$modalStore.id}"
     onsubmit={async (e) => await onSubmit(e, formData)}
 >
-    <div class="modal-body">
+    <div class="modal-body modal-scroll">
         <div class="row">
             <div class="col-12 mb-4">
                 <label class="form-label" for="permissionId"
@@ -67,7 +71,6 @@
                     type="text"
                     class="form-control"
                     bind:value={formData.permissionId}
-                    disabled={params.isFormDisabled}
                     placeholder="e.g. Permission Add"
                     required
                 />
@@ -79,7 +82,6 @@
                     type="text"
                     class="form-control"
                     bind:value={formData.name}
-                    disabled={params.isFormDisabled}
                     placeholder="e.g. Permission Open"
                     required
                 />
@@ -91,7 +93,6 @@
                     type="text"
                     class="form-control"
                     rows="6"
-                    disabled={params.isFormDisabled}
                     bind:value={formData.description}
                     required
                 ></textarea>
@@ -105,8 +106,8 @@
                     labelKey={["serviceId", "name"]}
                     valueKey="serviceId"
                     placeholder="Please choose one option"
-                    required
                     disabled={params.isFormDisabled}
+                    required
                 />
             </div>
         </div>

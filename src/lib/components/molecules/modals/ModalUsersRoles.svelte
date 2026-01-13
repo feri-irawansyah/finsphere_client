@@ -11,21 +11,24 @@
 
     let formData = $state({
         userUid: "",
-        roleUid: ""
+        roleUid: "",
     });
 
-    const { params } = $derived(
-        $modalStore.currentModal
-    );
+    const { params } = $derived($modalStore.currentModal);
+    const uid = $derived(params.uid);
 
     const url = `${applicationStore.urlPlatformConsole}/usersroles`;
 
-    $effect(async () => {
-        if (!params.uid) return;
+    onMount(async () => {
+        try {
+            if (!uid) return;
 
-        const res = await fetcher(fetch, `${url}/${params.uid}`);
+            const res = await fetcher(fetch, `${url}/${uid}`);
 
-        formData = res;
+            formData = res;
+        } catch (error) {
+            console.error("error", error);
+        }
     });
 
     async function onSubmit(e, formData) {
@@ -46,14 +49,13 @@
     }
 
     $inspect(formData);
-
 </script>
 
 <form
     id="formSubmit-{$modalStore.id}"
     onsubmit={async (e) => await onSubmit(e, formData)}
 >
-    <div class="modal-body">
+    <div class="modal-body modal-scroll">
         <div class="row">
             <div class="col-12 mb-3">
                 <label class="form-label" for="userUid">User ID</label>
@@ -77,8 +79,8 @@
                     labelKey={["roleId", "description"]}
                     valueKey="roleUid"
                     placeholder="Please choose one option"
-                    required
                     disabled={params.isFormDisabled}
+                    required
                 />
             </div>
         </div>

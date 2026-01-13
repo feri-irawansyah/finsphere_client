@@ -24,14 +24,18 @@
 
     const url = `${applicationStore.urlPlatformConsole}/users`;
 
-    $effect(async () => {
-        if (!uid) return;
+    onMount(async () => {
+        try {
+            if (!uid) return;
 
-        const res = await fetcher(fetch, `${url}/${uid}`);
+            const res = await fetcher(fetch, `${url}/${uid}`);
 
-        formData = res;
-        formData.entryTime = moment(res.entryTime).format("LL - LTS");
-        formData.updateTime = moment(res.updateTime).format("LL - LTS");
+            formData = res;
+            formData.entryTime = moment(res.entryTime).format("LL - LTS");
+            formData.updateTime = moment(res.updateTime).format("LL - LTS");
+        } catch (error) {
+            console.error("error", error);
+        }
     });
 
     async function onSubmit(e, formData) {
@@ -59,7 +63,7 @@
     id="formSubmit-{$modalStore.id}"
     onsubmit={async (e) => await onSubmit(e, formData)}
 >
-    <div class="modal-body">
+    <div class="modal-body modal-scroll">
         <div class="row">
             <div class="col-12 mb-3">
                 <h6 class="text-muted fw-bold">DATA INFORMATION</h6>
@@ -71,7 +75,6 @@
                     type="text"
                     class="form-control"
                     bind:value={formData.name}
-                    disabled={params.isFormDisabled}
                     placeholder="e.g. Administrator XX Sekuritas Indonesia"
                     required
                 />
@@ -83,7 +86,6 @@
                     type="email"
                     class="form-control"
                     bind:value={formData.email}
-                    disabled={params.isFormDisabled}
                     placeholder="e.g. Administrator XX Sekuritas Indonesia"
                     required
                 />
@@ -95,7 +97,6 @@
                     required
                     withicon="false"
                     id="pwd"
-                    disabled={params.isFormDisabled}
                 />
             </div>
             <div class="col-12 col-md-6 mb-3">
@@ -106,7 +107,6 @@
                     id="pwdExpDate"
                     type="date"
                     class="form-control"
-                    disabled={params.isFormDisabled}
                     bind:value={formData.pwdExpDate}
                     parse-date
                     required

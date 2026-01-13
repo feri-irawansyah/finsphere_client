@@ -8,6 +8,7 @@
     import InputPassword from "$lib/directives/inputs/InputPassword.svelte";
     import { applicationStore } from "$lib/stores/applicationStore";
     import fetcher from "$lib/fetcher";
+    import { onMount } from "svelte";
 
     let activeTab = $state(1);
 
@@ -25,13 +26,17 @@
     });
 
     const url = `${applicationStore.urlPlatformConsole}/tenants`;
+    
+    onMount(async () => {
+        try {
+            if (!uid) return;
 
-    $effect(async () => {
-        if (!uid) return;
+            const res = await fetcher(fetch, `${url}/${uid}`);
 
-        const res = await fetcher(fetch, `${url}/${uid}`);
-
-        formData = res;
+            formData = res;
+        } catch (error) {
+            console.error("error", error);
+        }
     });
 
     async function onSubmit(e, formData) {
@@ -64,7 +69,7 @@
     }
 </script>
 
-<div class="modal-body">
+<div class="modal-body modal-scroll">
     <WizardComponent
         {activeTab}
         wizardHeader={params.wizardHeader}
@@ -89,7 +94,6 @@
                             autocomplete="one-time-code"
                             bind:value={formData.tenantId}
                             required
-                            disabled={params.isFormDisabled}
                         />
                     </div>
                     <div class="mb-3">
@@ -101,7 +105,6 @@
                             autocomplete="one-time-code"
                             bind:value={formData.name}
                             required
-                            disabled={params.isFormDisabled}
                         />
                     </div>
                     <div class="col-12 mb-3">
@@ -119,7 +122,7 @@
                                 formData.serviceUid = "";
                             }}
                             required
-                            disabled={params.isFormDisabled}
+                    disabled={params.isFormDisabled}
                         />
                     </div>
 
@@ -136,7 +139,7 @@
                                 valueKey="serviceUid"
                                 placeholder="Please choose one option"
                                 required
-                                disabled={params.isFormDisabled}
+                    disabled={params.isFormDisabled}
                             />
                         </div>
                     {/if}
@@ -152,7 +155,6 @@
                             class="form-control"
                             bind:value={formData.email}
                             autocomplete="one-time-code"
-                            disabled={params.isFormDisabled}
                             placeholder="e.g. johndoe@gmail.com"
                             required
                         />
@@ -165,7 +167,6 @@
                             class="form-control"
                             bind:value={formData.userName}
                             autocomplete="one-time-code"
-                            disabled={params.isFormDisabled}
                             placeholder="e.g. John Doe"
                             required
                         />
@@ -178,7 +179,6 @@
                             autocomplete="one-time-code"
                             required
                             withicon="false"
-                            disabled={params.isFormDisabled}
                         />
                     </div>
                 {/if}

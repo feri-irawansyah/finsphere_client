@@ -193,17 +193,25 @@
         {/if}
 
         <!-- create new modal -->
-        <button
-            type="button"
-            class="btn btn-gradient-primary"
-            onclick={() =>
-                modalStore.open(`modal-${tableName}`, createNewModal.title, createNewModal.subTitle, {
-                    actions: "create",
-                }, createNewModal.wizardParams)}
-        >
-            <i class="bi {createNewModal.icon} pe-2"></i>
-            <span>{createNewModal.label}</span>
-        </button>
+        {#if createNewModal.title}
+            <button
+                type="button"
+                class="btn btn-gradient-primary"
+                onclick={() =>
+                    modalStore.open(
+                        `modal-${tableName}`,
+                        createNewModal.title,
+                        createNewModal.subTitle,
+                        {
+                            actions: "create",
+                        },
+                        createNewModal.wizardParams,
+                    )}
+            >
+                <i class="bi {createNewModal.icon} pe-2"></i>
+                <span>{createNewModal.label}</span>
+            </button>
+        {/if}
     </div>
 </div>
 <div class="grid-layout" style="height: {layout}vh;">
