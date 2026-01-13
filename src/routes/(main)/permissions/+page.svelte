@@ -35,7 +35,7 @@
                 {quickFilterFn}
                 {excel}
                 {refresh}
-                createNewLabel={{
+                createNewModal={{
                     label: "Create New Permission",
                     title: "Create new permission",
                     subTitle: "",
@@ -46,7 +46,7 @@
                 on:refresh={(e) => (refresh = e.detail)}
                 on:excel={(e) => (excel = e.detail)}
                 on:doubleClicked={(e) =>
-                    modalStore.open("Update data permission", "", {
+                    modalStore.open(`modal-${data.tableName}`, "Update data permission", "", {
                         actions: "update",
                         uid: e.detail.permissionUid,
                     })}

@@ -19,14 +19,16 @@
         isEnabled: true,
     });
 
-    const { actions, uid, isFormDisabled } = $derived($modalStore.currentModal.params);
+    const { params } = $derived(
+        $modalStore.currentModal
+    );
 
     const url = `${applicationStore.urlPlatformConsole}/users`;
 
     $effect(async () => {
-        if (!uid) return;
+        if (!params.uid) return;
 
-        const res = await fetcher(fetch, `${url}/${uid}`);
+        const res = await fetcher(fetch, `${url}/${params.uid}`);
 
         formData = res;
         formData.entryTime = moment(formData.entryTime).format("LL - LTS");
@@ -44,8 +46,8 @@
 
         let method = "";
 
-        if (actions == "create") method = "POST";
-        else if (actions == "update") {
+        if (params.actions == "create") method = "POST";
+        else if (params.actions == "update") {
             method = "PUT";
             payload.userUid = formData.userUid;
         }
@@ -70,7 +72,7 @@
                     type="text"
                     class="form-control"
                     bind:value={formData.name}
-                    disabled={isFormDisabled}
+                    disabled={params.isFormDisabled}
                     placeholder="e.g. Administrator XX Sekuritas Indonesia"
                     required
                 />
@@ -82,14 +84,14 @@
                     type="email"
                     class="form-control"
                     bind:value={formData.email}
-                    disabled={isFormDisabled}
+                    disabled={params.isFormDisabled}
                     placeholder="e.g. Administrator XX Sekuritas Indonesia"
                     required
                 />
             </div>
             <div class="col-12 col-md-6 mb-3">
                 <label class="form-label" for="password">Password</label>
-                <InputPassword bind:value={formData.pwd} required withicon="false" id="pwd" disabled={$modalStore.params.isFormDisabled}/>
+                <InputPassword bind:value={formData.pwd} required withicon="false" id="pwd" disabled={params.isFormDisabled}/>
             </div>
             <div class="col-12 col-md-6 mb-3">
                 <label class="form-label" for="pwdExpDate"
@@ -99,7 +101,7 @@
                     id="pwdExpDate"
                     type="date"
                     class="form-control"
-                    disabled={isFormDisabled}
+                    disabled={params.isFormDisabled}
                     bind:value={formData.pwdExpDate}
                     parse-date
                     required

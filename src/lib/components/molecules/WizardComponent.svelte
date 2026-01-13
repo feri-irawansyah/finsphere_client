@@ -9,7 +9,7 @@
     const { wizardHeader, activeTab, children, wizardTitle, subTitle } =
         $props();
 
-    const state = $derived($modalStore);
+    const state = $derived($modalStore.currentModal);
 
     const activeIndex = $derived(state.wizard.step);
 </script>

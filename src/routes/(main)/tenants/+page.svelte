@@ -34,14 +34,14 @@
         <div class="col-12">
             <ClientGrid
                 columns={data.columns}
-                url={`${$applicationStore.urlPlatformConsole}/${data.tableName}`}
+                url={`${applicationStore.urlPlatformConsole}/${data.tableName}`}
                 height={100}
                 layout={85}
                 tableName={data.tableName}
                 {quickFilterFn}
                 {excel}
                 {refresh}
-                createNewLabel={{
+                createNewModal={{
                     label: "Create New tenant",
                     title: "Create new tenant",
                     subTitle:
@@ -59,6 +59,7 @@
                 on:excel={(e) => (excel = e.detail)}
                 on:doubleClicked={(e) =>
                     modalStore.open(
+                        `modal-${data.tableName}`,
                         "View tenant",
                         "",
                         {

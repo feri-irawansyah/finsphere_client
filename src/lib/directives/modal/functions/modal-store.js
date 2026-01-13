@@ -39,13 +39,13 @@ function createModalStore() {
         setup(config) {
             // Handle both single object and array
             const configs = Array.isArray(config) ? config : [config];
-            
+
             update(state => {
                 const newModals = [...state.modals];
-                
+
                 configs.forEach(config => {
                     const existingIndex = newModals.findIndex(m => m.id === config.id);
-                    
+
                     if (existingIndex >= 0) {
                         // Update existing
                         newModals[existingIndex] = {
@@ -65,7 +65,7 @@ function createModalStore() {
                         });
                     }
                 });
-                
+
                 return {
                     ...state,
                     modals: newModals
@@ -74,8 +74,10 @@ function createModalStore() {
         },
 
         // Open modal by ID
-        open(modalId, title = "", subTitle = "", params = {}) {
+        open(modalId, title = "", subTitle = "", params = {}, wizard = {}) {
+
             update(state => {
+                
                 const modalIndex = state.modals.findIndex(m => m.id === modalId);
                 if (modalIndex === -1) {
                     console.warn(`Modal ${modalId} not found. Make sure to setup() first.`);
@@ -83,7 +85,7 @@ function createModalStore() {
                 }
 
                 const modal = state.modals[modalIndex];
-                
+
                 const updatedModal = {
                     ...modal,
                     title,
@@ -95,6 +97,9 @@ function createModalStore() {
                         isFormDisabled: params.actions == "update"
                             ? true
                             : modal.params.isFormDisabled
+                    },
+                    wizard: {
+                        ...wizard
                     }
                 };
 
@@ -115,10 +120,10 @@ function createModalStore() {
         close() {
             update(state => {
                 if (state.activeModal === null) return state;
-                
+
                 const modalIndex = state.activeModal;
                 const modal = state.modals[modalIndex];
-                
+
                 if (!modal) return state;
 
                 const updatedModal = {
@@ -144,10 +149,10 @@ function createModalStore() {
         resetRuntime() {
             update(state => {
                 if (state.activeModal === null) return state;
-                
+
                 const modalIndex = state.activeModal;
                 const modal = state.modals[modalIndex];
-                
+
                 if (!modal) return state;
 
                 const updatedModal = {
@@ -189,10 +194,10 @@ function createModalStore() {
         editMode(isFormDisabled = false) {
             update(state => {
                 if (state.activeModal === null) return state;
-                
+
                 const modalIndex = state.activeModal;
                 const modal = state.modals[modalIndex];
-                
+
                 if (!modal) return state;
 
                 const updatedModal = {
@@ -235,7 +240,7 @@ function createModalStore() {
 
                 const modal = state.modals[modalIndex];
                 const updatedModal = { ...modal, ...updates };
-                
+
                 const newModals = [...state.modals];
                 newModals[modalIndex] = updatedModal;
 
@@ -251,7 +256,76 @@ function createModalStore() {
 
                 return newState;
             });
-        }
+        },
+
+        setWizard({ step = 0, total = 0, enabled = false }) {
+            update(m => ({
+                ...m,
+                currentModal: {
+                    ...m.currentModal,
+                    wizard: {
+                        enabled,
+                        step,
+                        total
+                    }
+                }
+            }));
+        },
+
+        nextStep() {
+            update(m => {
+                const w = m.currentModal.wizard;
+                console.log("wewe 1", w)
+
+                if (!w.enabled) return m;
+                if (w.step >= w.total) return m;
+
+                return {
+                    ...m,
+                    currentModal: {
+                        ...m.currentModal,
+                        wizard: {
+                            ...w,
+                            step: w.step + 1
+                        }
+                    }
+                };
+            });
+        },
+
+        prevStep() {
+            update(m => {
+                const w = m.currentModal.wizard;
+
+                if (!w.enabled) return m;
+                if (w.step <= 0) return m;
+
+                return {
+                    ...m,
+                    currentModal: {
+                        ...m.currentModal,
+                        wizard: {
+                            ...w,
+                            step: w.step - 1
+                        }
+                    }
+                };
+            });
+        },
+
+        setLoading(loading = true) {
+            update(m => {
+
+                return {
+                    ...m,
+                    currentModal: {
+                        ...m.currentModal,
+                        loading
+                    }
+                };
+            });
+        },
+
     };
 }
 

@@ -11,9 +11,7 @@
 
     let activeTab = $state(1);
 
-    const { wizardHeader, nextStepWizard, submitData } = $derived(
-        $modalStore.params,
-    );
+    const { params, wizard } = $derived($modalStore.currentModal);
 
     let formData = $state({
         tenantId: "",
@@ -25,13 +23,12 @@
         userName: "",
     });
 
-    const url = `${$applicationStore.urlPlatformConsole}/tenants`;
+    const url = `${applicationStore.urlPlatformConsole}/tenants`;
 
     $effect(async () => {
-        console.log("$modalstore", $modalStore);
-        if (!$modalStore.params.uid) return;
+        if (!params.uid) return;
 
-        const res = await fetcher(fetch, `${url}/${$modalStore.params.uid}`);
+        const res = await fetcher(fetch, `${url}/${params.uid}`);
 
         formData = res;
     });
@@ -39,7 +36,7 @@
     async function onSubmit(e, formData) {
         e.preventDefault();
 
-        if ($modalStore.wizard.step !== 1) {
+        if (wizard.step !== 1) {
             modalStore.nextStep();
             return;
         }
@@ -56,8 +53,8 @@
 
         let method = "";
 
-        if ($modalStore.params.actions == "create") method = "POST";
-        else if ($modalStore.params.actions.actions == "update") {
+        if (params.actions == "create") method = "POST";
+        else if (params.actions == "update") {
             method = "PUT";
             payload.tenantUid = formData.tenantUid;
         }
@@ -69,9 +66,9 @@
 <div class="modal-body">
     <WizardComponent
         {activeTab}
-        {wizardHeader}
-        wizardTitle={$modalStore.title}
-        subTitle={$modalStore.subTitle}
+        wizardHeader={params.wizardHeader}
+        wizardTitle={params.title}
+        subTitle={params.subTitle}
     >
         {#snippet children(id)}
             <!-- STEP 1 -->
@@ -91,7 +88,7 @@
                             autocomplete="one-time-code"
                             bind:value={formData.tenantId}
                             required
-                            disabled={$modalStore.params.isFormDisabled}
+                            disabled={params.isFormDisabled}
                         />
                     </div>
                     <div class="mb-3">
@@ -103,7 +100,7 @@
                             autocomplete="one-time-code"
                             bind:value={formData.name}
                             required
-                            disabled={$modalStore.params.isFormDisabled}
+                            disabled={params.isFormDisabled}
                         />
                     </div>
                     <div class="col-12 mb-3">
@@ -111,6 +108,7 @@
                             >Tenant Category</label
                         >
                         <AutoSelect
+                            id="mvServiceCategory"
                             lookup="mastervalues/TENANT_CATEGORY"
                             bind:value={formData.mvTenantCategory}
                             labelKey={["code"]}
@@ -120,23 +118,24 @@
                                 formData.serviceUid = "";
                             }}
                             required
-                            disabled={$modalStore.params.isFormDisabled}
+                            disabled={params.isFormDisabled}
                         />
                     </div>
 
-                    {#if formData.mvTenantCategory && $modalStore.wizard.step != 2}
+                    {#if formData.mvTenantCategory && wizard.step != 2}
                         <div class="col-12 mb-3">
                             <label class="form-label" for="serviceUid"
                                 >Service</label
                             >
                             <AutoSelect
+                                id="serviceUid"
                                 lookup="servicesbytenantcategory/{formData.mvTenantCategory}"
                                 bind:value={formData.serviceUid}
                                 labelKey={["serviceId", "name"]}
                                 valueKey="serviceUid"
                                 placeholder="Please choose one option"
                                 required
-                                disabled={$modalStore.params.isFormDisabled}
+                                disabled={params.isFormDisabled}
                             />
                         </div>
                     {/if}
@@ -144,7 +143,7 @@
 
                 <!-- STEP 2 -->
                 {#if id === 1 || id === 2}
-                    {#if $modalStore.wizard.step != 2}
+                    {#if wizard.step != 2}
                         <div class="mb-3">
                             <label class="form-label" for="email">Email</label>
                             <input
@@ -153,7 +152,7 @@
                                 class="form-control"
                                 bind:value={formData.email}
                                 autocomplete="one-time-code"
-                                disabled={$modalStore.params.isFormDisabled}
+                                disabled={params.isFormDisabled}
                                 placeholder="e.g. johndoe@gmail.com"
                                 required
                             />
@@ -167,12 +166,12 @@
                             class="form-control"
                             bind:value={formData.userName}
                             autocomplete="one-time-code"
-                            disabled={$modalStore.params.isFormDisabled}
+                            disabled={params.isFormDisabled}
                             placeholder="e.g. John Doe"
                             required
                         />
                     </div>
-                    {#if $modalStore.wizard.step != 2}
+                    {#if wizard.step != 2}
                         <div class="mb-3">
                             <label class="form-label" for="pwd">Password</label>
                             <InputPassword
@@ -181,7 +180,7 @@
                                 autocomplete="one-time-code"
                                 required
                                 withicon="false"
-                                disabled={$modalStore.params.isFormDisabled}
+                                disabled={params.isFormDisabled}
                             />
                         </div>
                     {/if}

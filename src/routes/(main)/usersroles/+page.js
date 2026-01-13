@@ -36,9 +36,9 @@ export const load = ({ parent }) => {
                         modalStore.open("modal-users", "View user", "",
                             {
                                 actions: "update",
-                                uid: e.detail.userUid,
+                                uid: params.data.userUid,
                                 isFormViewOnly: true
-                            }, "modal-users")
+                            })
                     }
                     return a;
                 }
@@ -51,12 +51,14 @@ export const load = ({ parent }) => {
                     a.innerText = params.value;
                     a.href = "#";
                     a.onclick = (e) => {
+                        console.log("e",e)
+                        console.log("e",params)
                         e.preventDefault();
 
                         modalStore.open("modal-roles", "View role", "",
                             {
                                 actions: "update",
-                                uid: e.detail.roleUid,
+                                uid: params.data.roleUid,
                                 isFormViewOnly: true
                             })
                     }

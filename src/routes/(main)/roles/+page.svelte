@@ -2,6 +2,7 @@
     import ModalRoles from '$lib/components/molecules/modals/ModalRoles.svelte';
     import ClientGrid from '$lib/directives/grids/ClientGrid.svelte';
     import modalStore from '$lib/directives/modal/functions/modal-store.js';
+    import { applicationStore } from '$lib/stores/applicationStore.js';
     import { onMount } from 'svelte';
     import Swal from 'sweetalert2';
 
@@ -34,7 +35,7 @@
                 {quickFilterFn}
                 {excel}
                 {refresh}
-                createNewLabel={{
+                createNewModal={{
                     label: "Create New Role",
                     title: "Create new role",
                     subTitle: "",

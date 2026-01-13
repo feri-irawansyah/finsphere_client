@@ -14,14 +14,16 @@
         roleUid: ""
     });
 
-    const { actions, uid, isFormDisabled } = $derived($modalStore.currentModal.params);
+    const { params } = $derived(
+        $modalStore.currentModal
+    );
 
     const url = `${applicationStore.urlPlatformConsole}/usersroles`;
 
     $effect(async () => {
-        if (!uid) return;
+        if (!params.uid) return;
 
-        const res = await fetcher(fetch, `${url}/${uid}`);
+        const res = await fetcher(fetch, `${url}/${params.uid}`);
 
         formData = res;
     });
@@ -34,8 +36,8 @@
 
         let method = "";
 
-        if (actions == "create") method = "POST";
-        else if (actions == "update") {
+        if (params.actions == "create") method = "POST";
+        else if (params.actions == "update") {
             method = "PUT";
             payload.userRoleUid = formData.userRoleUid;
         }
@@ -63,7 +65,7 @@
                     valueKey="userUid"
                     placeholder="Please choose one option"
                     required
-                    disabled={isFormDisabled}
+                    disabled={params.isFormDisabled}
                 />
             </div>
             <div class="col-12 mb-3">
@@ -76,7 +78,7 @@
                     valueKey="roleUid"
                     placeholder="Please choose one option"
                     required
-                    disabled={isFormDisabled}
+                    disabled={params.isFormDisabled}
                 />
             </div>
         </div>

@@ -22,7 +22,7 @@
         excel = null,
         refresh = null,
         quickFilterFn = null,
-        createNewLabel = {},
+        createNewModal = {},
         wizardParams = {},
     } = $props();
 
@@ -200,12 +200,12 @@
             data-bs-toggle="modal"
             data-bs-target={`#modal-${tableName}`}
             onclick={() =>
-                modalStore.open(`modal-${tableName}`, createNewLabel.title, createNewLabel.subTitle, {
+                modalStore.open(`modal-${tableName}`, createNewModal.title, createNewModal.subTitle, {
                     actions: "create",
-                })}
+                }, createNewModal.wizardParams)}
         >
-            <i class="bi {createNewLabel.icon} pe-2"></i>
-            <span>{createNewLabel.label}</span>
+            <i class="bi {createNewModal.icon} pe-2"></i>
+            <span>{createNewModal.label}</span>
         </button>
     </div>
 </div>

@@ -28,14 +28,14 @@
         <div class="col-12">
             <ClientGrid
                 columns={data.columns}
-                url={`${$applicationStore.urlPlatformConsole}/${data.tableName}`}
+                url={`${applicationStore.urlPlatformConsole}/${data.tableName}`}
                 height={100}
                 layout={84}
                 tableName={data.tableName}
                 {quickFilterFn}
                 {excel}
                 {refresh}
-                createNewLabel={{
+                createNewModal={{
                     label: "Create New Service Registration",
                     title: "Create new service registration",
                     subTitle: "",
@@ -46,10 +46,15 @@
                 on:refresh={(e) => (refresh = e.detail)}
                 on:excel={(e) => (excel = e.detail)}
                 on:doubleClicked={(e) =>
-                    modalStore.open("Update data service registration", "", {
-                        actions: "update",
-                        uid: e.detail.serviceRegistrationUid,
-                    })}
+                    modalStore.open(
+                        `modal-${data.tableName}`,
+                        "Update data service registration",
+                        "",
+                        {
+                            actions: "update",
+                            uid: e.detail.serviceRegistrationUid,
+                        },
+                    )}
             />
         </div>
     </div>

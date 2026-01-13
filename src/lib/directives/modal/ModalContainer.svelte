@@ -8,6 +8,8 @@
     
     // Gunakan currentModal dari store
     const state = $derived($modalStore.currentModal);
+
+    $inspect("state",state)
     
     // Flag untuk cek apakah modal sudah di-mount
     let isMounted = $state(false);
@@ -38,6 +40,8 @@
     });
 
     $effect(() => {
+
+        $inspect("state",state)
         if (!modalInstance || !isMounted) return;
 
         console.log("Modal state changed:", state.open, state.id);

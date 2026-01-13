@@ -37,7 +37,7 @@
                 {quickFilterFn}
                 {excel}
                 {refresh}
-                createNewLabel={{
+                createNewModal={{
                     label: "Create New User",
                     title: "Create new user",
                     subTitle: "",

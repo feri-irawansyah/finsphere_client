@@ -17,21 +17,21 @@
         mvTenantCategory: "",
     });
 
-    const { actions, uid } = $derived($modalStore.params);
+    const { params } = $derived($modalStore.currentModal);
 
-    const url = `${$applicationStore.urlPlatformConsole}/serviceregistrations`;
+    const url = `${applicationStore.urlPlatformConsole}/serviceregistrations`;
 
     $effect(async () => {
-        if (!uid) return;
+        if (!params.uid) return;
 
-        const res = await fetcher(fetch, `${url}/${uid}`);
+        const res = await fetcher(fetch, `${url}/${params.uid}`);
 
         formData = res;
 
         // get tenant:
         const tenantUid = await fetcher(
             fetch,
-            `${$applicationStore.urlPlatformConsole}/tenants/${formData.tenantUid}`,
+            `${applicationStore.urlPlatformConsole}/tenants/${formData.tenantUid}`,
         );
 
         formData.mvTenantCategory = tenantUid.mvTenantCategory;
@@ -47,8 +47,8 @@
 
         let method = "";
 
-        if (actions == "create") method = "POST";
-        else if (actions == "update") {
+        if (params.actions == "create") method = "POST";
+        else if (params.actions == "update") {
             method = "PUT";
             payload.serviceRegistrationUid = formData.serviceRegistrationUid;
             delete data.registerTime;
@@ -67,6 +67,7 @@
             <div class="col-12 mb-3">
                 <label class="form-label" for="tenantUid">Tenant ID</label>
                 <AutoSelect
+                    id="tenantUid"
                     lookup="tenants"
                     bind:value={formData.tenantUid}
                     labelKey={["tenantId", "name"]}
@@ -78,7 +79,7 @@
                         formData.serviceUid = "";
                     }}
                     required
-                    disabled={$modalStore.params.isFormDisabled}
+                    disabled={params.isFormDisabled}
                 />
             </div>
             {#if formData.mvTenantCategory}
@@ -87,13 +88,14 @@
                         >Service ID ({formData.mvTenantCategory})</label
                     >
                     <AutoSelect
+                        id="serviceUid"
                         lookup="servicesbytenantcategory/{formData.mvTenantCategory}"
                         bind:value={formData.serviceUid}
                         labelKey={["serviceId", "name"]}
                         valueKey="serviceUid"
                         placeholder="Please choose one option"
                         required
-                        disabled={$modalStore.params.isFormDisabled}
+                        disabled={params.isFormDisabled}
                     />
                 </div>
             {/if}
@@ -105,7 +107,7 @@
                     id="registerTime"
                     type="date"
                     class="form-control"
-                    disabled={$modalStore.params.isFormDisabled}
+                    disabled={params.isFormDisabled}
                     bind:value={formData.registerTime}
                     parse-date
                     required
@@ -122,7 +124,7 @@
                         <input
                             id="isDisabled"
                             bind:checked={formData.isDisabled}
-                            disabled={$modalStore.params.isFormDisabled}
+                            disabled={params.isFormDisabled}
                             class="form-check-input btn-lg"
                             type="checkbox"
                         />

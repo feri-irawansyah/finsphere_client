@@ -1,4 +1,5 @@
 <script>
+    import ModalRoles from "$lib/components/molecules/modals/ModalRoles.svelte";
     import ModalUsers from "$lib/components/molecules/modals/ModalUsers.svelte";
     import ModalUsersRoles from "$lib/components/molecules/modals/ModalUsersRoles.svelte";
     import ClientGrid from "$lib/directives/grids/ClientGrid.svelte";
@@ -28,6 +29,12 @@
                 component: ModalUsers,
                 params: data,
             },
+            {
+                id: `modal-roles`,
+                size: "lg",
+                component: ModalRoles,
+                params: data,
+            },
         ]);
     });
 </script>
@@ -45,7 +52,7 @@
                 {quickFilterFn}
                 {excel}
                 {refresh}
-                createNewLabel={{
+                createNewModal={{
                     label: "Create New User Role",
                     title: "Create new user role",
                     subTitle: "",

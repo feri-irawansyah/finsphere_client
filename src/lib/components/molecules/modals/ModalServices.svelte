@@ -3,7 +3,7 @@
     import modalStore, {
         submitDataModal,
     } from "$lib/directives/modal/functions/modal-store";
-    import fetcher from "$lib/fetcher"
+    import fetcher from "$lib/fetcher";
     import { applicationStore } from "$lib/stores/applicationStore";
     import moment from "moment";
     import { onMount } from "svelte";
@@ -15,17 +15,17 @@
         serviceId: "",
         mvServiceCategory: "",
         tenantCategoryFlags: "",
-        tenantCategoryFlagsList: ""
+        tenantCategoryFlagsList: "",
     });
 
-    const { actions, uid } = $derived($modalStore.params);
+    const { params } = $derived($modalStore.currentModal);
 
-    const url = `${$applicationStore.urlPlatformConsole}/services`;
+    const url = `${applicationStore.urlPlatformConsole}/services`;
 
     $effect(async () => {
-        if (!uid) return;
+        if (!params.uid) return;
 
-        const res = await fetcher(fetch, `${url}/${uid}`);
+        const res = await fetcher(fetch, `${url}/${params.uid}`);
 
         formData = res;
     });
@@ -42,8 +42,8 @@
 
         let method = "";
 
-        if (actions == "create") method = "POST";
-        else if (actions == "update") {
+        if (params.actions == "create") method = "POST";
+        else if (params.actions == "update") {
             method = "PUT";
             payload.serviceUid = formData.serviceUid;
         }
@@ -65,7 +65,7 @@
                     type="text"
                     class="form-control"
                     bind:value={formData.serviceId}
-                    disabled={$modalStore.params.isFormDisabled}
+                    disabled={params.isFormDisabled}
                     placeholder="e.g. ORDER_HANDLING"
                     required
                 />
@@ -77,7 +77,7 @@
                     type="text"
                     class="form-control"
                     bind:value={formData.name}
-                    disabled={$modalStore.params.isFormDisabled}
+                    disabled={params.isFormDisabled}
                     placeholder="e.g. Order Handling Service"
                     required
                 />
@@ -89,33 +89,40 @@
                     type="text"
                     class="form-control"
                     rows="6"
-                    disabled={$modalStore.params.isFormDisabled}
+                    disabled={params.isFormDisabled}
                     bind:value={formData.description}
                     required
                 ></textarea>
             </div>
             <div class="col-12 mb-3">
-                <label class="form-label" for="serviceUid">Service Category</label>
+                <label class="form-label" for="mvServiceCategory"
+                    >Service Category</label
+                >
                 <AutoSelect
+                    id="mvServiceCategory"
                     lookup="mastervalues/SERVICE_CATEGORY"
                     bind:value={formData.mvServiceCategory}
                     labelKey={["code"]}
                     valueKey="code"
                     placeholder="Please choose one option"
                     required
-                    disabled={$modalStore.params.isFormDisabled}
+                    disabled={params.isFormDisabled}
                 />
             </div>
             <div class="col-12 mb-3">
-                <label class="form-label" for="serviceUid">Tenant Category Flags</label>
+                <label class="form-label" for="tenantCategoryFlagsList"
+                    >Tenant Category Flags</label
+                >
                 <AutoSelect
+                    id="tenantCategoryFlagsList"
                     lookup="mastervalues/TENANT_CATEGORY"
-                    bind:value={formData.mvServiceCategory}
+                    bind:value={formData.tenantCategoryFlagsList}
                     labelKey={["code"]}
                     valueKey="code"
                     placeholder="Please choose options"
                     required
-                    disabled={$modalStore.params.isFormDisabled}
+                    disabled={params.isFormDisabled}
+                    multiple
                 />
             </div>
         </div>

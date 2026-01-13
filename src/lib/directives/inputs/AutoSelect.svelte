@@ -7,6 +7,7 @@
     const dispatch = createEventDispatcher();
 
     let {
+        id = "",
         lookup = null,
         options = [],
         valueKey = "value",
@@ -50,7 +51,10 @@
         loading = true;
 
         try {
-            const res = await fetcher(fetch, `${applicationStore[mapGroup]}/${lookup}`);
+            const res = await fetcher(
+                fetch,
+                `${applicationStore[mapGroup]}/${lookup}`,
+            );
 
             items = res.map((x) => ({
                 value: x[valueKey],
@@ -74,6 +78,27 @@
     //     }
     // });
 
+    // $effect(() => {
+
+    //     console.log("items",items);
+    //     if (!items.length) return;
+
+    //     if (value == null) {
+    //         selection = null;
+    //         return;
+    //     }
+
+    //     if(multiple) {
+    //         selection = items.filter((i) => value.includes(i.value));
+    //     } else {
+    //         console.log("value",value)
+    //         const match = items.find((i) => i.value === value);
+    //         if (match && match !== selection) {
+    //             selection = match;
+    //         }
+    //     }
+    // });
+
     $effect(() => {
         if (!items.length) return;
 
@@ -82,28 +107,27 @@
             return;
         }
 
-        if(multiple) {
+        if (multiple) {
             selection = items.filter((i) => value.includes(i.value));
         } else {
             const match = items.find((i) => i.value === value);
-            if (match && match !== selection) {
-                selection = match;
-            }
+            selection = match ?? null;
         }
     });
 
     function handleChange(e) {
-        console.log("handleChange", e.detail);
         if (multiple) {
             value = e.detail.map((i) => i.value);
         } else {
             value = e.detail?.value ?? null;
         }
+
         dispatch("change", e.detail);
     }
 </script>
 
 <Select
+    {id}
     {items}
     bind:value={selection}
     {placeholder}

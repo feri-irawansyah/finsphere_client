@@ -19,14 +19,16 @@
         isEnabled: true,
     });
 
-    const { actions, uid } = $derived($modalStore.params);
+    const { params } = $derived(
+        $modalStore.currentModal
+    );
 
     const url = `${applicationStore.urlPlatformConsole}/permissions`;
 
     $effect(async () => {
-        if (!uid) return;
+        if (!params.uid) return;
 
-        const res = await fetcher(fetch, `${url}/${uid}`);
+        const res = await fetcher(fetch, `${url}/${params.uid}`);
 
         formData = res;
     });
@@ -41,8 +43,8 @@
 
         let method = "";
 
-        if (actions == "create") method = "POST";
-        else if (actions == "update") {
+        if (params.actions == "create") method = "POST";
+        else if (params.actions == "update") {
             method = "PUT";
             payload.permissionUid = formData.permissionUid;
         }
@@ -64,7 +66,7 @@
                     type="text"
                     class="form-control"
                     bind:value={formData.permissionId}
-                    disabled={$modalStore.params.isFormDisabled}
+                    disabled={params.isFormDisabled}
                     placeholder="e.g. Permission Add"
                     required
                 />
@@ -76,7 +78,7 @@
                     type="text"
                     class="form-control"
                     bind:value={formData.name}
-                    disabled={$modalStore.params.isFormDisabled}
+                    disabled={params.isFormDisabled}
                     placeholder="e.g. Permission Open"
                     required
                 />
@@ -88,7 +90,7 @@
                     type="text"
                     class="form-control"
                     rows="6"
-                    disabled={$modalStore.params.isFormDisabled}
+                    disabled={params.isFormDisabled}
                     bind:value={formData.description}
                     required
                 ></textarea>
@@ -96,13 +98,14 @@
             <div class="col-12 mb-4">
                 <label class="form-label" for="serviceId">Service ID</label>
                 <AutoSelect
+                    id="serviceId"
                     lookup="services"
                     bind:value={formData.serviceId}
                     labelKey={["serviceId", "name"]}
                     valueKey="serviceId"
                     placeholder="Please choose one option"
                     required
-                    disabled={$modalStore.params.isFormDisabled}
+                    disabled={params.isFormDisabled}
                 />
             </div>
         </div>
