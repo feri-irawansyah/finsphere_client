@@ -1,19 +1,66 @@
 <script>
     import OrderDatafeed from "$lib/components/templates/OrderDatafeed.svelte";
     import OrderTab from "$lib/components/templates/OrderTab.svelte";
+
+    let isSubmitting = false;
+
+    // ganti orderAmendForm.$invalid
+    // ini contoh sederhana, nanti bisa kamu sambungkan ke validasi form kamu
+    let isFormInvalid = false;
+
+    async function submit(e) {
+        e.preventdefault;
+        if (!formAmend.checkValidity()) {
+      formAmend.reportValidity(); // munculin pesan browser
+      return;
+    }
+
+        isSubmitting = true;
+        try {
+            // call API / SignalR / backend
+            await new Promise(r => setTimeout(r, 3000)); // simulasi API
+        } finally {
+            isSubmitting = false;
+        }
+    }
 </script>
 
 <section id="section">
-    <h2 class="page-title">Order Sell</h2>
+    <h2 class="page-title">Order Amend</h2>
     <div class="row">
         <div class="col-12">
-            <OrderTab defaultFilter="sell">
+            <OrderTab defaultFilter="amend">
                 <div class="row g-4 mt-4">
                     <div class="col-md-5 col-sm-12 col-xs-12">
                         <form
-                            name="orderBuyForm"
-                            ng-submit="onFormSubmit(formData)"
+                            onsubmit={submit}
                         >
+                            <!-- Order -->
+                            <div class="row mb-4">
+                                <div class="col-3">
+                                    <label
+                                        for="order"
+                                        class="form-label fw-semibold"
+                                        >Order</label
+                                    >
+                                </div>
+                                <div class="col-9">
+                                    <select2-dynamic
+                                        mapgroup="oms"
+                                        table="order"
+                                        ng-model="formData.orderUid"
+                                        value-field="orderUid"
+                                        text-field="clientOrderId"
+                                        sub-text-field=""
+                                        required="true"
+                                        default-data=""
+                                        disabled="true"
+                                        ng-change="orderUid_onChange()"
+                                    >
+                                    </select2-dynamic>
+                                </div>
+                            </div>
+
                             <!-- CLIENT -->
                             <div class="row mb-4">
                                 <div class="col-3">
@@ -33,6 +80,7 @@
                                         sub-text-field="sid"
                                         required="true"
                                         default-data=""
+                                        disabled="true"
                                         ng-change="clientId_onChange(value)"
                                     >
                                     </select2-dynamic>
@@ -66,31 +114,6 @@
                                 </div>
                             </div>
 
-                            <!-- STOCK -->
-                            <div class="row mb-4">
-                                <div class="col-3">
-                                    <label
-                                        for="stock"
-                                        class="form-label fw-semibold"
-                                        >Stock</label
-                                    >
-                                </div>
-                                <div class="col-9">
-                                    <select2-dynamic
-                                        mapgroup="console"
-                                        table="symbols"
-                                        ng-model="formData.symbolId"
-                                        value-field="symbolId"
-                                        text-field="symbolId"
-                                        sub-text-field="symbolName"
-                                        required="true"
-                                        default-data=""
-                                        ng-change="symbolId_onChange(value)"
-                                    >
-                                    </select2-dynamic>
-                                </div>
-                            </div>
-
                             <!-- STOCK BALANCE -->
                             <!-- <div class="row mb-4">
                 <div class="col-3">
@@ -114,7 +137,7 @@
                                     <input
                                         type="text"
                                         class="form-control bg-light"
-                                        ng-model="formData.limit"
+                                        ng-model="formData.tradeLimit"
                                         angular-currency="optionsCurrency"
                                         variable-options="true"
                                         disabled
@@ -123,29 +146,6 @@
                             </div>
 
                             <hr class="my-4" />
-
-                            <!-- TYPE ORDER -->
-                            <div class="row mb-4">
-                                <div class="col-6">
-                                    <input
-                                        type="radio"
-                                        ng-model="formData.ordertype"
-                                        ng-value="1"
-                                        ng-change="ordertype_onChange()"
-                                    />
-                                    Market Order
-                                </div>
-
-                                <div class="col-6">
-                                    <input
-                                        type="radio"
-                                        ng-model="formData.ordertype"
-                                        ng-value="2"
-                                        ng-change="ordertype_onChange()"
-                                    />
-                                    Limit Order
-                                </div>
-                            </div>
 
                             <!-- PRICE -->
                             <div class="row mb-4">
@@ -156,7 +156,7 @@
                                         >Price</label
                                     >
                                 </div>
-                                <div class="col-9">
+                                <div class="col-4">
                                     <input
                                         type="text"
                                         class="form-control"
@@ -164,7 +164,18 @@
                                         angular-currency="optionsCurrency"
                                         variable-options="true"
                                         required
-                                        ng-disabled="disablePrice"
+                                        disabled
+                                    />
+                                </div>
+                                <div class="col-5">
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        ng-model="formData.amendprice"
+                                        angular-currency="optionsCurrency"
+                                        variable-options="true"
+                                        required
+                                        placeholder="Change price here"
                                     />
                                 </div>
                             </div>
@@ -178,7 +189,7 @@
                                         >Lot</label
                                     >
                                 </div>
-                                <div class="col-9">
+                                <div class="col-4">
                                     <input
                                         type="text"
                                         class="form-control"
@@ -186,6 +197,18 @@
                                         angular-currency="optionsCurrencyRounded"
                                         variable-options="true"
                                         required
+                                        disabled
+                                    />
+                                </div>
+                                <div class="col-5">
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        ng-model="formData.amendlot"
+                                        angular-currency="optionsCurrencyRounded"
+                                        variable-options="true"
+                                        required
+                                        placeholder="Change lot here"
                                     />
                                 </div>
                             </div>
@@ -199,19 +222,25 @@
                                     100000
                                 </span>
                             </div>
+                            <p>{isSubmitting}</p>
 
                             <!-- SUBMIT BUTTON -->
                             <button
-                                type="submit" id="btnSell"
+                                type="submit"
+                                id="btnAmend"
                                 class="btn w-100 mt-4"
-                                ng-disabled="orderBuyForm.$invalid || isSubmitting"
+                                disabled={isSubmitting}
                             >
-                                <span class="spanwhite" ng-if="!isSubmitting">Sell Order</span>
-                                <span class="spanwhite" ng-if="isSubmitting"
-                                    ><span
-                                        class="spinner-border spinner-border-sm me-2"
-                                    ></span>Processing...</span
-                                >
+                                {#if !isSubmitting}
+                                    <span class="spanwhite">Amend Order</span>
+                                {:else}
+                                    <span class="spanwhite">
+                                        <span
+                                            class="spinner-border spinner-border-sm me-2"
+                                        ></span>
+                                        Processing...
+                                    </span>
+                                {/if}
                             </button>
                         </form>
                     </div>
@@ -226,11 +255,11 @@
 </section>
 
 <style>
-    #btnSell{
-        background-color: #EE4169;
+    #btnAmend {
+        background-color: #6c4bf4;
     }
 
-    .spanwhite{
-        color:#fff !important;
+    .spanwhite {
+        color: #fff !important;
     }
 </style>

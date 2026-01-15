@@ -9,16 +9,16 @@
 
 <ul class="nav nav-pills">
   <li class="nav-item">
-    <a class="nav-link {filter === "buy" ? 'active' : ''}" aria-current="page" href="#">Active</a>
+    <a class="nav-link {filter === "buy" ? 'active' : ''}" aria-current="page" href="/orders/buy">Buy</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link {filter === "sell" ? 'active' : ''}" href="#">Link</a>
+    <a class="nav-link {filter === "sell" ? 'active' : ''}" aria-current="page" href="/orders/sell">Sell</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="#">Link</a>
+    <a class="nav-link {filter === "amend" ? 'active' : ''}" aria-current="page" href="/orders/amend">Amend</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+    <a class="nav-link {filter === "withdraw" ? 'active' : ''}" aria-current="page" href="/orders/withdraw">Withdraw</a>
   </li>
 </ul>
 

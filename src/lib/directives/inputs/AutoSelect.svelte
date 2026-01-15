@@ -1,82 +1,110 @@
+<!-- examples -->
+<!-- without api:: -->
+<!-- <AutoSelect
+    bind:value={formData.roleUid}
+    options={[
+        { value: 5, label: "Active X" },
+        { value: 1, label: "Active" },
+        { value: 0, label: "Inactive" },
+    ]}
+/> -->
+
+<!-- with api:: -->
+<!-- <AutoSelect
+    lookup="users"
+    bind:value={formData.roleUid}
+    labelKey={["name", "email"]}
+    valueKey="userUid"
+    labelSeparator = " x ",
+    placeholder="Select User"
+    required
+/> -->
+
 <script>
     import Select from "svelte-select";
+    import fetcher from "$lib/fetcher";
     import { createEventDispatcher } from "svelte";
 
     const dispatch = createEventDispatcher();
 
-    // props
     let {
-        lookup_name,        // nama lookup dari parent
-        value = $bindable(), // untuk 2-way binding
-        onChange = () => {},           // optional handler
-        onInput = () => {},
+        lookup = null,
+        options = [],
+        valueKey = "value",
+        labelKey = "label",
+        disabled = false,
+        value = $bindable(),
+        placeholder = "Select...",
+        labelSeparator = " - ",
         required = false,
-        withApi = false,
-        customOptions = [],
-        ...props
     } = $props();
 
-    // state items
     let items = $state([]);
     let selection = $state(null);
+    let loading = $state(false);
 
-    // ambil data dari API saat lookup_name berubah
+    /* load options */
     $effect(() => {
-        if (!lookup_name && !withApi) {
-            items = customOptions;
-            if (value && !selection) {
-                const match = items.find((x) => x.value == value);
-                if (match) selection = match;
-            }
-            return
-        };
-        loadOptions(lookup_name);
+        if (options.length) {
+            items = options;
+            return;
+        }
+
+        if (!lookup) return;
+
+        load();
     });
 
-    async function loadOptions(name) {
+    function buildLabel(item) {
+        if (Array.isArray(labelKey)) {
+            return labelKey
+                .map((k) => item[k])
+                .filter(Boolean)
+                .join(labelSeparator ?? " ");
+        }
+        return item[labelKey];
+    }
+
+    async function load() {
+        loading = true;
+
         try {
-            const res = await fetch(`/api/data/option/${name}`);
-            if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
-            const data = await res.json();
+            const res = await fetcher(fetch, `/api/platform/console/${lookup}`);
 
-            // pastikan format sesuai untuk svelte-select
-            items = data.data.map((x) => ({
-                value: x.value ?? x.id ?? x.code,
-                label: x.label ?? x.name ?? x.text ?? String(x.value ?? x.id),
+            items = res.map((x) => ({
+                value: x[valueKey],
+                label: buildLabel(x),
             }));
-
-            if (value && !selection) {
-                const match = items.find((x) => x.value == value);
-                if (match) selection = match;
-            }
-        } catch (err) {
-            console.error("AutoComplete fetch error:", err);
-            items = [];
+        } catch (ex) {
+            console.error("AutoSelect API:", ex);
+        } finally {
+            loading = false;
         }
     }
 
-    // handle perubahan value
-    function handleChange(event) {
-        value = event.detail?.value ?? event.detail;
-        onChange?.(event);
-        dispatch("change", event.detail);
-    }
+    /* sync value -> selection */
+    $effect(() => {
+        if (!value || !items.length) return;
 
-    // handle perubahan input
-    function handleInput(event) {
-        onInput?.(event);
-        dispatch("input", event.detail);
-    }
+        const match = items.find((i) => i[valueKey] === value);
+        if (match && match !== selection) {
+            selection = match;
+        }
+    });
 
-    $inspect(selection)
+    function handleChange(e) {
+        selection = e.detail;
+        value = e.detail?.value ?? null;
+        dispatch("change", value);
+    }
 </script>
 
 <Select
-    {...props}
-    required={required}
-    value={selection}
     {items}
+    bind:value={selection}
+    {placeholder}
+    {required}
     on:select={handleChange}
-    on:input={handleInput}
-    class="form-control form-select"
+    {loading}
+    {disabled}
 />
