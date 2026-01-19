@@ -95,7 +95,7 @@
                 <InputPassword
                     bind:value={formData.pwd}
                     required
-                    withicon="false"
+                    withicon={false}
                     id="pwd"
                 />
             </div>

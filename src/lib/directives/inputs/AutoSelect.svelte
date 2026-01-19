@@ -136,5 +136,4 @@
     {loading}
     {disabled}
     {multiple}
-    multiFullItemClearable={multiple ? true : false}
 />

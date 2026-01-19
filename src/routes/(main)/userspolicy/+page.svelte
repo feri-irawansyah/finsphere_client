@@ -3,6 +3,7 @@
     import ModalUsers from "$lib/components/molecules/modals/ModalUsers.svelte";
     import ModalUsersRoles from "$lib/components/molecules/modals/ModalUsersRoles.svelte";
     import ClientGrid from "$lib/directives/grids/ClientGrid.svelte";
+    import AutoSelect from "$lib/directives/inputs/AutoSelect.svelte";
     import InputPassword from "$lib/directives/inputs/InputPassword.svelte";
     import modalStore from "$lib/directives/modal/functions/modal-store.js";
     import fetcher from "$lib/fetcher";
@@ -15,7 +16,8 @@
     const { data } = $props();
 
     let formData = $state({
-        method: "",
+        method: "POST",
+        loading: false,
         token: localStorage.getItem("access_token"),
         isRequestingOTP: false,
         isRequestingMfa: false,
@@ -32,9 +34,7 @@
         newPassword: "",
         confirmPassword: "",
         allRulesPassed: false,
-        isSubmitting: false,
         isMfaSubmitting: false,
-        showPasswordExpiration: false,
 
         // toggle eye
         showCurrentPassword: false,
@@ -48,13 +48,13 @@
         isMfaEnabled: false,
         qrBase64: "",
         secretKey: "",
-        otpmfa: ["", "", "", "", "", ""],
         email: "",
 
         passwordExpiryOption: null,
         showPasswordExpiration: false,
 
         isCooldown: false,
+        showPasswordCard: false,
     });
 
     let rules = $state({
@@ -65,7 +65,15 @@
         notOnlyLettersOrNumbers: false,
     });
 
-    function checkPasswordStrength(password) {
+    $effect(() => {
+        // #region Untuk onchange dari password rules
+        // Aturan Kata Sandi:
+        // Minimal 8 karakter
+        // Mengandung huruf besar (A–Z)
+        // Mengandung angka (0–9)
+        // Contains symbol (!@#$%^&*)
+        // Tidak boleh hanya terdiri dari huruf atau hanya angka
+        let password = formData.newPassword;
         password = password || "";
 
         rules.minLength = password.length >= 8;
@@ -94,7 +102,8 @@
         }
 
         formData.allRulesPassed = score === 5;
-    }
+        // #endregion
+    });
 
     let otp = $state(["", "", "", "", "", ""]);
     let otpBoxes = [];
@@ -105,12 +114,14 @@
         otpBoxes[idx]?.select();
     }
 
-    function handleInput(e, idx) {
-        let v = e.target.value.replace(/\D/g, "").slice(0, 1);
-        otp[idx] = v;
+    function handleInput(e, idx, otpLength) {
+        const value = e.target.value.replace(/\D/g, "");
 
-        if (v && idx < otp.length - 1) {
-            tick().then(() => focusBox(idx + 1));
+        otp[idx] = value;
+
+        // kalau isi & bukan input terakhir → pindah fokus
+        if (value && idx < otpLength - 1) {
+            otpBoxes[idx + 1]?.focus();
         }
     }
 
@@ -199,6 +210,8 @@
             }).then(async function (result) {
                 if (!result.isConfirmed) return;
 
+                formData.loading = true;
+
                 const URLResend = `${applicationStore.urlPlatformConsole}/userpolicy/change-password/request`;
 
                 // === TAMPILKAN LOADING LANGSUNG ===
@@ -211,7 +224,9 @@
                     allowEnterKey: false,
                 });
 
-                const rst = await fetcher(fetch, URLResend);
+                const rst = await fetcher(fetch, URLResend, {
+                    method: "POST",
+                });
 
                 if (rst.message === "Password request successfully") {
                     // === SWEETALERT SUKSES � Auto Close ===
@@ -220,7 +235,8 @@
                         title: "Kode Terkirim",
                         text: "Kode verifikasi baru telah dikirim ke email Anda.",
                         timer: 2500,
-                        showConfirmButton: false,
+                        timerProgressBar: true,
+                        confirmButtonText: "OK",
                     });
 
                     startCooldown();
@@ -239,6 +255,8 @@
                 title: "Error",
                 text: "Gagal mengirim ulang email verifikasi.",
             });
+        } finally {
+            formData.loading = false;
         }
     }
 
@@ -269,7 +287,11 @@
             // Disable button
             formData.isRequestingOTP = true;
 
-            const rst = await fetcher(fetch, URLRequest);
+            formData.loading = true;
+
+            const rst = await fetcher(fetch, URLRequest, {
+                method: "POST",
+            });
 
             if (rst.message === "Password request successfully") {
                 formData.showPasswordCard = true;
@@ -304,13 +326,15 @@
             Swal.fire({
                 icon: "error",
                 title: "Gagal Melakukan Request",
-                text: err?.data?.detail || "Gagal melakukan permintaan.",
+                text: err?.detail || "Gagal melakukan permintaan.",
             });
+        } finally {
+            formData.loading = false;
         }
     }
 
-    function SubmitChangePassword() {
-        if (formData.isSubmitting) return;
+    function submitChangePassword() {
+        if (formData.loading) return;
 
         if (!formData.token) {
             Swal.fire({
@@ -336,7 +360,7 @@
                 if (!result.isConfirmed) return;
 
                 // Mulai proses
-                formData.isSubmitting = true;
+                formData.loading = true;
 
                 // === TAMPILKAN LOADING SWEETALERT ===
                 Swal.fire({
@@ -355,31 +379,41 @@
                     otp: formData.otp.join(""),
                 };
 
-                const rst = await fetcher(fetch, URLSubmit, {
-                    method: formData.method,
-                    body: JSON.stringify(payload),
-                });
-
-                if (rst.message === "Password successfully changed.") {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Password berhasil diubah",
-                        text: "Anda dapat menggunakan password baru.",
-                        timer: 1500,
-                        showConfirmButton: false,
-                    }).then(() => {
-                        location.reload();
+                try {
+                    const rst = await fetcher(fetch, URLSubmit, {
+                        method: "POST",
+                        body: JSON.stringify(payload),
                     });
-                } else {
+
+                    if (rst.message === "Password successfully changed.") {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Password berhasil diubah",
+                            text: "Anda dapat menggunakan password baru.",
+                            timer: 1500,
+                            showConfirmButton: false,
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Gagal Mengubah Password",
+                            text: rst?.detail || "Terjadi kesalahan.",
+                        });
+                    }
+                } catch (err) {
                     Swal.fire({
                         icon: "error",
                         title: "Gagal Mengubah Password",
-                        text: rst.data?.detail || "Terjadi kesalahan.",
+                        text: err?.detail || "Terjadi kesalahan.",
                     });
+                } finally {
+                    formData.loading = false;
                 }
             });
         } catch (err) {
-            const detail = err?.data?.detail;
+            const detail = err?.detail;
             let message = "Terjadi kesalahan.";
 
             if (detail === "Invalid OTP") {
@@ -393,28 +427,28 @@
                 title: "Gagal Mengubah Password",
                 text: message,
             });
-
-            formData.isSubmitting = false;
+        } finally {
+            formData.loading = false;
         }
     }
 
     formData.qrZoomVisible = false;
 
-    function openQrPreview () {
+    function openQrPreview() {
         formData.qrZoomVisible = true;
-    };
+    }
 
     function closeQrPreview() {
         formData.qrZoomVisible = false;
-    };
+    }
 
     function toggleQr() {
         formData.showQr = !formData.showQr;
-    };
+    }
 
     function toggleSecret() {
         formData.showSecret = !formData.showSecret;
-    };
+    }
 
     formData.showQr = true;
     formData.showSecret = false;
@@ -425,7 +459,7 @@
     async function RequestMfa() {
         const URLRequest = `${applicationStore.urlPlatformConsole}/userpolicy/mfa/enable`;
 
-        if (formData.token) {
+        if (!formData.token) {
             Swal.fire({
                 icon: "error",
                 title: "Sesi Berakhir",
@@ -437,14 +471,14 @@
         }
 
         try {
-            const rst = await fetcher(fetch, url, {
-                method: formData.method,
+            const rst = await fetcher(fetch, URLRequest, {
+                method: "POST",
             });
 
             formData.showMfaCard = true;
 
-            formData.qrBase64 = rst.data.qrCode;
-            formData.secretKey = rst.data.secretKey;
+            formData.qrBase64 = rst.qrCode;
+            formData.secretKey = rst.secretKey;
 
             Swal.fire({
                 icon: "success",
@@ -454,12 +488,13 @@
                 showConfirmButton: false,
             });
         } catch (err) {
+            console.log("errc", err);
             formData.showMfaCard = false;
 
             Swal.fire({
                 icon: "error",
                 title: "Gagal Mengaktifkan",
-                text: err.data?.message || "Gagal mengaktifkan MFA.",
+                text: err?.message || "Gagal mengaktifkan MFA.",
             });
         }
     }
@@ -509,6 +544,7 @@
                 if (!result.isConfirmed) return;
 
                 const finalOTP = formData.otpmfa.join("");
+                formData.loading = true;
 
                 if (finalOTP.length !== 6) {
                     Swal.fire({
@@ -528,39 +564,50 @@
                     return;
                 }
 
-                const payload = {
-                    email: formData.email,
-                    otp: finalOTP,
-                };
+                try {
+                    const payload = {
+                        otp: finalOTP,
+                    };
 
-                // === SHOW LOADING INSIDE SWEETALERT ===
-                Swal.fire({
-                    title: "Memproses OTP...",
-                    html: '<div style="font-size:14px;color:#555;">Sedang memverifikasi OTP Anda</div>',
-                    didOpen: () => Swal.showLoading(),
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    allowEnterKey: false,
-                });
+                    // === SHOW LOADING INSIDE SWEETALERT ===
+                    Swal.fire({
+                        title: "Memproses OTP...",
+                        html: '<div style="font-size:14px;color:#555;">Sedang memverifikasi OTP Anda</div>',
+                        didOpen: () => Swal.showLoading(),
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        allowEnterKey: false,
+                    });
 
-                formData.isMfaSubmitting = true;
+                    formData.isMfaSubmitting = true;
 
-                const rst = await fetcher(fetch, url, {
-                    method: formData.method,
-                    body: JSON.stringify(payload),
-                });
+                    const rst = await fetcher(fetch, URLRequest, {
+                        method: "POST",
+                        body: JSON.stringify(payload),
+                    });
 
-                Swal.fire({
-                    icon: "success",
-                    title: "MFA Setup Completed",
-                    text: "MFA Anda berhasil diaktifkan.",
-                    timer: 1800,
-                    showConfirmButton: false,
-                });
+                    Swal.fire({
+                        icon: "success",
+                        title: "MFA Setup Completed",
+                        text: "MFA Anda berhasil diaktifkan.",
+                        timer: 1800,
+                        showConfirmButton: false,
+                    });
 
-                setTimeout(() => {
-                    location.reload();
-                }, 1200);
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1200);
+                } catch (err) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Verification Failed",
+                        text:
+                            err?.detail ||
+                            "Terjadi kesalahan saat memperbarui pengaturan.",
+                    });
+                } finally {
+                    formData.loading = false;
+                }
             });
         } catch (err) {
             Swal.fire({
@@ -569,7 +616,9 @@
                 text: "OTP tidak valid, silakan coba lagi.",
             });
 
-            formData.isMfaSubmitting = false;
+            formData.isMfaSubmiloadingtting = false;
+        } finally {
+            formData.loading = false;
         }
     }
 
@@ -627,7 +676,7 @@
                 formData.isMfaSubmitting = true;
 
                 const rst = await fetcher(fetch, url, {
-                    method: formData.method,
+                    method: "POST",
                     body: JSON.stringify(payload),
                 });
 
@@ -652,7 +701,7 @@
                 icon: "error",
                 title: "OTP Tidak Valid",
                 text:
-                    err.data?.message ||
+                    err?.message ||
                     "Kode OTP yang Anda masukkan tidak sesuai. Silakan coba kembali.",
             });
 
@@ -742,7 +791,7 @@
                 });
 
                 const rst = await fetcher(fetch, URLRequest, {
-                    method: formData.method,
+                    method: "POST",
                     body: JSON.stringify(payload),
                 });
 
@@ -767,7 +816,7 @@
                 icon: "error",
                 title: "Gagal",
                 text:
-                    err?.data?.detail ||
+                    err?.detail ||
                     "Terjadi kesalahan saat memperbarui pengaturan.",
             });
         }
@@ -779,10 +828,8 @@
 
         const rst = await fetcher(fetch, URLRequest);
 
-        const resp = data.data;
-
-        formData.realMfaStatus = resp.enabled === true;
-        formData.method = resp.enabled ? "mfa" : "email";
+        formData.realMfaStatus = rst.enabled === true;
+        formData.method = rst.enabled ? "mfa" : "email";
         formData.isMfaEnabled = formData.realMfaStatus;
         formData.MfaStatusText = formData.realMfaStatus
             ? "Aktif"
@@ -797,11 +844,9 @@
             "Kami telah mengirimkan kode 6 digit ke email Anda. Masukkan kode tersebut untuk verifikasi perubahan password Anda.";
     else formData.subtitleText = "Masukkan kode verifikasi 6 digit.";
 
-    let quickFilterFn = $state(null);
-    let refresh = $state(null);
-    let excel = $state(null);
-
-    onMount(() => {});
+    onMount(async () => {
+        await GetStatusMFA();
+    });
 </script>
 
 <section id="section">
@@ -900,6 +945,7 @@
                                                         class="d-flex align-items-center gap-2"
                                                     >
                                                         <label
+                                                            for="MfaStatusText"
                                                             class="form-label cursor-pointer mb-0 fw-medium"
                                                         >
                                                             <span
@@ -907,20 +953,24 @@
                                                             >
 
                                                             <span
+                                                                id="MfaStatusText"
                                                                 class="ms-2 text-muted"
                                                             >
-                                                                <!-- {{ MfaStatusText }} -->
+                                                                {formData.MfaStatusText}
                                                             </span>
                                                         </label>
 
                                                         <div
-                                                            class="form-switch switch-outline-primary"
+                                                            class="form-switch switch-outline-primary pt-3"
                                                         >
                                                             <div
                                                                 class="form-check form-switch"
                                                             >
                                                                 <input
-                                                                    id="isEnabled"
+                                                                    id="isMfaEnabled"
+                                                                    onchange={() => {
+                                                                        ToggleMfaSwitch();
+                                                                    }}
                                                                     bind:checked={
                                                                         formData.isMfaEnabled
                                                                     }
@@ -929,7 +979,7 @@
                                                                 />
                                                                 <label
                                                                     class="label"
-                                                                    for="isEnabled"
+                                                                    for="isMfaEnabled"
                                                                 ></label>
                                                             </div>
                                                             <!-- <input
@@ -946,84 +996,85 @@
                                                     </div>
                                                 </div>
 
-                                                <div
-                                                    class="card-body"
-                                                    ng-show="showMfaCard"
-                                                >
-                                                    <hr />
-                                                    <div class="mfa-step-label">
-                                                        1. Scan QR Code
-                                                    </div>
-                                                    <p class="mfa-step-detail">
-                                                        Buka aplikasi Google
-                                                        Authenticator dan pindai
-                                                        kode QR di bawah ini
-                                                        untuk menautkan akun
-                                                        Anda.
-                                                    </p>
-
-                                                    <div
-                                                        class="mfa-setup-key-box"
-                                                    >
+                                                {#if formData.showMfaCard}
+                                                    <div class="card-body">
+                                                        <hr />
                                                         <div
-                                                            style="display: flex; gap:16px; align-items:center;"
+                                                            class="mfa-step-label"
                                                         >
-                                                            <!-- QR Code -->
-                                                            <!-- ng-src="{{qrBase64}}" -->
-                                                            <img
-                                                                class="mfa-qr"
-                                                                ng-show="showQr"
-                                                                ng-src="qrBase64"
-                                                                alt="QR Code"
-                                                                ng-dblclick="openQrPreview()"
-                                                            />
+                                                            1. Scan QR Code
+                                                        </div>
+                                                        <p
+                                                            class="mfa-step-detail"
+                                                        >
+                                                            Buka aplikasi Google
+                                                            Authenticator dan
+                                                            pindai kode QR di
+                                                            bawah ini untuk
+                                                            menautkan akun Anda.
+                                                        </p>
 
+                                                        <div
+                                                            class="mfa-setup-key-box"
+                                                        >
                                                             <div
-                                                                style="flex:1;"
+                                                                style="display: flex; gap:16px; align-items:center;"
                                                             >
-                                                                <div
-                                                                    class="cant-scan-label"
-                                                                >
-                                                                    Tidak dapat
-                                                                    memindai QR?
-                                                                </div>
-                                                                <div
-                                                                    class="cant-scan-desc"
-                                                                >
-                                                                    Gunakan kode <a
-                                                                        href="#"
-                                                                        class="setup-key-link"
-                                                                        >setup
-                                                                        di bawah
-                                                                        ini</a
-                                                                    > untuk menyelesaikan
-                                                                    proses MFA secara
-                                                                    manual.
-                                                                </div>
+                                                                <!-- QR Code -->
+                                                                <img
+                                                                    class="mfa-qr"
+                                                                    ng-show="showQr"
+                                                                    src={formData.qrBase64}
+                                                                    alt="QR Code"
+                                                                    ondblclick={() => {
+                                                                        openQrPreview();
+                                                                    }}
+                                                                />
 
                                                                 <div
-                                                                    class="setup-key-row"
+                                                                    style="flex:1;"
                                                                 >
-                                                                    <InputPassword
-                                                                        id="secretKey"
-                                                                        bind:value={
-                                                                            formData.secretKey
-                                                                        }
-                                                                        autocomplete="one-time-code"
-                                                                        required
-                                                                        withicon="false"
-                                                                        class="setup-key-input"
-                                                                    />
+                                                                    <div
+                                                                        class="cant-scan-label"
+                                                                    >
+                                                                        Tidak
+                                                                        dapat
+                                                                        memindai
+                                                                        QR?
+                                                                    </div>
+                                                                    <div
+                                                                        class="cant-scan-desc"
+                                                                    >
+                                                                        Gunakan
+                                                                        kode <a
+                                                                            href={null}
+                                                                            class="setup-key-link"
+                                                                            >setup
+                                                                            di
+                                                                            bawah
+                                                                            ini</a
+                                                                        > untuk menyelesaikan
+                                                                        proses MFA
+                                                                        secara manual.
+                                                                    </div>
 
-                                                                    <!-- type="{{ showSecret ? 'text' : 'password' }}" -->
-                                                                    <input
-                                                                        class="setup-key-input"
-                                                                        type="text"
-                                                                        ng-model="secretKey"
-                                                                        readonly
-                                                                    />
+                                                                    <div
+                                                                        class="setup-key-row"
+                                                                    >
+                                                                        <InputPassword
+                                                                            id="secretKey"
+                                                                            bind:value={
+                                                                                formData.secretKey
+                                                                            }
+                                                                            autocomplete="one-time-code"
+                                                                            withicon={false}
+                                                                            withcopypaste={true}
+                                                                            readonly
+                                                                        />
 
-                                                                    <!-- <div
+                                                                        <!-- type="{{ showSecret ? 'text' : 'password' }}" -->
+
+                                                                        <!-- <div
                                                                         class="icon-group"
                                                                     >
                                                                         Copy
@@ -1057,27 +1108,34 @@
                                                                             </svg>
                                                                         </button>
                                                                     </div> -->
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
 
-                                                    <div class="mfa-step-label">
-                                                        2. Input Code
-                                                    </div>
-                                                    <p class="mfa-step-detail">
-                                                        Setelah kode QR berhasil
-                                                        dipindai, masukkan 6
-                                                        digit kode yang
-                                                        dihasilkan oleh Google
-                                                        Authenticator.
-                                                    </p>
+                                                        <div
+                                                            class="mfa-step-label"
+                                                        >
+                                                            2. Input Code
+                                                        </div>
+                                                        <p
+                                                            class="mfa-step-detail"
+                                                        >
+                                                            Setelah kode QR
+                                                            berhasil dipindai,
+                                                            masukkan 6 digit
+                                                            kode yang dihasilkan
+                                                            oleh Google
+                                                            Authenticator.
+                                                        </p>
 
-                                                    <form
-                                                        ng-submit="VerifyOtp()"
-                                                    >
-                                                        <div class="mb-4">
-                                                            <!-- <div
+                                                        <form
+                                                            onsubmit={async () => {
+                                                                VerifyOtp();
+                                                            }}
+                                                        >
+                                                            <div class="mb-4">
+                                                                <!-- <div
                                                                 class="otp-wrapper col-12 d-flex justify-content-start align-items-center gap-2"
                                                             >
                                                                 <input
@@ -1135,80 +1193,94 @@
                                                                     pattern="[0-9]*"
                                                                 />
                                                             </div> -->
-                                                            <div
-                                                                class="otp-wrapper"
-                                                            >
-                                                                {#each otp as value, idx (idx)}
-                                                                    <input
-                                                                        class="otp-box"
-                                                                        maxlength="1"
-                                                                        bind:this={
-                                                                            otpBoxes[
-                                                                                idx
-                                                                            ]
-                                                                        }
-                                                                        bind:value={
-                                                                            otp[
-                                                                                idx
-                                                                            ]
-                                                                        }
-                                                                        oninput={(
-                                                                            e,
-                                                                        ) =>
-                                                                            handleInput(
+                                                                <div
+                                                                    class="otp-wrapper col-12 d-flex justify-content-start align-items-center gap-2"
+                                                                >
+                                                                    {#each otp as value, idx (idx)}
+                                                                        <input
+                                                                            class="otp-box"
+                                                                            maxlength="1"
+                                                                            autocomplete="one-time-code"
+                                                                            bind:this={
+                                                                                otpBoxes[
+                                                                                    idx
+                                                                                ]
+                                                                            }
+                                                                            bind:value={
+                                                                                formData
+                                                                                    .otpmfa[
+                                                                                    idx
+                                                                                ]
+                                                                            }
+                                                                            oninput={(
                                                                                 e,
-                                                                                idx,
-                                                                            )}
-                                                                        onkeydown={(
-                                                                            e,
-                                                                        ) =>
-                                                                            handleKeydown(
+                                                                            ) =>
+                                                                                handleInput(
+                                                                                    e,
+                                                                                    idx,
+                                                                                    6,
+                                                                                )}
+                                                                            onkeydown={(
                                                                                 e,
-                                                                                idx,
-                                                                            )}
-                                                                        onpaste={(
-                                                                            e,
-                                                                        ) =>
-                                                                            handlePaste(
+                                                                            ) =>
+                                                                                handleKeydown(
+                                                                                    e,
+                                                                                    idx,
+                                                                                )}
+                                                                            onpaste={(
                                                                                 e,
-                                                                                idx,
-                                                                            )}
-                                                                    />
-                                                                {/each}
+                                                                            ) =>
+                                                                                handlePaste(
+                                                                                    e,
+                                                                                    idx,
+                                                                                )}
+                                                                        />
+                                                                    {/each}
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                        <div
-                                                            class="action-bar d-flex justify-content-end align-items-center mt-4"
-                                                        >
-                                                            <button
-                                                                class="btn btn-gradient-primary me-2"
-                                                                type="submit"
-                                                                ng-disabled="isMfaSubmitting || otpmfa.join('').length !== 6"
-                                                                >{#if formData.isMfaSubmitting}
-                                                                    <span
-                                                                        >Verify
-                                                                    </span>{:else}
-                                                                    <span
-                                                                        >Processing
-                                                                        ...
-                                                                    </span>
-                                                                {/if}
-                                                            </button>
-                                                        </div>
-                                                    </form>
+                                                            <div
+                                                                class="action-bar d-flex justify-content-end align-items-center mt-4"
+                                                            >
+                                                                <button
+                                                                    class="btn btn-gradient-primary me-2"
+                                                                    type="submit"
+                                                                    disabled={formData.loading ||
+                                                                        formData.otpmfa.join(
+                                                                            "",
+                                                                        )
+                                                                            .length !==
+                                                                            6}
+                                                                    >{#if !formData.loading}
+                                                                        <span
+                                                                            >Verify
+                                                                        </span>{:else}
+                                                                        <span
+                                                                            >Processing
+                                                                            ... <span
+                                                                                class="spinner-border spinner-border-sm"
 
-                                                    <div
-                                                        class="qr-zoom-overlay"
-                                                        ng-show="qrZoomVisible"
-                                                        ng-click="closeQrPreview()"
-                                                    >
-                                                        <!-- <img class="qr-zoom-image" ng-src="{{qrBase64}}" /> -->
-                                                        <img
-                                                            class="qr-zoom-image"
-                                                            ng-src="qrBase64"
-                                                        />
+                                                                            ></span>
+                                                                        </span>
+                                                                    {/if}
+                                                                </button>
+                                                            </div>
+                                                        </form>
+
+                                                        {#if formData.qrZoomVisible}
+                                                            <button
+                                                                class="btn btn-primary qr-zoom-overlay"
+                                                                onclick={() =>
+                                                                    closeQrPreview()}
+                                                            >
+                                                                <img
+                                                                    alt="qr-zoom"
+                                                                    class="qr-zoom-image"
+                                                                    src={formData.qrBase64}
+                                                                />
+                                                            </button>
+                                                        {/if}
                                                     </div>
-                                                </div>
+                                                {/if}
                                             </div>
                                         </div>
                                     </div>
@@ -1253,13 +1325,326 @@
                                                     <div
                                                         class="d-flex align-items-center gap-2"
                                                     >
-                                                        <button
-                                                            class="btn-gradient-primary"
-                                                            >Change Password</button
-                                                        >
+                                                        {#if !formData.showPasswordCard}
+                                                            <button
+                                                                class="btn btn-gradient-primary"
+                                                                onclick={async () => {
+                                                                    await RequestChangePassword();
+                                                                }}
+                                                                disabled={formData.loading}
+                                                                >{#if !formData.loading}
+                                                                    Change
+                                                                    Password
+                                                                {:else}<span
+                                                                        class="spinner-border spinner-border-sm me-1"
+
+                                                                    ></span>Please
+                                                                    wait ...
+                                                                {/if}</button
+                                                            >
+                                                        {/if}
+                                                        {#if formData.showPasswordCard}
+                                                            <button
+                                                                class="btn btn-outline-primary"
+                                                                onclick={() => {
+                                                                    CancelChangePassword();
+                                                                }}
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        {/if}
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            {#if formData.showPasswordCard}
+                                                <div class="card-body">
+                                                    <hr />
+                                                    <p class="mb-3 text-muted">
+                                                        Untuk memperbarui kata
+                                                        sandi, silakan masukkan
+                                                        kata sandi Anda saat
+                                                        ini.
+                                                    </p>
+
+                                                    <form
+                                                        onsubmit={async () =>
+                                                            await submitChangePassword()}
+                                                        id="passwordResetForm"
+                                                    >
+                                                        <!-- CURRENT PASSWORD -->
+                                                        <div class="mb-4">
+                                                            <label
+                                                                class="form-label"
+                                                                for="oldPassword"
+                                                                >Kata Sandi Saat
+                                                                Ini</label
+                                                            >
+                                                            <div
+                                                                class="password-input-wrapper"
+                                                            >
+                                                                <InputPassword
+                                                                    id="oldPassword"
+                                                                    bind:value={
+                                                                        formData.oldPassword
+                                                                    }
+                                                                    autocomplete="one-time-code"
+                                                                    required
+                                                                    withicon={false}
+                                                                    placeholder="Kata Sandi Saat Ini"
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- NEW PASSWORD -->
+                                                        <div class="mb-4">
+                                                            <label
+                                                                class="form-label"
+                                                                for="newPassword"
+                                                                >Kata Sandi Baru</label
+                                                            >
+                                                            <div
+                                                                class="password-input-wrapper"
+                                                            >
+                                                                <InputPassword
+                                                                    id="newPassword"
+                                                                    bind:value={
+                                                                        formData.newPassword
+                                                                    }
+                                                                    autocomplete="one-time-code"
+                                                                    required
+                                                                    withicon={false}
+                                                                    placeholder="Kata Sandi Baru"
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- CONFIRM NEW PASSWORD -->
+                                                        <div class="mb-4">
+                                                            <label
+                                                                class="form-label"
+                                                                for="confirmPassword"
+                                                                >Konfirmasi Kata
+                                                                Sandi Baru</label
+                                                            >
+                                                            <InputPassword
+                                                                id="confirmPassword"
+                                                                bind:value={
+                                                                    formData.confirmPassword
+                                                                }
+                                                                autocomplete="one-time-code"
+                                                                required
+                                                                withicon={false}
+                                                                placeholder="Konfirmasi Kata Sandi Baru"
+                                                            />
+                                                        </div>
+
+                                                        <div class="mb-4">
+                                                            <label
+                                                                class="form-label"
+                                                                for=""
+                                                            >
+                                                                {formData.method ===
+                                                                "mfa"
+                                                                    ? "Masukkan 6 digit kode yang dihasilkan oleh aplikasi Google Authenticator Anda."
+                                                                    : formData.method ===
+                                                                        "email"
+                                                                      ? "Kami telah mengirimkan kode 6 digit ke email Anda. Masukkan kode tersebut untuk verifikasi perubahan password Anda."
+                                                                      : "Masukkan kode verifikasi 6 digit."}
+                                                            </label>
+                                                            <div
+                                                                class="otp-wrapper col-12 d-flex justify-content-start align-items-center gap-2"
+                                                            >
+                                                                <!-- <input
+                                                                    nmodel="otp[0]"
+                                                                    data-idx="0"
+                                                                    maxlength="1"
+                                                                    class="otp-box"
+                                                                    type="text"
+                                                                    inputmode="numeric"
+                                                                    pattern="[0-9]*"
+                                                                />
+                                                                <input
+                                                                    ng-model="otp[1]"
+                                                                    data-idx="1"
+                                                                    maxlength="1"
+                                                                    class="otp-box"
+                                                                    type="text"
+                                                                    inputmode="numeric"
+                                                                    pattern="[0-9]*"
+                                                                />
+                                                                <input
+                                                                    ng-model="otp[2]"
+                                                                    data-idx="2"
+                                                                    maxlength="1"
+                                                                    class="otp-box"
+                                                                    type="text"
+                                                                    inputmode="numeric"
+                                                                    pattern="[0-9]*"
+                                                                />
+                                                                <input
+                                                                    ng-model="otp[3]"
+                                                                    data-idx="3"
+                                                                    maxlength="1"
+                                                                    class="otp-box"
+                                                                    type="text"
+                                                                    inputmode="numeric"
+                                                                    pattern="[0-9]*"
+                                                                />
+                                                                <input
+                                                                    ng-model="otp[4]"
+                                                                    data-idx="4"
+                                                                    maxlength="1"
+                                                                    class="otp-box"
+                                                                    type="text"
+                                                                    inputmode="numeric"
+                                                                    pattern="[0-9]*"
+                                                                />
+                                                                <input
+                                                                    ng-model="otp[5]"
+                                                                    data-idx="5"
+                                                                    maxlength="1"
+                                                                    class="otp-box"
+                                                                    type="text"
+                                                                    inputmode="numeric"
+                                                                    pattern="[0-9]*"
+                                                                /> -->
+                                                                {#each otp as value, idx (idx)}
+                                                                    <input
+                                                                        class="otp-box"
+                                                                        maxlength="1"
+                                                                        autocomplete="one-time-code"
+                                                                        bind:this={
+                                                                            otpBoxes[
+                                                                                idx
+                                                                            ]
+                                                                        }
+                                                                        bind:value={
+                                                                            formData
+                                                                                .otp[
+                                                                                idx
+                                                                            ]
+                                                                        }
+                                                                        oninput={(
+                                                                            e,
+                                                                        ) =>
+                                                                            handleInput(
+                                                                                e,
+                                                                                idx,
+                                                                                6,
+                                                                            )}
+                                                                        onkeydown={(
+                                                                            e,
+                                                                        ) =>
+                                                                            handleKeydown(
+                                                                                e,
+                                                                                idx,
+                                                                            )}
+                                                                        onpaste={(
+                                                                            e,
+                                                                        ) =>
+                                                                            handlePaste(
+                                                                                e,
+                                                                                idx,
+                                                                            )}
+                                                                    />
+                                                                {/each}
+                                                            </div>
+                                                            <div
+                                                                class="col-12 d-flex justify-content-start align-items-center mt-2"
+                                                                ng-if="method === 'email'"
+                                                            >
+                                                                <span
+                                                                    class="fs-sm text-muted"
+                                                                >
+                                                                    Tidak terima
+                                                                    code OTP ?
+                                                                    <a
+                                                                        href={null}
+                                                                        class="text-primary text-decoration-none"
+                                                                        disabled={formData.isCooldown}
+                                                                        onclick={async () => {
+                                                                            ResendEmail();
+                                                                        }}
+                                                                        >{formData.resendText}</a
+                                                                    >
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- PASSWORD RULES -->
+                                                        <div
+                                                            class="password-rules mt-3"
+                                                        >
+                                                            <h6>
+                                                                Aturan Kata
+                                                                Sandi:
+                                                            </h6>
+                                                            <ul>
+                                                                <li
+                                                                    class:passed={rules.minLength}
+                                                                >
+                                                                    Minimal 8
+                                                                    karakter
+                                                                </li>
+                                                                <li
+                                                                    class:passed={rules.uppercase}
+                                                                >
+                                                                    Mengandung
+                                                                    huruf besar
+                                                                    (A&ndash;Z)
+                                                                </li>
+                                                                <li
+                                                                    class:passed={rules.number}
+                                                                >
+                                                                    Mengandung
+                                                                    angka
+                                                                    (0&ndash;9)
+                                                                </li>
+                                                                <li
+                                                                    class:passed={rules.special}
+                                                                >
+                                                                    Contains
+                                                                    symbol
+                                                                    (!@#$%^&*)
+                                                                </li>
+                                                                <li
+                                                                    class:passed={rules.notOnlyLettersOrNumbers}
+                                                                >
+                                                                    Tidak boleh
+                                                                    hanya
+                                                                    terdiri dari
+                                                                    huruf atau
+                                                                    hanya angka
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+
+                                                        <!-- SUBMIT BUTTON -->
+                                                        <button
+                                                            class="btn btn-primary"
+                                                            type="submit"
+                                                            disabled={formData.loading ||
+                                                                !formData.allRulesPassed ||
+                                                                formData.newPassword !==
+                                                                    formData.confirmPassword ||
+                                                                formData.otp.join(
+                                                                    "",
+                                                                ).length !== 6}
+                                                        >
+                                                            <span
+                                                                >{#if !formData.loading}Update
+                                                                    Password
+                                                                {/if}
+                                                                {#if formData.loading}<i
+                                                                        class="fa fa-spinner fa-spin"
+                                                                    ></i> Processing...
+                                                                {/if}</span
+                                                            >
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            {/if}
                                         </div>
                                     </div>
                                 </div>
@@ -1300,14 +1685,79 @@
                                                     <div
                                                         class="d-flex align-items-center gap-2"
                                                     >
-                                                        <button
-                                                            class="btn-gradient-primary"
-                                                            >Set Password
-                                                            Expiration</button
-                                                        >
+                                                        {#if !formData.showPasswordExpiration}
+                                                            <button
+                                                                onclick={() =>
+                                                                    OpenPasswordExpiration()}
+                                                                class="btn-gradient-primary"
+                                                                >Set Password
+                                                                Expiration
+                                                            </button>
+                                                        {/if}
+                                                        {#if formData.showPasswordExpiration}
+                                                            <button
+                                                                onclick={() => {
+                                                                    CancelPasswordExpiration();
+                                                                }}
+                                                                class="btn-gradient-primary"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        {/if}
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            {#if formData.showPasswordExpiration}
+                                                <div class="card-body">
+                                                    <hr />
+
+                                                    <p class="mb-2 fw-semibold">
+                                                        Password Expiry
+                                                        Duration:
+                                                    </p>
+
+                                                    <div class="mb-3">
+                                                        <AutoSelect
+                                                            id="passwordExpiryOption"
+                                                            bind:value={
+                                                                formData.passwordExpiryOption
+                                                            }
+                                                            options={[
+                                                                {
+                                                                    value: 30,
+                                                                    label: "30 Hari",
+                                                                },
+                                                                {
+                                                                    value: 180,
+                                                                    label: "6 Bulan",
+                                                                },
+                                                                {
+                                                                    value: 360,
+                                                                    label: "1 Tahun",
+                                                                },
+                                                            ]}
+                                                            placeholder="Please choose one option"
+                                                            required
+                                                        />
+                                                    </div>
+
+                                                    <div
+                                                        class="d-flex justify-content-end"
+                                                    >
+                                                        <button
+                                                            class="btn btn-primary"
+                                                            onclick={() => {
+                                                                SubmitPasswordExpiration();
+                                                            }}
+                                                            disabled={!formData.passwordExpiryOption}
+                                                        >
+                                                            Save Expiration
+                                                            Settings
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            {/if}
                                         </div>
                                     </div>
                                 </div>
@@ -1422,5 +1872,78 @@
         position: absolute;
         right: 0.625rem;
         bottom: 0.625rem;
+    }
+
+    .otp-box {
+        width: 50px;
+        height: 55px;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        text-align: center;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .password-rules li.passed {
+        color: #00b060;
+        font-weight: 600;
+    }
+
+    .mfa-qr {
+        width: 124px;
+        height: 124px;
+        object-fit: contain;
+        margin-top: 2px;
+        background: #fafbff;
+    }
+
+    .mfa-setup-key-box {
+        background: #f6f5fc;
+        border-radius: 12px;
+        border: 1px solid #e0e2e6;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 12px;
+    }
+
+    .mfa-step-label {
+        width: 120px;
+        height: 30px;
+        border-radius: 12px;
+        border: 1px solid #a966ff;
+        background: #a966ff26;
+        padding: 6px;
+        display: flex;
+        align-items: center;
+        font-size: 13px;
+        font-weight: 600;
+        color: #a966ff;
+        gap: 10px;
+        opacity: 1;
+        margin-bottom: 8px;
+    }
+
+    .cant-scan-label {
+        font-weight: 600;
+        font-size: 13px;
+        color: #232134;
+        margin-bottom: 2px;
+    }
+
+    .setup-key-input {
+        width: 100%;
+        height: 42px;
+        border-radius: 6px;
+        border: 1px solid #e0e2e6;
+        background: #f3f3f3;
+        padding: 12px 90px 12px 16px;
+        font-size: 16px;
+        color: #232134;
+        font-family: monospace;
+        box-sizing: border-box;
+        outline: none;
     }
 </style>

@@ -11,7 +11,7 @@ export const ssr = false;
 export const prerender = false;
 
 export async function load({ url, fetch }) {
-    const publicRoutes = ['/login', '/forget-password'];
+    const publicRoutes = ['/login', '/forget-password', '/forget-password-verify', '/forget-password-reset'];
     const pathname = url.pathname;
 
     let session = null;

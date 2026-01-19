@@ -178,7 +178,7 @@
                             bind:value={formData.pwd}
                             autocomplete="one-time-code"
                             required
-                            withicon="false"
+                            withicon={false}
                         />
                     </div>
                 {/if}

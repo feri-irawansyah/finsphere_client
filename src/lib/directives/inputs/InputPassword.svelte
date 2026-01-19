@@ -1,6 +1,32 @@
 <script>
-    let { value = $bindable(), withicon = true, disabled, ...props } = $props();
+    import Swal from "sweetalert2";
+
+    let {
+        value = $bindable(),
+        withicon = true,
+        withcopypaste = false,
+        disabled,
+        ...props
+    } = $props();
     let show = $state(false);
+
+    async function copyToClipboard() {
+        if (!value) return;
+
+        try {
+            await navigator.clipboard.writeText(value);
+
+            Swal.fire({
+                icon: "success",
+                title: "Copied!",
+                text: "Key copied to clipboard.",
+                timer: 1500,
+                showConfirmButton: false,
+            });
+        } catch (err) {
+            console.error("Copy failed", err);
+        }
+    }
 </script>
 
 <div class="input-group input-group-password">
@@ -15,7 +41,7 @@
         type={show ? "text" : "password"}
         class="form-control"
         autocomplete="one-time-code"
-        placeholder={show ? "**********" : "**********"}
+        placeholder={show ? "••••••••••" : "••••••••••"}
         aria-label="Password"
         aria-describedby="password-icon"
         {disabled}
@@ -28,16 +54,20 @@
         class="input-group-text"
         id="show-hide"><i class="bi bi-eye{!show ? '-slash' : ''}"></i></button
     >
+    {#if withcopypaste}
+        <a href={null} title="Copy to clipboard" class="input-group-text" onclick={copyToClipboard}
+            ><i class="bi bi-clipboard-fill"></i></a>
+    {/if}
 </div>
 
 <style lang="scss">
     .input-group-password {
         input {
-            border-right: none;
-            border-left: none;
-
             &::placeholder {
                 color: #c6c1d7;
+            }
+            &:read-only {
+                background-color: #f3f3f3;
             }
         }
         .input-group-text {
