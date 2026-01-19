@@ -1,6 +1,231 @@
 <script>
     import OrderDatafeed from "$lib/components/templates/OrderDatafeed.svelte";
     import OrderTab from "$lib/components/templates/OrderTab.svelte";
+    // import { form, field } from "svelte-forms";
+    // import { min, required } from "svelte-forms/validators";
+    import AutoSelect from "$lib/directives/inputs/AutoSelect.svelte";
+    import {
+        formatNumber,
+        formatIDR,
+        formatCurrencyNoIDR,
+    } from "$lib/numberFormat.js";
+
+    let formData = $state({
+        clientId: "",
+        sid: "",
+        counterpartId: "",
+        symbolId: "",
+        boardId: "RG",
+        limit: 0,
+        price: 0,
+        ordertype: "",
+        spotOrder: "",
+        algoOrder: "",
+        orderStrategyFinal: "",
+    });
+
+    let stockData = $state({
+        symbolId: "",
+        symbolName: "",
+        lastPrice: "7,775",
+        change: -25,
+        changeText: "-25 (0.32%)",
+    });
+
+    let isSubmitting = false;
+    let isFormDisabled = $state(false);
+    let disableBroker = $state(true);
+
+    // const clientId = field("clientId", "", [required()]);
+    // const counterpartId = field("counterpartId", "", [required()]);
+    // const symbolId = field("symbolId", "", [required()]);
+
+    // const myForm = form(clientId, counterpartId, symbolId);
+    // console.log("myForm", $myForm);
+
+    // sync number → input
+    formData.limit = formatCurrencyNoIDR(formData.limit);
+    formData.price = formatCurrencyNoIDR(formData.price);
+    formData.lot = formatCurrencyNoIDR(formData.lot);
+
+    function onInput(e) {
+        const raw = e.target.value.replace(/,/g, "");
+        return Number(raw || 0);
+    }
+
+    function onBlur(e) {
+        console.log("blur", e.target);
+        const el = e.target;
+
+        // contoh: format number
+        const raw = el.value.replace(/[^\d.]/g, "");
+        const num = Number(raw || 0);
+
+        el.value = formatCurrencyNoIDR(num);
+    }
+
+    function onClientChange(e) {
+        const selected = e.detail;
+
+        if (!selected) return;
+
+        console.log("ddclient", selected.raw.sid);
+
+        if (formData.clientId) {
+            disableBroker = false;
+            formData.sid = selected.raw.sid;
+        } else {
+            disableBroker = true;
+            formData.sid = "";
+        }
+    }
+
+    function onClientClear() {
+        console.log("clientid", formData.clientId);
+
+        formData.clientId = "";
+        formData.sid = "";
+        formData.counterpartId = "";
+        disableBroker = true;
+    }
+
+    function onCounterpartChange(e) {
+        const selected = e.detail;
+
+        if (!selected) return;
+
+        if (formData.clientId && formData.counterpartId) {
+            if (
+                formData.clientId == "FUND001" &&
+                formData.counterpartId == "GI"
+            )
+                formData.limit = formatCurrencyNoIDR(100000000);
+            else if (
+                formData.clientId == "FUND001" &&
+                formData.counterpartId == "VZ"
+            )
+                formData.limit = formatCurrencyNoIDR(200000000);
+            else if (
+                formData.clientId == "FUND002" &&
+                formData.counterpartId == "IC"
+            )
+                formData.limit = formatCurrencyNoIDR(150000000);
+            else if (
+                formData.clientId == "FUND002" &&
+                formData.counterpartId == "VZ"
+            )
+                formData.limit = formatCurrencyNoIDR(250000000);
+        } else {
+            formData.limit = formatCurrencyNoIDR(0);
+        }
+    }
+
+    function onCounterpartClear() {
+        formData.counterpartId = "";
+    }
+
+    function onSymbolChange(e) {
+        console.log("stock", e.detail.raw.symbolId);
+        const selected = e.detail;
+        if (!selected) return;
+
+        stockData.symbolId = selected.raw.symbolId;
+        stockData.symbolName = selected.raw.symbolName;
+    }
+
+    function onSymbolClear() {
+        console.log("clientid", formData.clientId);
+        formData.symbolId = "";
+    }
+
+    function onOrderStrategyChange(e) {
+        console.log("orderstrategy", e.detail);
+        const selected = e.detail;
+        if (!selected) return;
+
+        if (formData.orderStrategy === "CARED_ORDER") {
+            formData.orderStrategyFinal = "CARED_ORDER";
+            formData.spotOrder = "";
+            formData.algoOrder = "";
+        } else if (formData.orderStrategy === "SPOT_ORDER") {
+            formData.orderStrategyFinal = formData.spotOrder;
+            formData.algoOrder = "";
+        } else if (formData.orderStrategy === "ALGO_ORDER") {
+            formData.orderStrategyFinal = formData.algoOrder;
+            formData.spotOrder = "";
+        }
+    }
+
+    function onOrderStrategyClear() {
+        console.log("orderStrategy", formData.orderStrategy);
+        formData.orderStrategy = "";
+        formData.spotOrder = "";
+        formData.algoOrder = "";
+        formData.orderStrategyFinal = "";
+    }
+
+    function onSpotOrderChange(e) {
+        console.log("spotOrder", e.detail);
+        const selected = e.detail;
+        if (!selected) return;
+
+        if (formData.orderStrategy === "SPOT_ORDER") {
+            formData.orderStrategyFinal = formData.spotOrder;
+        }
+    }
+
+    function onSpotOrderClear() {
+        console.log("spotOrder", formData.spotOrder);
+        formData.spotOrder = "";
+
+        if (formData.orderStrategy === "CARED_ORDER") {
+            formData.orderStrategyFinal = "CARED_ORDER";
+        }
+    }
+
+    function onAlgoOrderChange(e) {
+        console.log("algoOrder", e.detail);
+        const selected = e.detail;
+        if (!selected) return;
+
+        if (formData.orderStrategy === "ALGO_ORDER") {
+            formData.orderStrategyFinal = formData.algoOrder;
+        }
+    }
+
+    function onAlgoOrderClear() {
+        console.log("algoOrder", formData.algoOrder);
+        formData.algoOrder = "";
+
+        if (formData.orderStrategy === "CARED_ORDER") {
+            formData.orderStrategyFinal = "CARED_ORDER";
+        }
+    }
+
+    // $effect(() => {
+    //     $inspect("xxx", formData.orderStrategyFinal);
+    //     console.log("yyy", formData.orderStrategyFinal);
+    // });
+
+    async function onSubmit(e, formData) {
+        let payload = {
+            sid: formData.sid,
+            CounterpartId: formData.counterpartId,
+            StockId: formData.symbolId,
+            ExternalReference: "0000-1111-2222-3333",
+            BuySell: "SELL",
+            Volume: formData.lot * 100,
+            Price: formData.price,
+            OrderStrategy: formData.orderStrategyFinal,
+        };
+
+        let method = "";
+        method = "POST";
+
+        console.log("payload", payload);
+
+        //await submitDataModal(e, payload, url, method);
+    }
 </script>
 
 <section id="section">
@@ -10,10 +235,7 @@
             <OrderTab defaultFilter="sell">
                 <div class="row g-4 mt-4">
                     <div class="col-md-5 col-sm-12 col-xs-12">
-                        <form
-                            name="orderBuyForm"
-                            ng-submit="onFormSubmit(formData)"
-                        >
+                        <form onsubmit={async (e) => await onSubmit(e, formData)}>
                             <!-- CLIENT -->
                             <div class="row mb-4">
                                 <div class="col-3">
@@ -24,18 +246,17 @@
                                     >
                                 </div>
                                 <div class="col-9">
-                                    <select2-dynamic
-                                        mapgroup="console"
-                                        table="clientidorderrouting"
-                                        ng-model="formData.clientId"
-                                        value-field="clientId"
-                                        text-field="clientId"
-                                        sub-text-field="sid"
-                                        required="true"
-                                        default-data=""
-                                        ng-change="clientId_onChange(value)"
-                                    >
-                                    </select2-dynamic>
+                                    <AutoSelect
+                                        lookup="clientidorderrouting"
+                                        bind:value={formData.clientId}
+                                        labelKey={["clientId", "sid"]}
+                                        valueKey="clientId"
+                                        placeholder="Choose One Option"
+                                        required
+                                        disabled={isFormDisabled}
+                                        on:change={onClientChange}
+                                        on:clear={onClientClear}
+                                    />
                                 </div>
                             </div>
 
@@ -49,20 +270,22 @@
                                     >
                                 </div>
                                 <div class="col-9">
-                                    <select2-dynamic
-                                        ng-model="formData.counterpartId"
-                                        mapgroup="console"
-                                        table="broker"
-                                        lookup="formData.clientId"
-                                        value-field="counterpartId"
-                                        text-field="counterpartId"
-                                        sub-text-field="counterpartClientId"
-                                        default-data=""
-                                        required="true"
-                                        disabled="disableBroker"
-                                        ng-change="counterpartId_onChange()"
-                                    >
-                                    </select2-dynamic>
+                                    <AutoSelect
+                                        lookup="broker"
+                                        params={{ clientId: formData.clientId }}
+                                        pathParams={["clientId"]}
+                                        bind:value={formData.counterpartId}
+                                        labelKey={[
+                                            "counterpartId",
+                                            "counterpartClientId",
+                                        ]}
+                                        valueKey="counterpartId"
+                                        placeholder="Choose One Option"
+                                        required
+                                        disabled={disableBroker}
+                                        on:change={onCounterpartChange}
+                                        on:clear={onCounterpartClear}
+                                    />
                                 </div>
                             </div>
 
@@ -76,30 +299,107 @@
                                     >
                                 </div>
                                 <div class="col-9">
-                                    <select2-dynamic
-                                        mapgroup="console"
-                                        table="symbols"
-                                        ng-model="formData.symbolId"
-                                        value-field="symbolId"
-                                        text-field="symbolId"
-                                        sub-text-field="symbolName"
-                                        required="true"
-                                        default-data=""
-                                        ng-change="symbolId_onChange(value)"
-                                    >
-                                    </select2-dynamic>
+                                    <AutoSelect
+                                        lookup="symbols"
+                                        bind:value={formData.symbolId}
+                                        labelKey={["symbolId", "symbolName"]}
+                                        valueKey="symbolId"
+                                        placeholder="Choose One Option"
+                                        required
+                                        disabled={isFormDisabled}
+                                        on:change={onSymbolChange}
+                                        on:clear={onSymbolClear}
+                                    />
                                 </div>
                             </div>
 
-                            <!-- STOCK BALANCE -->
-                            <!-- <div class="row mb-4">
-                <div class="col-3">
-                    <label class="form-label fw-semibold mt-3">Stock Balance</label>
-                </div>
-                <div class="col-9">
-                    <input type="text" class="form-control bg-light" ng-model="formData.balance" disabled />
-                </div>
-            </div> -->
+                            <!-- ORDER STRATEGY -->
+                            <div class="row mb-4">
+                                <div class="col-3">
+                                    <label
+                                        for="stock"
+                                        class="form-label fw-semibold"
+                                        >Order Strategy</label
+                                    >
+                                </div>
+                                <div class="col-9">
+                                    <AutoSelect
+                                        lookup="mastervalues"
+                                        params={{
+                                            master_value_id: "ORDER_STRATEGY",
+                                        }}
+                                        pathParams={["master_value_id"]}
+                                        bind:value={formData.orderStrategy}
+                                        labelKey={["code"]}
+                                        valueKey="code"
+                                        placeholder="Choose One Option"
+                                        required
+                                        disabled={isFormDisabled}
+                                        on:change={onOrderStrategyChange}
+                                        on:clear={onOrderStrategyClear}
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- SPOT ORDER -->
+                            {#if formData.orderStrategy === "SPOT_ORDER"}
+                                <div class="row mb-4">
+                                    <div class="col-3">
+                                        <label
+                                            for="stock"
+                                            class="form-label fw-semibold"
+                                            >Spot Order</label
+                                        >
+                                    </div>
+                                    <div class="col-9">
+                                        <AutoSelect
+                                            lookup="mastervalues"
+                                            params={{
+                                                master_value_id: "SPOT_ORDER",
+                                            }}
+                                            pathParams={["master_value_id"]}
+                                            bind:value={formData.spotOrder}
+                                            labelKey={["code"]}
+                                            valueKey="code"
+                                            placeholder="Choose One Option"
+                                            required
+                                            disabled={isFormDisabled}
+                                            on:change={onSpotOrderChange}
+                                            on:clear={onSpotOrderClear}
+                                        />
+                                    </div>
+                                </div>
+                            {/if}
+
+                            <!-- ALGO ORDER -->
+                            {#if formData.orderStrategy === "ALGO_ORDER"}
+                                <div class="row mb-4">
+                                    <div class="col-3">
+                                        <label
+                                            for="stock"
+                                            class="form-label fw-semibold"
+                                            >Algo Order</label
+                                        >
+                                    </div>
+                                    <div class="col-9">
+                                        <AutoSelect
+                                            lookup="mastervalues"
+                                            params={{
+                                                master_value_id: "ALGO_ORDER",
+                                            }}
+                                            pathParams={["master_value_id"]}
+                                            bind:value={formData.algoOrder}
+                                            labelKey={["code"]}
+                                            valueKey="code"
+                                            placeholder="Choose One Option"
+                                            required
+                                            disabled={isFormDisabled}
+                                            on:change={onAlgoOrderChange}
+                                            on:clear={onAlgoOrderClear}
+                                        />
+                                    </div>
+                                </div>
+                            {/if}
 
                             <!-- LIMIT -->
                             <div class="row mb-4">
@@ -114,38 +414,13 @@
                                     <input
                                         type="text"
                                         class="form-control bg-light"
-                                        ng-model="formData.limit"
-                                        angular-currency="optionsCurrency"
-                                        variable-options="true"
+                                        bind:value={formData.limit}
                                         disabled
                                     />
                                 </div>
                             </div>
 
                             <hr class="my-4" />
-
-                            <!-- TYPE ORDER -->
-                            <div class="row mb-4">
-                                <div class="col-6">
-                                    <input
-                                        type="radio"
-                                        ng-model="formData.ordertype"
-                                        ng-value="1"
-                                        ng-change="ordertype_onChange()"
-                                    />
-                                    Market Order
-                                </div>
-
-                                <div class="col-6">
-                                    <input
-                                        type="radio"
-                                        ng-model="formData.ordertype"
-                                        ng-value="2"
-                                        ng-change="ordertype_onChange()"
-                                    />
-                                    Limit Order
-                                </div>
-                            </div>
 
                             <!-- PRICE -->
                             <div class="row mb-4">
@@ -160,11 +435,9 @@
                                     <input
                                         type="text"
                                         class="form-control"
-                                        ng-model="formData.price"
-                                        angular-currency="optionsCurrency"
-                                        variable-options="true"
+                                        bind:value={formData.price}
+                                        onblur={onBlur}
                                         required
-                                        ng-disabled="disablePrice"
                                     />
                                 </div>
                             </div>
@@ -182,9 +455,8 @@
                                     <input
                                         type="text"
                                         class="form-control"
-                                        ng-model="formData.lot"
-                                        angular-currency="optionsCurrencyRounded"
-                                        variable-options="true"
+                                        bind:value={formData.lot}
+                                        onblur={onBlur}
                                         required
                                     />
                                 </div>
@@ -196,28 +468,32 @@
                             >
                                 <span class="fw-semibold">Total Order</span>
                                 <span class="fw-bold text-success">
-                                    100000
+                                    {formatCurrencyNoIDR(
+                                        formData.price * formData.lot * 100,
+                                    )}
                                 </span>
                             </div>
 
                             <!-- SUBMIT BUTTON -->
                             <button
-                                type="submit" id="btnSell"
+                                type="submit"
+                                id="btnSell"
                                 class="btn w-100 mt-4"
-                                ng-disabled="orderBuyForm.$invalid || isSubmitting"
                             >
-                                <span class="spanwhite" ng-if="!isSubmitting">Sell Order</span>
-                                <span class="spanwhite" ng-if="isSubmitting"
+                                <span class="spanwhite" ng-if="!isSubmitting"
+                                    >Sell Order</span
+                                >
+                                <!-- <span ng-if="isSubmitting"
                                     ><span
                                         class="spinner-border spinner-border-sm me-2"
                                     ></span>Processing...</span
-                                >
+                                > -->
                             </button>
                         </form>
                     </div>
 
                     <div class="col-md-7 col-sm-12 col-xs-12">
-                        <OrderDatafeed></OrderDatafeed>
+                        <OrderDatafeed bind:stock={stockData}></OrderDatafeed>
                     </div>
                 </div>
             </OrderTab>
@@ -225,12 +501,14 @@
     </div>
 </section>
 
+<div class="bg-secondary" style="height: 12px;">&nbsp;</div>
+
 <style>
-    #btnSell{
-        background-color: #EE4169;
+    #btnSell {
+        background-color: #ee4169;
     }
 
-    .spanwhite{
-        color:#fff !important;
+    .spanwhite {
+        color: #fff !important;
     }
 </style>

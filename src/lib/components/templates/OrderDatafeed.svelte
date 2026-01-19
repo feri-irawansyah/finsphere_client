@@ -1,34 +1,71 @@
 <script>
-    const { children, defaultFilter } = $props();
+    let { children, stock = $bindable() } = $props();
 
-    const filter = $derived(defaultFilter);
+    // let stock = {
+    //     symbolId: "",
+    //     symbolName: "",
+    //     lastPrice: "7,775",
+    //     change: -25,
+    //     changeText: "-25 (0.32%)",
+    // };
+
+    let bidOfferList = [
+        {
+            bidOrd: 51,
+            bidLot: 83,
+            bid: 7750,
+            offer: 7775,
+            offerLot: 83,
+            offerOrd: 51,
+        },
+        {
+            bidOrd: 2,
+            bidLot: 50,
+            bid: 7725,
+            offer: 7800,
+            offerLot: 50,
+            offerOrd: 2,
+        },
+        {
+            bidOrd: 51,
+            bidLot: 994,
+            bid: 7700,
+            offer: 7825,
+            offerLot: 60,
+            offerOrd: 22,
+        },
+    ];
+
+    function updateFromChild() {
+        stock = {
+        ...stock,
+        lastPrice: '7,900'
+        };
+    }
 
     $inspect(filter);
-
 </script>
 
 <div class="order-right-panel">
-
     <!-- HEADER STOCK -->
     <div class="stock-header d-flex justify-content-between align-items-start">
         <div>
-            <!-- <h4 class="stock-code">{{ stock.symbolId }}</h4>
-            <div class="stock-name">{{ stock.symbolName }}</div> -->
-            <h4 class="stock-code">AALI</h4>
-            <div class="stock-name">Astra Agro Lestari</div>
+            <h4 class="stock-code">{stock.symbolId}</h4>
+            <div class="stock-name">{stock.symbolName}</div>
         </div>
 
-        <!-- <div class="stock-price text-end">
-            <div class="last-price">{{ stock.lastPrice }}</div>
-            <div class="change" ng-class="{'text-success': stock.change > 0, 'text-danger': stock.change < 0}">
-                {{ stock.changeText }}
+        <div class="stock-price text-end">
+            <div class="last-price">{stock.lastPrice}</div>
+            <div
+                class:text-danger={stock.change < 0}
+                class:text-success={stock.change > 0}>
+                {stock.changeText}
             </div>
-        </div> -->
+        </div>
     </div>
 
     <!-- PRICE GRID -->
     <div class="border rounded p-3 price-info-grid-compact">
-
         <div class="pi-item">
             <span class="pi-label">Open</span>
             <span class="pi-value text-success">7,850</span>
@@ -83,7 +120,6 @@
             <span class="pi-label">IEV</span>
             <span class="pi-value">563</span>
         </div>
-
     </div>
 
     <!-- BID OFFER TABLE (Tetap sama) -->
@@ -108,88 +144,100 @@
                 <td>{{ x.offerLot }}</td>
                 <td>{{ x.offerOrd }}</td>
             </tr> -->
+            {#each bidOfferList as x}
+                <tr>
+                    <td>{x.bidOrd}</td>
+                    <td>{x.bidLot}</td>
+                    <td class="text-danger">{x.bid}</td>
+                    <td class="text-success">{x.offer}</td>
+                    <td>{x.offerLot}</td>
+                    <td>{x.offerOrd}</td>
+                </tr>
+            {/each}
         </tbody>
     </table>
 </div>
 
+{@render children?.()}
+
 <style>
     /* Panel wrapper */
-.order-right-panel {
-    background: #fff;
-    padding: 10px 15px;
-    border-radius: 10px;
-}
+    .order-right-panel {
+        background: #fff;
+        padding: 10px 15px;
+        border-radius: 10px;
+    }
 
-/* Header stock */
-.stock-header {
-    padding-bottom: 8px;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 12px;
-}
+    /* Header stock */
+    .stock-header {
+        padding-bottom: 8px;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 12px;
+    }
 
-.stock-code {
-    font-size: 20px;
-    font-weight: 700;
-}
+    .stock-code {
+        font-size: 20px;
+        font-weight: 700;
+    }
 
-.stock-name {
-    font-size: 12px;
-    color: #666;
-}
+    .stock-name {
+        font-size: 12px;
+        color: #666;
+    }
 
-.last-price {
-    font-size: 20px;
-    font-weight: 700;
-}
+    .last-price {
+        font-size: 20px;
+        font-weight: 700;
+    }
 
-.change {
-    font-size: 12px;
-}
+    .change {
+        font-size: 12px;
+    }
 
-/* PRICE GRID COMPACT */
-.price-info-grid-compact {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    column-gap: 25px;
-    row-gap: 6px;
-    margin-bottom: 15px;
-}
+    /* PRICE GRID COMPACT */
+    .price-info-grid-compact {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        column-gap: 25px;
+        row-gap: 6px;
+        margin-bottom: 15px;
+    }
 
-.pi-item {
-    display: flex;
-    justify-content: space-between;
-    font-size: 13px;
-}
+    .pi-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+    }
 
-.pi-label {
-    font-size: 11px;
-    color: #888;
-}
+    .pi-label {
+        font-size: 11px;
+        color: #888;
+    }
 
-.pi-value {
-    font-weight: 600;
-}
+    .pi-value {
+        font-weight: 600;
+    }
 
-/* Bid Offer Table */
-.bid-offer-table {
-    font-size: 12px;
-    border-collapse: separate;
-    border-spacing: 0 4px;
-}
+    /* Bid Offer Table */
+    .bid-offer-table {
+        font-size: 12px;
+        border-collapse: separate;
+        border-spacing: 0 4px;
+    }
 
-.bid-offer-table td {
-    background: #fafafa;
-    padding: 6px 8px;
-}
+    .bid-offer-table td {
+        background: #fafafa;
+        padding: 6px 8px;
+    }
 
-/* Supaya cell tidak terlalu rapat */
-.ag-cell.state-col {
-    padding-top: 10px !important;
-    padding-bottom: 10px !important;
-    line-height: normal !important;
-}
+    /* Supaya cell tidak terlalu rapat */
+    .ag-cell.state-col {
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+        line-height: normal !important;
+    }
 
-/* .badge-state {
+    /* .badge-state {
     padding: 4px 12px;
     border-radius: 12px;
     font-size: 12px;
@@ -198,81 +246,79 @@
     text-align: center;
 } */
 
-.badge-state {
-    display: inline-block;
-    padding: 4px 14px;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 500;
-    margin: 0 auto;
-    /* center */
-    margin-left: 6px;
-    /* jarak kiri-kanan */
-    margin-right: 6px;
-    white-space: nowrap;
-}
+    .badge-state {
+        display: inline-block;
+        padding: 4px 14px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 500;
+        margin: 0 auto;
+        /* center */
+        margin-left: 6px;
+        /* jarak kiri-kanan */
+        margin-right: 6px;
+        white-space: nowrap;
+    }
 
-.badge-wait_release {
-    background: #E6F0FF;
-    color: #6C4BF4;
-}
+    .badge-wait_release {
+        background: #e6f0ff;
+        color: #6c4bf4;
+    }
 
-.badge-open {
-    background: #E6F0FF;
-    color: #0980BC;
-}
+    .badge-open {
+        background: #e6f0ff;
+        color: #0980bc;
+    }
 
-.badge-opening {
-    background: #E6F0FF;
-    color: #0980BC;
-}
+    .badge-opening {
+        background: #e6f0ff;
+        color: #0980bc;
+    }
 
-.badge-match {
-    background: #E1F7F2;
-    color: #09BC8A;
-}
+    .badge-match {
+        background: #e1f7f2;
+        color: #09bc8a;
+    }
 
-.badge-partial {
-    background: #E6F7F5;
-    color: #048460;
-}
+    .badge-partial {
+        background: #e6f7f5;
+        color: #048460;
+    }
 
-.badge-rejected {
-    background: #FDE7EC;
-    color: #BC094B;
-}
+    .badge-rejected {
+        background: #fde7ec;
+        color: #bc094b;
+    }
 
-/* Amend */
-.badge-replacing {
-    background: #FFF0E6;
-    color: #BC6309;
-}
+    /* Amend */
+    .badge-replacing {
+        background: #fff0e6;
+        color: #bc6309;
+    }
 
-.badge-replaced {
-    background: #FFF0E6;
-    color: #BC6309;
-}
+    .badge-replaced {
+        background: #fff0e6;
+        color: #bc6309;
+    }
 
-/* Withdraw */
-.badge-cancelling {
-    background: #E0E2E6;
-    color: #BC8C09;
-}
+    /* Withdraw */
+    .badge-cancelling {
+        background: #e0e2e6;
+        color: #bc8c09;
+    }
 
-.badge-cancelled {
-    background: #E0E2E6;
-    color: #BC8C09;
-}
+    .badge-cancelled {
+        background: #e0e2e6;
+        color: #bc8c09;
+    }
 
-.badge-expired {
-    background: #FDE7EC;
-    color: #BC094B;
-}
+    .badge-expired {
+        background: #fde7ec;
+        color: #bc094b;
+    }
 
-.badge-rejected {
-    background: #FDE7EC;
-    color: #BC094B;
-}
+    .badge-rejected {
+        background: #fde7ec;
+        color: #bc094b;
+    }
 </style>
-
-{@render children?.()}

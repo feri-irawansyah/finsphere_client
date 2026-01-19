@@ -1,27 +1,106 @@
 <script>
     import OrderDatafeed from "$lib/components/templates/OrderDatafeed.svelte";
     import OrderTab from "$lib/components/templates/OrderTab.svelte";
+    import AutoSelect from "$lib/directives/inputs/AutoSelect.svelte";
+    import {
+        formatNumber,
+        formatIDR,
+        formatCurrencyNoIDR,
+    } from "$lib/numberFormat.js";
 
-    let isSubmitting = false;
+    let formData = $state({
+        clientId: "",
+        sid: "",
+        counterpartId: "",
+        symbolId: "",
+        boardId: "RG",
+        limit: 0,
+        ordertype: 0,
+        price: 0,
+    });
 
-    // ganti orderAmendForm.$invalid
-    // ini contoh sederhana, nanti bisa kamu sambungkan ke validasi form kamu
-    let isFormInvalid = false;
+    let stockData = $state({
+        symbolId: '',
+        symbolName: '',
+        lastPrice: '7,775',
+        change: -25,
+        changeText: '-25 (0.32%)'
+    });
 
-    async function submit(e) {
-        e.preventdefault;
-        if (!formAmend.checkValidity()) {
-      formAmend.reportValidity(); // munculin pesan browser
-      return;
+    function onClientChange(e) {
+        const selected = e.detail;
+
+        if (!selected) return;
+
+        console.log("ddclient", selected.raw.sid);
+
+        if (formData.clientId) {
+            disableBroker = false;
+            formData.sid = selected.raw.sid;
+        } else {
+            disableBroker = true;
+            formData.sid = "";
+        }
     }
 
-        isSubmitting = true;
-        try {
-            // call API / SignalR / backend
-            await new Promise(r => setTimeout(r, 3000)); // simulasi API
-        } finally {
-            isSubmitting = false;
+    function onClientClear() {
+        console.log("clientid", formData.clientId);
+
+        formData.clientId = "";
+        formData.sid = "";
+        formData.counterpartId = "";
+        disableBroker = true;
+    }
+
+    function onCounterpartChange(e) {
+        const selected = e.detail;
+
+        if (!selected) return;
+
+        if (formData.clientId && formData.counterpartId) {
+            if (
+                formData.clientId == "FUND001" &&
+                formData.counterpartId == "GI"
+            )
+                formData.limit = formatCurrencyNoIDR(100000000);
+            else if (
+                formData.clientId == "FUND001" &&
+                formData.counterpartId == "VZ"
+            )
+                formData.limit = formatCurrencyNoIDR(200000000);
+            else if (
+                formData.clientId == "FUND002" &&
+                formData.counterpartId == "IC"
+            )
+                formData.limit = formatCurrencyNoIDR(150000000);
+            else if (
+                formData.clientId == "FUND002" &&
+                formData.counterpartId == "VZ"
+            )
+                formData.limit = formatCurrencyNoIDR(250000000);
+        } else {
+            formData.limit = formatCurrencyNoIDR(0);
         }
+    }
+
+    function onCounterpartClear() {
+        formData.counterpartId = "";
+    }
+
+    async function onSubmit(e, formData) {
+        let payload = {
+            OldOrderUid: formData.orderUid,
+            Volume: formData.amendlot * 100,
+            Price: formData.amendprice,
+            ExternalReference: formData.orderUid,
+        };
+
+        let method = "";
+        method = "POST";
+
+        console.log("payload", payload);
+
+        //await submitDataModal(e, payload, url, method);
     }
 </script>
 
@@ -33,7 +112,7 @@
                 <div class="row g-4 mt-4">
                     <div class="col-md-5 col-sm-12 col-xs-12">
                         <form
-                            onsubmit={submit}
+                            onsubmit={async (e) => await onSubmit(e, formData)}
                         >
                             <!-- Order -->
                             <div class="row mb-4">
@@ -45,7 +124,17 @@
                                     >
                                 </div>
                                 <div class="col-9">
-                                    <select2-dynamic
+                                    <AutoSelect
+                                        mapGroup="urlPlatformOMS"
+                                        lookup="order"
+                                        bind:value={formData.orderUid}
+                                        labelKey={["clientOrderId"]}
+                                        valueKey="orderUid"
+                                        placeholder="Choose One Option"
+                                        required
+                                        disabled
+                                    />
+                                    <!-- <select2-dynamic
                                         mapgroup="oms"
                                         table="order"
                                         ng-model="formData.orderUid"
@@ -57,7 +146,7 @@
                                         disabled="true"
                                         ng-change="orderUid_onChange()"
                                     >
-                                    </select2-dynamic>
+                                    </select2-dynamic> -->
                                 </div>
                             </div>
 
@@ -71,19 +160,17 @@
                                     >
                                 </div>
                                 <div class="col-9">
-                                    <select2-dynamic
-                                        mapgroup="console"
-                                        table="clientidorderrouting"
-                                        ng-model="formData.clientId"
-                                        value-field="clientId"
-                                        text-field="clientId"
-                                        sub-text-field="sid"
-                                        required="true"
-                                        default-data=""
-                                        disabled="true"
-                                        ng-change="clientId_onChange(value)"
-                                    >
-                                    </select2-dynamic>
+                                    <AutoSelect
+                                        lookup="clientidorderrouting"
+                                        bind:value={formData.clientId}
+                                        labelKey={["clientId", "formData.sid"]}
+                                        valueKey="clientId"
+                                        placeholder="Choose One Option"
+                                        required
+                                        disabled
+                                        on:change={onClientChange}
+                                        on:clear={onClientClear}
+                                    />
                                 </div>
                             </div>
 
@@ -97,32 +184,24 @@
                                     >
                                 </div>
                                 <div class="col-9">
-                                    <select2-dynamic
-                                        ng-model="formData.counterpartId"
-                                        mapgroup="console"
-                                        table="broker"
-                                        lookup="formData.clientId"
-                                        value-field="counterpartId"
-                                        text-field="counterpartId"
-                                        sub-text-field="counterpartClientId"
-                                        default-data=""
-                                        required="true"
-                                        disabled="disableBroker"
-                                        ng-change="counterpartId_onChange()"
-                                    >
-                                    </select2-dynamic>
+                                    <AutoSelect
+                                        lookup="broker"
+                                        params={{ clientId: formData.clientId }}
+                                        pathParams={["clientId"]}
+                                        bind:value={formData.counterpartId}
+                                        labelKey={[
+                                            "counterpartId",
+                                            "counterpartClientId",
+                                        ]}
+                                        valueKey="counterpartId"
+                                        placeholder="Choose One Option"
+                                        required
+                                        disabled
+                                        on:change={onCounterpartChange}
+                                        on:clear={onCounterpartClear}
+                                    />
                                 </div>
                             </div>
-
-                            <!-- STOCK BALANCE -->
-                            <!-- <div class="row mb-4">
-                <div class="col-3">
-                    <label class="form-label fw-semibold mt-3">Stock Balance</label>
-                </div>
-                <div class="col-9">
-                    <input type="text" class="form-control bg-light" ng-model="formData.balance" disabled />
-                </div>
-            </div> -->
 
                             <!-- LIMIT -->
                             <div class="row mb-4">
@@ -137,9 +216,7 @@
                                     <input
                                         type="text"
                                         class="form-control bg-light"
-                                        ng-model="formData.tradeLimit"
-                                        angular-currency="optionsCurrency"
-                                        variable-options="true"
+                                        bind:value={formData.tradeLimit}
                                         disabled
                                     />
                                 </div>
@@ -160,9 +237,7 @@
                                     <input
                                         type="text"
                                         class="form-control"
-                                        ng-model="formData.price"
-                                        angular-currency="optionsCurrency"
-                                        variable-options="true"
+                                        bind:value={formData.price}
                                         required
                                         disabled
                                     />
@@ -171,9 +246,7 @@
                                     <input
                                         type="text"
                                         class="form-control"
-                                        ng-model="formData.amendprice"
-                                        angular-currency="optionsCurrency"
-                                        variable-options="true"
+                                        bind:value={formData.amendprice}
                                         required
                                         placeholder="Change price here"
                                     />
@@ -193,9 +266,7 @@
                                     <input
                                         type="text"
                                         class="form-control"
-                                        ng-model="formData.lot"
-                                        angular-currency="optionsCurrencyRounded"
-                                        variable-options="true"
+                                        bind:value={formData.lot}
                                         required
                                         disabled
                                     />
@@ -204,9 +275,7 @@
                                     <input
                                         type="text"
                                         class="form-control"
-                                        ng-model="formData.amendlot"
-                                        angular-currency="optionsCurrencyRounded"
-                                        variable-options="true"
+                                        bind:value={formData.amendlot}
                                         required
                                         placeholder="Change lot here"
                                     />
@@ -219,34 +288,34 @@
                             >
                                 <span class="fw-semibold">Total Order</span>
                                 <span class="fw-bold text-success">
-                                    100000
+                                    {formatCurrencyNoIDR(
+                                        formData.price * formData.lot * 100,
+                                    )}
                                 </span>
                             </div>
-                            <p>{isSubmitting}</p>
 
                             <!-- SUBMIT BUTTON -->
                             <button
                                 type="submit"
                                 id="btnAmend"
                                 class="btn w-100 mt-4"
-                                disabled={isSubmitting}
                             >
-                                {#if !isSubmitting}
+                                <!-- {#if !isSubmitting} -->
                                     <span class="spanwhite">Amend Order</span>
-                                {:else}
-                                    <span class="spanwhite">
+                                <!-- {:else} -->
+                                    <!-- <span class="spanwhite">
                                         <span
                                             class="spinner-border spinner-border-sm me-2"
                                         ></span>
                                         Processing...
-                                    </span>
-                                {/if}
+                                    </span> -->
+                                <!-- {/if} -->
                             </button>
                         </form>
                     </div>
 
                     <div class="col-md-7 col-sm-12 col-xs-12">
-                        <OrderDatafeed></OrderDatafeed>
+                        <OrderDatafeed bind:stock={stockData}></OrderDatafeed>
                     </div>
                 </div>
             </OrderTab>

@@ -15,9 +15,7 @@
                 {@render children?.()}
             </div>
         </div>
-        <div class="bg-secondary" style="height: 12px;">
-            &nbsp;
-        </div>
+        
         <div class="row mt-4 p-4">
             <div class="col-12">
                 <section id="section">
