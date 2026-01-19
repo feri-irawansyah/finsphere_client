@@ -42,8 +42,6 @@
         lastPrice: '7,900'
         };
     }
-
-    $inspect(filter);
 </script>
 
 <div class="order-right-panel">

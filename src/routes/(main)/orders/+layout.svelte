@@ -1,11 +1,24 @@
 <script>
     import ClientGrid from "$lib/directives/grids/ClientGrid.svelte";
+    import orderStore from "$lib/directives/modal/functions/order-store.js";
+    import { setContext } from "svelte";
 
     const { children, data } = $props();
 
     let quickFilterFn = $state(null);
     let refresh = $state(null);
     let excel = $state(null);
+
+    // on:selected={(e) => console.log("selected", e.detail)}
+
+    const state = $derived($orderStore);
+
+    function testingers (row){
+
+        orderStore.setup({
+            detail : row?.detail
+        });
+    }
 </script>
 
 <div class="row">
@@ -15,7 +28,7 @@
                 {@render children?.()}
             </div>
         </div>
-        
+
         <div class="row mt-4 p-4">
             <div class="col-12">
                 <section id="section">
@@ -25,7 +38,9 @@
                         height={100}
                         layout={85}
                         tableName={data.tableName}
-                        on:selected={(e) => console.log("selected", e.detail)}
+                        on:selected={(e) => 
+                            testingers(e)
+                        }
                         on:quickFilter={(e) => (quickFilterFn = e.detail)}
                         on:refresh={(e) => (refresh = e.detail)}
                         on:excel={(e) => (excel = e.detail)}

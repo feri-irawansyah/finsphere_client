@@ -2,11 +2,13 @@
     import OrderDatafeed from "$lib/components/templates/OrderDatafeed.svelte";
     import OrderTab from "$lib/components/templates/OrderTab.svelte";
     import AutoSelect from "$lib/directives/inputs/AutoSelect.svelte";
+    import orderStore from "$lib/directives/modal/functions/order-store";
     import {
         formatNumber,
         formatIDR,
         formatCurrencyNoIDR,
     } from "$lib/numberFormat.js";
+    import { onMount } from "svelte";
 
     let formData = $state({
         clientId: "",
@@ -20,11 +22,11 @@
     });
 
     let stockData = $state({
-        symbolId: '',
-        symbolName: '',
-        lastPrice: '7,775',
+        symbolId: "",
+        symbolName: "",
+        lastPrice: "7,775",
         change: -25,
-        changeText: '-25 (0.32%)'
+        changeText: "-25 (0.32%)",
     });
 
     function onClientChange(e) {
@@ -102,6 +104,24 @@
 
         //await submitDataModal(e, payload, url, method);
     }
+
+    // function handleClick() {
+    //     logout();
+    // }
+    const state = $derived($orderStore);
+
+    onMount(() => {
+        orderStore.reset();
+    });
+
+    $effect(() => {
+        const dataRow = state?.detail;
+
+        formData.orderUid = dataRow?.orderUid;
+        formData.clientId = dataRow?.clientId;
+        formData.price = dataRow?.price;
+        formData.tradeLimit = dataRow?.tradeLimit;
+    });
 </script>
 
 <section id="section">
@@ -301,9 +321,9 @@
                                 class="btn w-100 mt-4"
                             >
                                 <!-- {#if !isSubmitting} -->
-                                    <span class="spanwhite">Amend Order</span>
+                                <span class="spanwhite">Amend Order</span>
                                 <!-- {:else} -->
-                                    <!-- <span class="spanwhite">
+                                <!-- <span class="spanwhite">
                                         <span
                                             class="spinner-border spinner-border-sm me-2"
                                         ></span>
