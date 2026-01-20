@@ -29,19 +29,24 @@ function retryQueuedRequests(fetch, newToken) {
     requestQueue = [];
 }
 
-async function fetcher(fetch, url, options = {}) {
+async function fetcher(fetch, url, options = {}, isJson = true) {
     const token = localStorage.getItem('access_token');
 
     modalStore.setLoading();
 
     try {
 
+        const headers = {
+            ...(options.headers ?? {})
+        };
+
+        if(isJson) {
+            headers['Content-Type'] = 'application/json';
+        }
+
         const config = {
             credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            },
+            headers,
             ...options
         };
 

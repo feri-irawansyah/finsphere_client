@@ -150,7 +150,6 @@
         else if (params.actions == "update") {
             method = "PUT";
             payload.roleUid = formData.roleUid;
-            delete payload.tenantUid;
         }
 
         await submitDataModal(e, payload, url, method);

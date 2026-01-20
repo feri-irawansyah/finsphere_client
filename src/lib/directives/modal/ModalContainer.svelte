@@ -143,7 +143,7 @@
                                     form="formSubmit-{$modalStore.id}"
                                     disabled={state.loading}
                                 >
-                                    <span>Save</span>
+                                    <span>Submit</span>
                                 </button>
                             </div>
                         {:else if !state.params.isFormDisabled && !state.wizard.enabled && state.loading}
@@ -166,9 +166,9 @@
                 <div class="modal-footer d-flex justify-content-between gap-2">
                     <div>
                         <button
-                            type="button"
+                            type="button" disabled={state.loading}
                             class="btn btn-outline-danger px-5"
-                            data-bs-dismiss="modal">Close 1</button
+                            data-bs-dismiss="modal">Close</button
                         >
                     </div>
                     <div>

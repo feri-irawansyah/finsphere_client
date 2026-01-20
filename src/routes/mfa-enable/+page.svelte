@@ -68,9 +68,7 @@
     <div class="bottom-left-overlay"></div>
     <div class="otp-container">
         <div class="otp-card">
-            <div class="otp-icon-wrapper">
-                <div class="otp-icon-circle"></div>
-            </div>
+            <img src="img/auth/shield.png" alt="logo" class="mb-4" />
 
             <h2 class="otp-title">Amankan Akses Akun Anda dengan MFA</h2>
             <p class="otp-subtitle">

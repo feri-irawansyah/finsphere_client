@@ -41,7 +41,7 @@
                 {quickFilterFn}
                 {excel}
                 {refresh}
-                createNewModal={{
+                createNewModal={[{
                     label: "Create New tenant",
                     title: "Create new tenant",
                     subTitle:
@@ -52,7 +52,7 @@
                         step: 0,
                         total: 1,
                     },
-                }}
+                }]}
                 on:selected={(e) => console.log("selected", e.detail)}
                 on:quickFilter={(e) => (quickFilterFn = e.detail)}
                 on:refresh={(e) => (refresh = e.detail)}

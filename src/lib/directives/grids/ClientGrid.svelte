@@ -22,7 +22,8 @@
         excel = null,
         refresh = null,
         quickFilterFn = null,
-        createNewModal = {},
+        createNewModal = [{}],
+        createNewImportModal = {},
         wizardParams = {},
     } = $props();
 
@@ -193,24 +194,26 @@
         {/if}
 
         <!-- create new modal -->
-        {#if createNewModal.title}
-            <button
-                type="button"
-                class="btn btn-gradient-primary"
-                onclick={() =>
-                    modalStore.open(
-                        `modal-${tableName}`,
-                        createNewModal.title,
-                        createNewModal.subTitle,
-                        {
-                            actions: "create",
-                        },
-                        createNewModal.wizardParams,
-                    )}
-            >
-                <i class="bi {createNewModal.icon} pe-2"></i>
-                <span>{createNewModal.label}</span>
-            </button>
+        {#if createNewModal}
+            {#each createNewModal as item}
+                <button
+                    type="button"
+                    class="ms-1 {item.buttonClass ? item.buttonClass : "btn btn-gradient-primary"}"
+                    onclick={() =>
+                        modalStore.open(
+                            `modal-${item.overrideTableName ? item.overrideTableName : tableName}`,
+                            item.title,
+                            item.subTitle,
+                            {
+                                actions: item.actions ? item.actions : "create",
+                            },
+                            item.wizardParams,
+                        )}
+                >
+                    <i class="bi {item.icon} pe-2"></i>
+                    <span>{item.label}</span>
+                </button>
+            {/each}
         {/if}
     </div>
 </div>

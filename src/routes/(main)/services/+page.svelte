@@ -35,12 +35,12 @@
                 {quickFilterFn}
                 {excel}
                 {refresh}
-                createNewModal={{
+                createNewModal={[{
                     label: "Create New Service",
                     title: "Create new service",
                     subTitle: "",
                     icon: "bi-text-paragraph",
-                }}
+                }]}
                 on:selected={(e) => console.log("selected", e.detail)}
                 on:quickFilter={(e) => (quickFilterFn = e.detail)}
                 on:refresh={(e) => (refresh = e.detail)}

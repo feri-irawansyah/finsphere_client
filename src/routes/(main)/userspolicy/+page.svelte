@@ -669,6 +669,7 @@
                     didOpen: () => Swal.showLoading(),
                     allowOutsideClick: false,
                     allowEscapeKey: false,
+                    allowEnterKey: false,
                 });
 
                 formData.isMfaSubmitting = true;

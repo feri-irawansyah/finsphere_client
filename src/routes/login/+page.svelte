@@ -94,12 +94,15 @@
             title: "Memproses...",
             didOpen: () => Swal.showLoading(),
             allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false,
         });
 
         const email = localStorage.getItem("expiredPasswordEmail");
 
         try {
-            const res = await fetcher(fetch,
+            const res = await fetcher(
+                fetch,
                 `${applicationStore.urlPlatformConsole}/usersexpiredpassword/request`,
                 {
                     method: "POST",
@@ -122,13 +125,13 @@
             } else {
                 Swal.fire("Error", "Gagal mengirim OTP.", "error");
             }
-        } catch(err) {
+        } catch (err) {
             console.log(err);
             Swal.fire("Error", "Terjadi kesalahan saat mengirim OTP.", "error");
         }
     }
 
-    onMount(()=> {
+    onMount(() => {
         localStorage.removeItem("expiredPasswordEmail");
         localStorage.removeItem("expiredPasswordResetToken");
         localStorage.removeItem("expiredPasswordMethod");
@@ -138,7 +141,7 @@
         localStorage.removeItem("forgotPasswordMethod");
         localStorage.removeItem("forgotPasswordState");
         localStorage.removeItem("pending_login_email");
-    })
+    });
 </script>
 
 <div class="login d-flex flex-row">
@@ -178,8 +181,9 @@
             </div>
             <InputPassword bind:value={form.password} required />
             <div class="mt-3 mb-3 text-end">
-                <a href="/forget-password" class="text-muted text-decoration-none"
-                    >Forgot Password?</a
+                <a
+                    href="/forget-password"
+                    class="text-muted text-decoration-none">Forgot Password?</a
                 >
             </div>
             <button type="submit" class="btn btn-gradient-primary w-100"
@@ -210,7 +214,6 @@
                     object-fit: cover;
                     object-position: top;
                     transform: scale(1.27);
-                    
                 }
 
                 .bottom-left-overlay {

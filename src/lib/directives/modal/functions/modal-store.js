@@ -329,15 +329,15 @@ function createModalStore() {
 
 const modalStore = createModalStore();
 
-export async function submitDataModal(e, payload, url, method) {
+export async function submitDataModal(e, payload, url, method, isJson = true) {
 
     try {
         modalStore.setLoading();
 
         const rst = await fetcher(fetch, url, {
             method: method,
-            body: JSON.stringify(payload),
-        });
+            body: isJson ? JSON.stringify(payload) : payload,
+        }, isJson);
 
         const footerMessage = "";
 
