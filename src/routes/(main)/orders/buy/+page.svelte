@@ -75,7 +75,6 @@
 
         if (!selected) return;
 
-
         if (formData.clientId) {
             disableBroker = false;
             formData.sid = selected.optionalvalue;
@@ -207,10 +206,21 @@
         }
     }
 
-    // $effect(() => {
-    //     $inspect("xxx", formData.orderStrategyFinal);
-    //     console.log("yyy", formData.orderStrategyFinal);
-    // });
+    function resetForm() {
+        formData.clientId = "";
+        formData.sid = "";
+        formData.counterpartId = "";
+        formData.symbolId = "";
+        formData.boardId = "RG";
+        formData.limit = 0;
+        formData.price = 0;
+        formData.lot = 0;
+        formData.orderStrategy = "";
+        formData.ordertype = "";
+        formData.spotOrder = "";
+        formData.algoOrder = "";
+        formData.orderStrategyFinal = "";
+    }
 
     async function onSubmit(e, formData) {
         let payload = {
@@ -227,11 +237,8 @@
         let url = `${applicationStore["urlPlatformOMS"]}/order`;
         let method = "POST";
 
-        console.log("payload", payload);
-        console.log("url", url);
-
         await submitDataModal(e, payload, url, method);
-        console.log("yyy");
+        resetForm();
     }
 </script>
 

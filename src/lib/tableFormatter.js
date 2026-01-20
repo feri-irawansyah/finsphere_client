@@ -41,7 +41,7 @@ const createTableFormatter = (columns) => {
             case "type":
                 c.filter = "agSetColumnFilter";
                 break;
-            case "rejected":
+            case "state":
                 c.filter = "agSetColumnFilter";
                 c.filterParams = {
                     values: async (params) => {

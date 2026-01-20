@@ -7,7 +7,7 @@ export const refreshTable = writable(null);
 
 let connection = null;
 
-export function initSignalR() {
+export function initSignalR(session) {
     if (connection) return connection; // biar ga double connect
 
     connection = new HubConnectionBuilder()
@@ -44,9 +44,8 @@ export function initSignalR() {
 
     connection.start()
         .then(function () {
-            console.log("Connected to SignalR!")
-            connection.invoke("Join", "CC002");
-
+            console.log("Connected to SignalR!", session);
+            connection.invoke("Join", session.tenantId);
         }
         )
         .catch(err => console.error("SignalR error:", err));

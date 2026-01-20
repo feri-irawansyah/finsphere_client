@@ -31,7 +31,6 @@
             once: false,
             duration: 600
         });
-        initSignalR();
     });
 </script>
 

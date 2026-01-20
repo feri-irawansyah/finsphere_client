@@ -1,8 +1,9 @@
 <script>
     import { page } from '$app/state';
+    import { initSignalR } from '$lib';
     import Header from '$lib/components/templates/Header.svelte';
     import Sidebar from '$lib/components/templates/Sidebar.svelte';
-    import { setContext } from 'svelte';
+    import { onMount, setContext } from 'svelte';
 
 	const { children, data } = $props();
 
@@ -11,6 +12,10 @@
     setContext('sidebar', {
         get show() { return show; },
         toggle: () => show = !show
+    });
+
+    onMount(() => {
+        initSignalR(data.session);
     });
 
 </script>

@@ -3,28 +3,29 @@
     import OrderTab from "$lib/components/templates/OrderTab.svelte";
     import AutoSelect from "$lib/directives/inputs/AutoSelect.svelte";
     import { submitDataModal } from "$lib/directives/modal/functions/modal-store";
+    import datagridStore from "$lib/stores/gridStore";
+    import { applicationStore } from "$lib/stores/applicationStore";
+    import { onMount } from "svelte";
     import {
         formatNumber,
         formatIDR,
         formatCurrencyNoIDR,
     } from "$lib/numberFormat.js";
-    import datagridStore from "$lib/stores/gridStore";
-    import { onMount } from "svelte";
     
 
     const state = $derived($datagridStore);
-
     onMount(() => {
         datagridStore.reset();
     });
 
     let formData = $state({
+        orderUid: "",
         clientId: "",
         sid: "",
         counterpartId: "",
         symbolId: "",
         boardId: "RG",
-        limit: 0,
+        tradeLimit: 0,
         price: 0,
         lot: 0,
         ordertype: 0
@@ -39,6 +40,10 @@
     });
 
     let total = $state(0);
+
+    formData.tradeLimit = formatCurrencyNoIDR(formData.tradeLimit);
+    formData.price = formatCurrencyNoIDR(formData.price);
+    formData.lot = formatCurrencyNoIDR(formData.lot);
 
     function onClientChange(e) {
         const selected = e.detail;
@@ -100,24 +105,34 @@
         formData.counterpartId = "";
     }
 
+    function resetForm() {
+        formData.orderUid = "",
+        formData.clientId = "";
+        formData.sid = "";
+        formData.counterpartId = "";
+        formData.symbolId = "";
+        formData.boardId = "RG";
+        formData.tradeLimit = 0;
+        formData.price = 0;
+        formData.lot = 0;
+    }
+
     async function onSubmit(e, formData) {
         let payload = {
-            OldOrderUid: formData.orderUid,
+            OrderUid: formData.orderUid,
             ExternalReference: formData.orderUid,
         };
 
         let url = `${applicationStore["urlPlatformOMS"]}/order/cancel`;
         let method = "POST";
 
-        console.log("payload", payload);
-
-        //await submitDataModal(e, payload, url, method);
+        await submitDataModal(e, payload, url, method);
+        resetForm();
     }
 
     $effect(() => {
         const dataRow = state?.detail;
-
-        $inspect("withdraw", dataRow)
+        console.log("detail withdraw", dataRow?.partyId)
 
         if (dataRow !== undefined) {
             formData.orderUid = dataRow?.orderUid;
@@ -127,11 +142,8 @@
             formData.lot = formatCurrencyNoIDR(dataRow?.volume / 100);
             formData.tradeLimit = formatCurrencyNoIDR(dataRow?.tradeLimit);
 
-            $: total = formatCurrencyNoIDR(dataRow?.price * dataRow?.volume);
-            //total = formatCurrencyNoIDR(dataRow?.price * dataRow?.volume);
+            total = formatCurrencyNoIDR(dataRow?.price * dataRow?.volume);
         }
-
-        console.log("total", total)
     });
 </script>
 
@@ -288,9 +300,7 @@
                             >
                                 <span class="fw-semibold">Total Order</span>
                                 <span class="fw-bold text-success">
-                                    {formatCurrencyNoIDR(
-                                        total
-                                    )}
+                                    {total}
                                 </span>
                             </div>
 

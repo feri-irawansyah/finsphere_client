@@ -5,16 +5,16 @@ export const load = ({ parent }) => {
         title: 'Orders List',
         tableName: 'orders',
         columns: [
-        {
-          headerName: "No.",
-          valueGetter: "node.rowIndex + 1",
-          width: 10,
-          pinned: 'left',
-          filter: false,
-          menuTabs: [],
-          cellClass: 'text-center',
-          headerClass: 'text-center',
-        },
+        // {
+        //   headerName: "No.",
+        //   valueGetter: "node.rowIndex + 1",
+        //   width: 10,
+        //   pinned: 'left',
+        //   filter: false,
+        //   menuTabs: [],
+        //   cellClass: 'text-center',
+        //   headerClass: 'text-center',
+        // },
         {
           headerName: 'Order Uid',
           field: 'orderUid',

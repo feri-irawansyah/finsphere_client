@@ -4,6 +4,7 @@
     import AutoSelect from "$lib/directives/inputs/AutoSelect.svelte";
     import { submitDataModal } from "$lib/directives/modal/functions/modal-store";
     import datagridStore from "$lib/stores/gridStore";
+    import { applicationStore } from "$lib/stores/applicationStore";
     import {
         formatNumber,
         formatIDR,
@@ -18,12 +19,13 @@
     });
 
     let formData = $state({
+        orderUid: "",
         clientId: "",
         sid: "",
         counterpartId: "",
         symbolId: "",
         boardId: "RG",
-        limit: 0,
+        tradeLimit: 0,
         price: 0,
         lot: 0,
         ordertype: 0,
@@ -37,7 +39,7 @@
         changeText: "-25 (0.32%)",
     });
 
-    formData.limit = formatCurrencyNoIDR(formData.limit);
+    formData.tradeLimit = formatCurrencyNoIDR(formData.tradeLimit);
     formData.price = formatCurrencyNoIDR(formData.price);
     formData.lot = formatCurrencyNoIDR(formData.lot);
 
@@ -112,6 +114,18 @@
         formData.counterpartId = "";
     }
 
+    function resetForm() {
+        formData.orderUid = "";
+        formData.clientId = "";
+        formData.sid = "";
+        formData.counterpartId = "";
+        formData.symbolId = "";
+        formData.boardId = "RG";
+        formData.tradeLimit = 0;
+        formData.price = 0;
+        formData.lot = 0;
+    }
+
     async function onSubmit(e, formData) {
         let payload = {
             OldOrderUid: formData.orderUid,
@@ -123,15 +137,13 @@
         let url = `${applicationStore["urlPlatformOMS"]}/order`;
         let method = "PUT";
 
-        console.log("payload", payload);
-
-        //await submitDataModal(e, payload, url, method);
+        await submitDataModal(e, payload, url, method);
+        resetForm();
     }
 
     $effect(() => {
+        console.log("detail amend", state?.detail)
         const dataRow = state?.detail;
-
-        $inspect("dataRow", dataRow);
 
         if (dataRow !== undefined) {
             formData.orderUid = dataRow?.orderUid;

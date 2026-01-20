@@ -119,7 +119,6 @@
         const loadData = async (params) => {
             const data = await fetcher(fetch, `${url}`);
             params.setGridOption("rowData", data);
-            dispatch("applyAsync", {data, params});
         }
 
         loadData(gridApi);
@@ -146,8 +145,40 @@
     $effect(
         () => {
             if(!gridApi && !withMessage) return;
+            if (!Array.isArray(messages) || messages.length === 0) return;
 
-            gridApi.setGridOption("rowData", messages);
+            //gridApi.setGridOption("rowData", messages);
+
+            const updates = [];
+            const adds = [];
+
+            messages.forEach(item => {
+              if (!item?.orderUid) return;
+
+              const rowNode = gridApi.getRowNode(item.orderUid);
+
+              if (rowNode) {
+                // UPDATE
+                updates.push({
+                  ...rowNode.data,
+                  ...item
+                });
+              } else {
+                // INSERT
+                adds.push(item);
+              }
+            });
+
+            if (updates.length) {
+              gridApi.applyTransaction({ update: updates });
+            }
+
+            if (adds.length) {
+              gridApi.applyTransaction({
+                add: adds,
+                addIndex: 5
+              });
+            }
         }
     );
 

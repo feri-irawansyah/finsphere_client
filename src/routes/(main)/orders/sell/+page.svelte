@@ -5,6 +5,8 @@
     // import { min, required } from "svelte-forms/validators";
     import AutoSelect from "$lib/directives/inputs/AutoSelect.svelte";
     import { submitDataModal } from "$lib/directives/modal/functions/modal-store";
+    import { applicationStore } from "$lib/stores/applicationStore";
+    
     import {
         formatNumber,
         formatIDR,
@@ -203,10 +205,21 @@
         }
     }
 
-    // $effect(() => {
-    //     $inspect("xxx", formData.orderStrategyFinal);
-    //     console.log("yyy", formData.orderStrategyFinal);
-    // });
+    function resetForm() {
+        formData.clientId = "";
+        formData.sid = "";
+        formData.counterpartId = "";
+        formData.symbolId = "";
+        formData.boardId = "RG";
+        formData.limit = 0;
+        formData.price = 0;
+        formData.lot = 0;
+        formData.orderStrategy = "";
+        formData.ordertype = "";
+        formData.spotOrder = "";
+        formData.algoOrder = "";
+        formData.orderStrategyFinal = "";
+    }
 
     async function onSubmit(e, formData) {
         let payload = {
@@ -225,7 +238,8 @@
 
         console.log("payload", payload);
 
-        //await submitDataModal(e, payload, url, method);
+        await submitDataModal(e, payload, url, method);
+        resetForm();
     }
 </script>
 

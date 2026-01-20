@@ -21,7 +21,7 @@
 
     $effect(() => {
         const test = $refreshTable;
-        const testing = messages;
+        messages = test;
         withMessage = true;
         console.log("refreshtable", test);
     });
@@ -46,15 +46,12 @@
                         tableName={data.tableName}
                         {withMessage}
                         {messages}
-                        on:selected={(e) => {
+                        on:doubleClicked={(e) => {
                             selectOrder(e);
                         }}
                         on:quickFilter={(e) => (quickFilterFn = e.detail)}
                         on:refresh={(e) => (refresh = e.detail)}
                         on:excel={(e) => (excel = e.detail)}
-                        on:applyAsync={(e) => {
-                            messages = e.detail
-                        }}
                     >
                         <div class="d-flex justify-content-between">
                             <div class="flex-row align-items-start">
