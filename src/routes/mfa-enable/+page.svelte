@@ -28,7 +28,7 @@
                 title: "Sesi Berakhir",
                 text: "Silakan login kembali.",
             });
-            window.location.href = "#/login";
+            window.location.href = "/login";
             return;
         }
 
@@ -47,11 +47,9 @@
                 text: "Silakan scan QR code pada langkah berikutnya.",
                 timer: 1200,
                 showConfirmButton: false,
+            }).then(() => {
+                goto("/mfaverify");
             });
-
-            setTimeout(() => {
-                window.location.href = "/usersmfaverify";
-            }, 1200);
         } catch (err) {
             Swal.fire({
                 icon: "error",

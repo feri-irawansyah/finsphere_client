@@ -279,7 +279,7 @@
                 title: "Sesi Berakhir",
                 text: "Silakan login kembali.",
             });
-            window.location.href = "#/login";
+            window.location.href = "/login";
             return;
         }
 
@@ -342,7 +342,7 @@
                 title: "Sesi Berakhir",
                 text: "Silakan login kembali.",
             });
-            window.location.href = "#/login";
+            window.location.href = "/login";
             return;
         }
 
@@ -466,7 +466,7 @@
                 text: "Silakan login kembali.",
             });
 
-            window.location.href = "#/login";
+            window.location.href = "/login";
             return;
         }
 
@@ -592,11 +592,9 @@
                         text: "MFA Anda berhasil diaktifkan.",
                         timer: 1800,
                         showConfirmButton: false,
-                    });
-
-                    setTimeout(() => {
+                    }).then(() => {
                         location.reload();
-                    }, 1200);
+                    });
                 } catch (err) {
                     Swal.fire({
                         icon: "error",
@@ -686,15 +684,11 @@
                     text: "Multi-Factor Authentication telah berhasil dinonaktifkan.",
                     timer: 1800,
                     showConfirmButton: false,
-                });
-
-                // Reset UI
-                formData.isMfaEnabled = false;
-                formData.showMfaCardDisable = false;
-
-                setTimeout(() => {
+                }).then(() => {
+                    formData.isMfaEnabled = false;
+                    formData.showMfaCardDisable = false;
                     location.reload();
-                }, 1200);
+                });
             });
         } catch (err) {
             Swal.fire({
@@ -803,13 +797,10 @@
                     text: "Pengaturan masa berlaku password telah diperbarui.",
                     timer: 1800,
                     showConfirmButton: false,
-                });
-
-                formData.showPasswordExpiration = false;
-
-                setTimeout(() => {
+                }).then(() => {
                     location.reload();
-                }, 1200);
+                    formData.showPasswordExpiration = false;
+                });
             });
         } catch (err) {
             Swal.fire({

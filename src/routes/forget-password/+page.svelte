@@ -1,4 +1,5 @@
 <script>
+    import { goto } from "$app/navigation";
     import fetcher from "$lib/fetcher";
     import { applicationStore } from "$lib/stores/applicationStore";
     import Swal from "sweetalert2";
@@ -42,11 +43,10 @@
                     text: "Kode OTP telah dikirim. Silakan cek email Anda.",
                     timer: 1500,
                     showConfirmButton: false,
+                }).then(() => {
+                    
+                    goto("/forget-password-verify");
                 });
-
-                setTimeout(() => {
-                    window.location.href = "/forget-password-verify";
-                }, 1500);
             } else {
                 // OTP tidak dikirim (user tidak ada / email gagal / google auth)
                 Swal.fire({

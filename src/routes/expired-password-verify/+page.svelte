@@ -6,8 +6,8 @@
     import Swal from "sweetalert2";
 
     let formData = $state({
-        email: localStorage.getItem("forgotPasswordEmail"),
-        method: localStorage.getItem("forgotPasswordMethod"),
+        email: localStorage.getItem("expiredPasswordEmail"),
+        method: localStorage.getItem("expiredPasswordMethod"),
         loading: false,
         isCooldown: false,
         subtitleText: "",
@@ -15,7 +15,7 @@
         resendText: "Kirim Ulang Email Verifikasi",
     });
 
-    async function forgotPasswordVerifyOTP() {
+    async function otpVerify() {
         if (formData.loading) return;
 
         try {
@@ -32,7 +32,7 @@
                 return;
             }
 
-            const URLVerify = `${applicationStore.urlPlatformConsole}/usersforgotpassword/verify`;
+            const URLVerify = `${applicationStore.urlPlatformConsole}/usersexpiredpassword/verify`;
 
             const payload = {
                 email: formData.email,
@@ -47,8 +47,8 @@
             if (rst.success) {
                 const resetToken = rst.data.resetToken;
 
-                localStorage.setItem("forgotPasswordResetToken", resetToken);
-                localStorage.setItem("forgotPasswordState", "OTP_VERIFIED");
+                localStorage.setItem("expiredPasswordResetToken", resetToken);
+                localStorage.setItem("expiredPasswordState", "OTP_VERIFIED");
 
                 Swal.fire({
                     icon: "success",
@@ -57,7 +57,8 @@
                     timer: 1200,
                     showConfirmButton: false,
                 }).then(() => {
-                    goto("/forget-password-reset");
+                    
+                    goto("/expired-password-reset");
                 });
             } else {
                 Swal.fire({
@@ -87,7 +88,7 @@
             formData.loading = true;
             formData.isCooldown = true;
 
-            let email = localStorage.getItem("forgotPasswordEmail");
+            let email = localStorage.getItem("expiredPasswordEmail");
 
             Swal.fire({
                 title: "Kirim ulang kode verifikasi?",
@@ -101,7 +102,7 @@
 
                 try {
                     const payload = { email: email };
-                    const URLResend = `${applicationStore.urlPlatformConsole}/usersforgotpassword/request`;
+                    const URLResend = `${applicationStore.urlPlatformConsole}/usersexpiredpassword/request`;
 
                     // === SHOW LOADING ===
                     Swal.fire({
@@ -224,7 +225,8 @@
     }
 
     onMount(() => {
-        if (localStorage.getItem("forgotPasswordState") !== "OTP_SENT") {
+        
+        if (localStorage.getItem("expiredPasswordState") !== "OTP_SENT") {
             goto("/login");
         }
 
@@ -254,7 +256,7 @@
 
             <form
                 onsubmit={() => {
-                    forgotPasswordVerifyOTP();
+                    otpVerify();
                 }}
             >
                 <div class="otp-wrapper col-12 text-center gap-2">

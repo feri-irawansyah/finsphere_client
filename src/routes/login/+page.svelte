@@ -4,6 +4,7 @@
     import fetcher from "$lib/fetcher";
     import Swal from "sweetalert2";
     import { applicationStore } from "$lib/stores/applicationStore";
+    import { onMount } from "svelte";
 
     let form = $state({
         email: "",
@@ -48,12 +49,12 @@
             // === MFA TIDAK AKTIF ===
             if (!resp.enableMFA) {
                 localStorage.setItem("access_token", resp.accessToken);
-                goto("/usersmfaenable");
+                goto("/mfa-enable");
             }
             // === MFA AKTIF ===
             else {
                 localStorage.setItem("pending_login_email", email);
-                goto("/loginotp");
+                goto("/login-otp");
             }
         } catch (err) {
             loading = false;
@@ -98,8 +99,8 @@
         const email = localStorage.getItem("expiredPasswordEmail");
 
         try {
-            const res = await fetcher(
-                `/api/${__URL_Platform}/usersexpiredpassword/request`,
+            const res = await fetcher(fetch,
+                `${applicationStore.urlPlatformConsole}/usersexpiredpassword/request`,
                 {
                     method: "POST",
                     body: JSON.stringify({ email }),
@@ -115,18 +116,29 @@
                     title: "Kode Verifikasi Dikirim",
                     timer: 1500,
                     showConfirmButton: false,
+                }).then(() => {
+                    goto("/expired-password-verify");
                 });
-
-                setTimeout(() => {
-                    goto("/usersexpiredpasswordverify");
-                }, 1200);
             } else {
                 Swal.fire("Error", "Gagal mengirim OTP.", "error");
             }
-        } catch {
+        } catch(err) {
+            console.log(err);
             Swal.fire("Error", "Terjadi kesalahan saat mengirim OTP.", "error");
         }
     }
+
+    onMount(()=> {
+        localStorage.removeItem("expiredPasswordEmail");
+        localStorage.removeItem("expiredPasswordResetToken");
+        localStorage.removeItem("expiredPasswordMethod");
+        localStorage.removeItem("expiredPasswordState");
+
+        localStorage.removeItem("forgotPasswordResetToken");
+        localStorage.removeItem("forgotPasswordMethod");
+        localStorage.removeItem("forgotPasswordState");
+        localStorage.removeItem("pending_login_email");
+    })
 </script>
 
 <div class="login d-flex flex-row">
@@ -155,6 +167,7 @@
                 >
                 <input
                     bind:value={form.email}
+                    autofocus
                     required
                     type="email"
                     class="form-control"

@@ -7,8 +7,8 @@
     import Swal from "sweetalert2";
 
     let formData = $state({
-        email: localStorage.getItem("forgotPasswordEmail"),
-        resetToken: localStorage.getItem("forgotPasswordResetToken"),
+        email: localStorage.getItem("expiredPasswordEmail"),
+        resetToken: localStorage.getItem("expiredPasswordResetToken"),
         loading: false,
         allRulesPassed: false,
         newPassword: "",
@@ -64,11 +64,11 @@
         // #endregion
     });
 
-    async function triggerForgotPasswordOtp() {
-        const URLSubmit = `${applicationStore.urlPlatformConsole}/usersforgotpassword/request`;
+    async function triggerExpiredPasswordOtp() {
+        const URLSubmit = `${applicationStore.urlPlatformConsole}/usersexpiredpassword/request`;
 
         try {
-            const email = localStorage.getItem("forgotPasswordEmail");
+            const email = localStorage.getItem("expiredPasswordEmail");
             if (!email) return;
 
             Swal.fire({
@@ -87,7 +87,7 @@
             });
 
             if (rst?.success) {
-                localStorage.setItem("forgotPasswordState", "OTP_SENT");
+                localStorage.setItem("expiredPasswordState", "OTP_SENT");
 
                 Swal.fire({
                     icon: "success",
@@ -96,7 +96,7 @@
                     timer: 1500,
                     showConfirmButton: false,
                 }).then(() => {
-                    goto("/forget-password-verify");
+                    window.location.href = "/expired-password-verify";
                 });
             }
         } catch (err) {
@@ -125,7 +125,7 @@
                 if (!result.isConfirmed) return;
 
                 try {
-                    let URLSubmit = `${applicationStore.urlPlatformConsole}/usersforgotpassword/reset`;
+                    let URLSubmit = `${applicationStore.urlPlatformConsole}/usersexpiredpassword/reset`;
 
                     // === LOADING SWEETALERT ===
                     Swal.fire({
@@ -149,6 +149,8 @@
                         body: JSON.stringify(payload),
                     });
 
+                    console.log("anuan", rst);
+
                     if (rst?.success === true) {
                         Swal.fire({
                             icon: "success",
@@ -157,10 +159,13 @@
                             timer: 1800,
                             showConfirmButton: false,
                         }).then(() => {
-                            localStorage.removeItem("forgotPasswordEmail");
-                            localStorage.removeItem("forgotPasswordResetToken");
-                            localStorage.removeItem("forgotPasswordMethod");
+                            localStorage.removeItem("expiredPasswordEmail");
+                            localStorage.removeItem(
+                                "expiredPasswordResetToken"
+                            );
+                            localStorage.removeItem("expiredPasswordMethod");
                             goto("/login");
+                            return;
                         });
                     } else {
                         let msg = rst?.message;
@@ -170,8 +175,10 @@
                             msg === "Reset token already used." ||
                             msg === "Reset token has expired."
                         ) {
-                            localStorage.removeItem("forgotPasswordResetToken");
-                            triggerForgotPasswordOtp();
+                            localStorage.removeItem(
+                                "expiredPasswordResetToken",
+                            );
+                            triggerExpiredPasswordOtp();
                         }
 
                         Swal.fire({
@@ -193,8 +200,10 @@
                             text: msg,
                             confirmButtonText: "OK",
                         }).then(() => {
-                            localStorage.removeItem("forgotPasswordResetToken");
-                            triggerForgotPasswordOtp();
+                            localStorage.removeItem(
+                                "expiredPasswordResetToken",
+                            );
+                            triggerExpiredPasswordOtp();
                         });
 
                         return;
@@ -243,7 +252,7 @@
     }
 
     onMount(() => {
-        if (localStorage.getItem("forgotPasswordState") !== "OTP_VERIFIED") {
+        if (localStorage.getItem("expiredPasswordState") !== "OTP_VERIFIED") {
             goto("/login");
         }
     });
@@ -317,37 +326,20 @@
                 <button
                     type="submit"
                     class="btn btn-gradient-primary w-100"
-                    disabled={formData.loading}
-                    >{#if !formData.loading}Reset Password{:else}
+                    disabled={formData.loading ||
+                        !formData.allRulesPassed ||
+                        formData.newPassword !== formData.confirmPassword}
+                    >{#if !formData.loading}Update Password{:else}
                         <span class="spinner-border spinner-border-sm me-1"
                         ></span>Please wait ...{/if}</button
                 >
                 <div class="my-3 text-center">
                     <p>
-                        Sudah ingat kata sandi? <a
-                            href="/login"
-                            class="text-primary text-decoration-none"
-                            >Masuk di sini!</a
+                        <a href="/login" class="text-muted text-decoration-none"
+                            >Kembali ke login</a
                         >
                     </p>
                 </div>
-
-                <!-- SUBMIT BUTTON -->
-                <!-- <button
-                    class="btn btn-primary"
-                    type="submit"
-                    disabled={formData.loading ||
-                        !formData.allRulesPassed ||
-                        formData.newPassword !== formData.confirmPassword}
-                >
-                    <span
-                        >{#if !formData.loading}Update Password
-                        {/if}
-                        {#if formData.loading}<i class="fa fa-spinner fa-spin"
-                            ></i> Processing...
-                        {/if}</span
-                    >
-                </button> -->
             </form>
         </div>
     </div>

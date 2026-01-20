@@ -121,12 +121,9 @@
                     text: "MFA Anda berhasil diaktifkan.",
                     timer: 1800,
                     showConfirmButton: false,
+                }).then(() => {
+                    goto("/");
                 });
-
-                setTimeout(() => {
-                    window.location.href = "/";
-                    location.reload();
-                }, 1200);
             } catch (err) {
                 Swal.fire({
                     icon: "error",
