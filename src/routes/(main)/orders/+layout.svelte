@@ -1,24 +1,30 @@
 <script>
+    import { refreshTable } from "$lib";
     import ClientGrid from "$lib/directives/grids/ClientGrid.svelte";
-    import orderStore from "$lib/directives/modal/functions/order-store.js";
-    import { setContext } from "svelte";
+    import orderStore from "$lib/stores/gridStore.js";
 
     const { children, data } = $props();
 
     let quickFilterFn = $state(null);
     let refresh = $state(null);
     let excel = $state(null);
-
-    // on:selected={(e) => console.log("selected", e.detail)}
+    let withMessage = $state(false);
+    let messages = $state([]);
 
     const state = $derived($orderStore);
 
-    function testingers (row){
-
+    function selectOrder(row) {
         orderStore.setup({
-            detail : row?.detail
+            detail: row?.detail,
         });
     }
+
+    $effect(() => {
+        const test = $refreshTable;
+        const testing = messages;
+        withMessage = true;
+        console.log("refreshtable", test);
+    });
 </script>
 
 <div class="row">
@@ -38,12 +44,17 @@
                         height={100}
                         layout={85}
                         tableName={data.tableName}
-                        on:selected={(e) => 
-                            testingers(e)
-                        }
+                        {withMessage}
+                        {messages}
+                        on:selected={(e) => {
+                            selectOrder(e);
+                        }}
                         on:quickFilter={(e) => (quickFilterFn = e.detail)}
                         on:refresh={(e) => (refresh = e.detail)}
                         on:excel={(e) => (excel = e.detail)}
+                        on:applyAsync={(e) => {
+                            messages = e.detail
+                        }}
                     >
                         <div class="d-flex justify-content-between">
                             <div class="flex-row align-items-start">

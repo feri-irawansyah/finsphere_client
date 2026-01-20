@@ -1,15 +1,18 @@
 <script>
     import OrderDatafeed from "$lib/components/templates/OrderDatafeed.svelte";
     import OrderTab from "$lib/components/templates/OrderTab.svelte";
+    import { currency } from "$lib/currency";
     // import { form, field } from "svelte-forms";
     // import { min, required } from "svelte-forms/validators";
     import AutoSelect from "$lib/directives/inputs/AutoSelect.svelte";
+    import { submitDataModal } from "$lib/directives/modal/functions/modal-store";
     // import IDRFormatter from "$lib/tableFormatter.js";
     import {
         formatNumber,
         formatIDR,
         formatCurrencyNoIDR,
     } from "$lib/numberFormat.js";
+    import { applicationStore } from "$lib/stores/applicationStore";
 
     let formData = $state({
         clientId: "",
@@ -67,15 +70,15 @@
     }
 
     function onClientChange(e) {
+        console.log("client change", e);
         const selected = e.detail;
 
         if (!selected) return;
 
-        console.log("ddclient", selected.raw.sid);
 
         if (formData.clientId) {
             disableBroker = false;
-            formData.sid = selected.raw.sid;
+            formData.sid = selected.optionalvalue;
         } else {
             disableBroker = true;
             formData.sid = "";
@@ -83,7 +86,7 @@
     }
 
     function onClientClear() {
-        console.log("clientid", formData.clientId);
+        console.log("onClientClear", formData.clientId);
 
         formData.clientId = "";
         formData.sid = "";
@@ -127,12 +130,12 @@
     }
 
     function onSymbolChange(e) {
-        console.log("stock", e.detail.raw.symbolId);
+        console.log("stock", e.detail.optionalvalue);
         const selected = e.detail;
         if (!selected) return;
 
-        stockData.symbolId = selected.raw.symbolId;
-        stockData.symbolName = selected.raw.symbolName;
+        stockData.symbolId = formData.symbolId;
+        stockData.symbolName = selected.optionalvalue;
     }
 
     function onSymbolClear() {
@@ -221,12 +224,14 @@
             OrderStrategy: formData.orderStrategyFinal,
         };
 
-        let method = "";
-        method = "POST";
+        let url = `${applicationStore["urlPlatformOMS"]}/order`;
+        let method = "POST";
 
         console.log("payload", payload);
+        console.log("url", url);
 
-        //await submitDataModal(e, payload, url, method);
+        await submitDataModal(e, payload, url, method);
+        console.log("yyy");
     }
 </script>
 
@@ -255,6 +260,7 @@
                                         bind:value={formData.clientId}
                                         labelKey={["clientId", "formData.sid"]}
                                         valueKey="clientId"
+                                        valueKeyOptional="sid"
                                         placeholder="Choose One Option"
                                         required
                                         disabled={isFormDisabled}
@@ -308,6 +314,7 @@
                                         bind:value={formData.symbolId}
                                         labelKey={["symbolId", "symbolName"]}
                                         valueKey="symbolId"
+                                        valueKeyOptional="symbolName"
                                         placeholder="Choose One Option"
                                         required
                                         disabled={isFormDisabled}

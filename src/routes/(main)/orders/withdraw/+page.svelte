@@ -2,11 +2,21 @@
     import OrderDatafeed from "$lib/components/templates/OrderDatafeed.svelte";
     import OrderTab from "$lib/components/templates/OrderTab.svelte";
     import AutoSelect from "$lib/directives/inputs/AutoSelect.svelte";
+    import { submitDataModal } from "$lib/directives/modal/functions/modal-store";
     import {
         formatNumber,
         formatIDR,
         formatCurrencyNoIDR,
     } from "$lib/numberFormat.js";
+    import datagridStore from "$lib/stores/gridStore";
+    import { onMount } from "svelte";
+    
+
+    const state = $derived($datagridStore);
+
+    onMount(() => {
+        datagridStore.reset();
+    });
 
     let formData = $state({
         clientId: "",
@@ -15,8 +25,9 @@
         symbolId: "",
         boardId: "RG",
         limit: 0,
-        ordertype: 0,
         price: 0,
+        lot: 0,
+        ordertype: 0
     });
 
     let stockData = $state({
@@ -26,6 +37,8 @@
         change: -25,
         changeText: "-25 (0.32%)",
     });
+
+    let total = $state(0);
 
     function onClientChange(e) {
         const selected = e.detail;
@@ -93,13 +106,33 @@
             ExternalReference: formData.orderUid,
         };
 
-        let method = "";
-        method = "POST";
+        let url = `${applicationStore["urlPlatformOMS"]}/order/cancel`;
+        let method = "POST";
 
         console.log("payload", payload);
 
         //await submitDataModal(e, payload, url, method);
     }
+
+    $effect(() => {
+        const dataRow = state?.detail;
+
+        $inspect("withdraw", dataRow)
+
+        if (dataRow !== undefined) {
+            formData.orderUid = dataRow?.orderUid;
+            formData.clientId = dataRow?.clientId;
+            formData.counterpartId = dataRow?.partyId;
+            formData.price = formatCurrencyNoIDR(dataRow?.price);
+            formData.lot = formatCurrencyNoIDR(dataRow?.volume / 100);
+            formData.tradeLimit = formatCurrencyNoIDR(dataRow?.tradeLimit);
+
+            $: total = formatCurrencyNoIDR(dataRow?.price * dataRow?.volume);
+            //total = formatCurrencyNoIDR(dataRow?.price * dataRow?.volume);
+        }
+
+        console.log("total", total)
+    });
 </script>
 
 <section id="section">
@@ -256,7 +289,7 @@
                                 <span class="fw-semibold">Total Order</span>
                                 <span class="fw-bold text-success">
                                     {formatCurrencyNoIDR(
-                                        formData.price * formData.lot * 100,
+                                        total
                                     )}
                                 </span>
                             </div>

@@ -2,13 +2,20 @@
     import OrderDatafeed from "$lib/components/templates/OrderDatafeed.svelte";
     import OrderTab from "$lib/components/templates/OrderTab.svelte";
     import AutoSelect from "$lib/directives/inputs/AutoSelect.svelte";
-    import orderStore from "$lib/directives/modal/functions/order-store";
+    import { submitDataModal } from "$lib/directives/modal/functions/modal-store";
+    import datagridStore from "$lib/stores/gridStore";
     import {
         formatNumber,
         formatIDR,
         formatCurrencyNoIDR,
     } from "$lib/numberFormat.js";
     import { onMount } from "svelte";
+
+    const state = $derived($datagridStore);
+
+    onMount(() => {
+        datagridStore.reset();
+    });
 
     let formData = $state({
         clientId: "",
@@ -17,8 +24,9 @@
         symbolId: "",
         boardId: "RG",
         limit: 0,
-        ordertype: 0,
         price: 0,
+        lot: 0,
+        ordertype: 0,
     });
 
     let stockData = $state({
@@ -29,16 +37,31 @@
         changeText: "-25 (0.32%)",
     });
 
+    formData.limit = formatCurrencyNoIDR(formData.limit);
+    formData.price = formatCurrencyNoIDR(formData.price);
+    formData.lot = formatCurrencyNoIDR(formData.lot);
+
+    function onBlur(e) {
+        console.log("blur", e.target);
+        const el = e.target;
+
+        // contoh: format number
+        const raw = el.value.replace(/[^\d.]/g, "");
+        const num = Number(raw || 0);
+
+        el.value = formatCurrencyNoIDR(num);
+    }
+
     function onClientChange(e) {
         const selected = e.detail;
 
         if (!selected) return;
 
-        console.log("ddclient", selected.raw.sid);
+        console.log("ddclient", selected.optionalvalue);
 
         if (formData.clientId) {
             disableBroker = false;
-            formData.sid = selected.raw.sid;
+            formData.sid = selected.optionalvalue;
         } else {
             disableBroker = true;
             formData.sid = "";
@@ -97,30 +120,27 @@
             ExternalReference: formData.orderUid,
         };
 
-        let method = "";
-        method = "POST";
+        let url = `${applicationStore["urlPlatformOMS"]}/order`;
+        let method = "PUT";
 
         console.log("payload", payload);
 
         //await submitDataModal(e, payload, url, method);
     }
 
-    // function handleClick() {
-    //     logout();
-    // }
-    const state = $derived($orderStore);
-
-    onMount(() => {
-        orderStore.reset();
-    });
-
     $effect(() => {
         const dataRow = state?.detail;
 
-        formData.orderUid = dataRow?.orderUid;
-        formData.clientId = dataRow?.clientId;
-        formData.price = dataRow?.price;
-        formData.tradeLimit = dataRow?.tradeLimit;
+        $inspect("dataRow", dataRow);
+
+        if (dataRow !== undefined) {
+            formData.orderUid = dataRow?.orderUid;
+            formData.clientId = dataRow?.clientId;
+            formData.counterpartId = dataRow?.partyId;
+            formData.price = formatCurrencyNoIDR(dataRow?.price);
+            formData.lot = formatCurrencyNoIDR(dataRow?.volume / 100);
+            formData.tradeLimit = formatCurrencyNoIDR(dataRow?.tradeLimit);
+        }
     });
 </script>
 
@@ -154,19 +174,6 @@
                                         required
                                         disabled
                                     />
-                                    <!-- <select2-dynamic
-                                        mapgroup="oms"
-                                        table="order"
-                                        ng-model="formData.orderUid"
-                                        value-field="orderUid"
-                                        text-field="clientOrderId"
-                                        sub-text-field=""
-                                        required="true"
-                                        default-data=""
-                                        disabled="true"
-                                        ng-change="orderUid_onChange()"
-                                    >
-                                    </select2-dynamic> -->
                                 </div>
                             </div>
 
@@ -185,6 +192,7 @@
                                         bind:value={formData.clientId}
                                         labelKey={["clientId", "formData.sid"]}
                                         valueKey="clientId"
+                                        valueKeyOptional="sid"
                                         placeholder="Choose One Option"
                                         required
                                         disabled
@@ -267,6 +275,7 @@
                                         type="text"
                                         class="form-control"
                                         bind:value={formData.amendprice}
+                                        onblur={onBlur}
                                         required
                                         placeholder="Change price here"
                                     />
@@ -296,6 +305,7 @@
                                         type="text"
                                         class="form-control"
                                         bind:value={formData.amendlot}
+                                        onblur={onBlur}
                                         required
                                         placeholder="Change lot here"
                                     />
@@ -309,7 +319,7 @@
                                 <span class="fw-semibold">Total Order</span>
                                 <span class="fw-bold text-success">
                                     {formatCurrencyNoIDR(
-                                        formData.price * formData.lot * 100,
+                                        formData.amendprice * formData.amendlot * 100,
                                     )}
                                 </span>
                             </div>

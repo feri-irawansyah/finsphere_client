@@ -2,7 +2,7 @@ import { writable } from "svelte/store";
 import fetcher from "$lib/fetcher";
 import Swal from "sweetalert2";
 
-function createOrderStore() {
+function createGridStore() {
     const { subscribe, update, set } = writable({
         stockId: null
     });
@@ -21,6 +21,6 @@ function createOrderStore() {
     };
 }
 
-const orderStore = createOrderStore();
+const datagridStore = createGridStore();
 
-export default orderStore;
+export default datagridStore;

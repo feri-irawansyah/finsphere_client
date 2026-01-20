@@ -16,7 +16,9 @@
         children, 
         layout = 80,
         tableName = "",
-        clickRightRow = []
+        clickRightRow = [],
+        withMessage = false,
+        messages = []
      } = $props();
 
     const dispatch = createEventDispatcher();
@@ -25,6 +27,7 @@
     let gridApi;
     let gridOptions;
     let gridEl;
+    let data = $state([]);
     
     let hasSelectedColumn = $state(false);
 
@@ -116,6 +119,7 @@
         const loadData = async (params) => {
             const data = await fetcher(fetch, `${url}`);
             params.setGridOption("rowData", data);
+            dispatch("applyAsync", {data, params});
         }
 
         loadData(gridApi);
@@ -138,6 +142,14 @@
             });
         })
     });
+
+    $effect(
+        () => {
+            if(!gridApi && !withMessage) return;
+
+            gridApi.setGridOption("rowData", messages);
+        }
+    );
 
 </script>
 

@@ -4,6 +4,7 @@
     // import { form, field } from "svelte-forms";
     // import { min, required } from "svelte-forms/validators";
     import AutoSelect from "$lib/directives/inputs/AutoSelect.svelte";
+    import { submitDataModal } from "$lib/directives/modal/functions/modal-store";
     import {
         formatNumber,
         formatIDR,
@@ -69,11 +70,11 @@
 
         if (!selected) return;
 
-        console.log("ddclient", selected.raw.sid);
+        console.log("ddclient", selected.optionalvalue);
 
         if (formData.clientId) {
             disableBroker = false;
-            formData.sid = selected.raw.sid;
+            formData.sid = selected.optionalvalue;
         } else {
             disableBroker = true;
             formData.sid = "";
@@ -125,12 +126,12 @@
     }
 
     function onSymbolChange(e) {
-        console.log("stock", e.detail.raw.symbolId);
+        console.log("stock", e.detail.optionalvalue);
         const selected = e.detail;
         if (!selected) return;
 
-        stockData.symbolId = selected.raw.symbolId;
-        stockData.symbolName = selected.raw.symbolName;
+        stockData.symbolId = formData.symbolId;
+        stockData.symbolName = selected.optionalvalue;
     }
 
     function onSymbolClear() {
@@ -219,8 +220,8 @@
             OrderStrategy: formData.orderStrategyFinal,
         };
 
-        let method = "";
-        method = "POST";
+        let url = `${applicationStore["urlPlatformOMS"]}/order`;
+        let method = "POST";
 
         console.log("payload", payload);
 
@@ -251,6 +252,7 @@
                                         bind:value={formData.clientId}
                                         labelKey={["clientId", "sid"]}
                                         valueKey="clientId"
+                                        valueKeyOptional="sid"
                                         placeholder="Choose One Option"
                                         required
                                         disabled={isFormDisabled}
@@ -304,6 +306,7 @@
                                         bind:value={formData.symbolId}
                                         labelKey={["symbolId", "symbolName"]}
                                         valueKey="symbolId"
+                                        valueKeyOptional="symbolName"
                                         placeholder="Choose One Option"
                                         required
                                         disabled={isFormDisabled}

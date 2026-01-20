@@ -1,7 +1,7 @@
 <script>
     import Select from "svelte-select";
     import fetcher from "$lib/fetcher";
-    import { createEventDispatcher } from "svelte";
+    import { createEventDispatcher, onMount } from "svelte";
     import { applicationStore } from "$lib/stores/applicationStore";
 
     const dispatch = createEventDispatcher();
@@ -12,6 +12,7 @@
         pathParams = [],
         options = [],
         valueKey = "value",
+        valueKeyOptional = "valueKeyOptional",
         labelKey = "label",
         disabled = false,
         value = $bindable(),
@@ -36,6 +37,7 @@
         if (!lookup) return;
         if (!hasValidParams(params)) {
             items = [];
+
             selection = null;
             value = null;
             return;
@@ -43,6 +45,10 @@
 
         load();
     });
+
+    // onMount(() => {
+    //     load();
+    // })
 
     /* HELPER */
     function buildLabel(item) {
@@ -83,18 +89,15 @@
         try {
             const path = buildPath(params, pathParams);
             const url = path
-            ? `${applicationStore[mapGroup]}/${lookup}/${path}`
-            : `${applicationStore[mapGroup]}/${lookup}`;
+                ? `${applicationStore[mapGroup]}/${lookup}/${path}`
+                : `${applicationStore[mapGroup]}/${lookup}`;
 
-            const res = await fetcher(
-                fetch,
-                url
-            );
+            const res = await fetcher(fetch, url);
 
             items = res.map((x) => ({
                 value: x[valueKey],
                 label: buildLabel(x),
-                raw: x, //OBJECT ASLI
+                optionalvalue: x[valueKeyOptional], //OBJECT ASLI
             }));
         } catch (ex) {
             console.error("AutoSelect API:", ex);
@@ -145,7 +148,7 @@
             value = detail.value;
         }
 
-        dispatch("change", detail);
+        dispatch("change", e.detail);
     }
 </script>
 

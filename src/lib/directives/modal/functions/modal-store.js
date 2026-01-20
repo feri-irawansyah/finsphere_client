@@ -99,7 +99,7 @@ export async function submitDataModal(e, payload, url, method) {
                 timer: 2500,
                 timerProgressBar: true,
             }).then((result) => {
-                document.getElementById("refreshTableToolbar").click();
+                document.getElementById("refreshTableToolbar")?.click();
                 modalStore.close();
             });
  

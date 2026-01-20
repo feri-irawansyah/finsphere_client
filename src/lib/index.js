@@ -3,6 +3,7 @@ import { writable } from "svelte/store";
 
 // place files you want to import through the `$lib` alias in this folder.
 export const messages = writable([]);
+export const refreshTable = writable(null);
 
 let connection = null;
 
@@ -36,8 +37,18 @@ export function initSignalR() {
         console.error("❌ SignalR closed", err);
     });
 
+    connection.on("order-status", (msg) => {
+        console.log("connection on", msg);
+        refreshTable.set(msg);
+    });
+
     connection.start()
-        .then(() => console.log("Connected to SignalR!"))
+        .then(function () {
+            console.log("Connected to SignalR!")
+            connection.invoke("Join", "CC002");
+
+        }
+        )
         .catch(err => console.error("SignalR error:", err));
 
     return connection;
