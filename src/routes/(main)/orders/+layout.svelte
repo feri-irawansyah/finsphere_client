@@ -39,6 +39,7 @@
             <div class="col-12">
                 <section id="section">
                     <ClientGrid
+                        rowIdField={data.rowIdField ? data.rowIdField : null}
                         columns={data.columns}
                         url="/api/direct-trading/oms/order"
                         height={100}

@@ -9,17 +9,18 @@
     import CustomNoRowsOverlay from "./class/custom-norows";
     import { theme } from "$lib";
 
-    const { 
-        columns = [], 
-        url = "", 
-        height = 100, 
-        children, 
+    const {
+        columns = [],
+        url = "",
+        height = 100,
+        children,
         layout = 80,
         tableName = "",
         clickRightRow = [],
         withMessage = false,
-        messages = []
-     } = $props();
+        messages = [],
+        rowIdField = null
+    } = $props();
 
     const dispatch = createEventDispatcher();
 
@@ -28,7 +29,7 @@
     let gridOptions;
     let gridEl;
     let data = $state([]);
-    
+
     let hasSelectedColumn = $state(false);
 
     onMount(async () => {
@@ -41,23 +42,27 @@
                     {
                         // ✅ Custom Control Component
                         statusPanel: CustomControlsComponent,
-                        align: 'left',
+                        align: "left",
                     },
                     {
                         // ✅ Custom Status Info Component
-                        statusPanel: CustomStatusInfoComponent, 
-                        align: 'left',
+                        statusPanel: CustomStatusInfoComponent,
+                        align: "left",
                     },
                     {
                         // ✅ Custom Pagination Component
-                        statusPanel: CustomPaginationButtonsComponent, 
-                        align: 'right',
+                        statusPanel: CustomPaginationButtonsComponent,
+                        align: "right",
                     },
                 ],
             },
             theme: myTheme,
             suppressMenuHide: false,
             columnDefs,
+            getRowId: rowIdField
+                ? (params) => params.data?.[rowIdField]
+                : undefined,
+
             defaultColDef: { flex: 1, minWidth: 150, filter: true },
             rowSelection: { mode: "multiRow" },
             components: {
@@ -68,7 +73,7 @@
                 tableName: "tableName",
                 refresh: async () => {
                     gridApi.refreshClientSideStore({ purge: true });
-                }
+                },
             },
             pagination: true,
             suppressPaginationPanel: true,
@@ -82,44 +87,47 @@
                 dispatch("doubleClicked", params.node.data);
             },
             getContextMenuItems: (params) => {
-                const items = [
-                    'copy',
-                    'copyWithHeaders',
-                    'paste'
-                ];
+                const items = ["copy", "copyWithHeaders", "paste"];
 
                 if (Array.isArray(clickRightRow) && clickRightRow.length > 0) {
-                    items.push('separator');
+                    items.push("separator");
 
-                    clickRightRow.forEach(menu => {
+                    clickRightRow.forEach((menu) => {
                         items.push({
                             name: menu.name,
                             icon: menu.icon,
                             disabled: menu.disabled,
-                            action: () => menu.action(params)
+                            action: () => menu.action(params),
                         });
                     });
                 }
 
                 return items;
-            }
+            },
         };
 
         gridApi = createGrid(gridDiv, gridOptions);
-        hasSelectedColumn = columns.some(col => col.field === "selected");
+        hasSelectedColumn = columns.some((col) => col.field === "selected");
 
         // ✅ validasi untuk column selected (kalo ada)
         if (hasSelectedColumn) {
-            gridApi.setGridOption("rowSelection", { mode: "multiRow", selectAll: selectAllMode }); // enable row selection
+            gridApi.setGridOption("rowSelection", {
+                mode: "multiRow",
+                selectAll: selectAllMode,
+            }); // enable row selection
         } else {
-            gridApi.setGridOption("rowSelection", { mode: 'singleRow', checkboxes: false, enableClickSelection: true });
+            gridApi.setGridOption("rowSelection", {
+                mode: "singleRow",
+                checkboxes: false,
+                enableClickSelection: true,
+            });
         }
 
         // ✅ fetch data ke serer
         const loadData = async (params) => {
             const data = await fetcher(fetch, `${url}`);
             params.setGridOption("rowData", data);
-        }
+        };
 
         loadData(gridApi);
 
@@ -130,58 +138,59 @@
 
         // ✅ custom event handler to refresh
         dispatch("refresh", () => {
-            loadData(gridApi);          // ✅ FETCH ULANG
+            loadData(gridApi); // ✅ FETCH ULANG
             gridApi.refreshCells({ force: true }); // optional
         });
 
         // ✅ custom event handler to excel
         dispatch("excel", () => {
             gridApi.exportDataAsExcel({
-                fileName: `table-${tableName}.xlsx`
+                fileName: `table-${tableName}.xlsx`,
             });
-        })
+        });
     });
 
-    $effect(
-        () => {
-            if(!gridApi && !withMessage) return;
-            if (!Array.isArray(messages) || messages.length === 0) return;
+    $effect(() => {
+        if (!gridApi && !withMessage) return;
+        if (!Array.isArray(messages) || messages.length === 0) return;
 
-            //gridApi.setGridOption("rowData", messages);
+        //gridApi.setGridOption("rowData", messages);
 
-            const updates = [];
-            const adds = [];
+        const updates = [];
+        const adds = [];
 
-            messages.forEach(item => {
-              if (!item?.orderUid) return;
+        messages.forEach((item) => {
+            if (!item?.orderUid) return;
 
-              const rowNode = gridApi.getRowNode(item.orderUid);
+            const rowNode = gridApi.getRowNode(item.orderUid);
 
-              if (rowNode) {
+            console.log("testing ajah: item.orderUid", item.orderUid);
+            console.log("testing ajah", rowNode);
+            $inspect("RowsNodezz", rowNode);
+
+            if (rowNode) {
                 // UPDATE
                 updates.push({
-                  ...rowNode.data,
-                  ...item
+                    ...rowNode.data,
+                    ...item,
                 });
-              } else {
+            } else {
                 // INSERT
                 adds.push(item);
-              }
-            });
-
-            if (updates.length) {
-              gridApi.applyTransaction({ update: updates });
             }
+        });
 
-            if (adds.length) {
-              gridApi.applyTransaction({
-                add: adds,
-                addIndex: 5
-              });
-            }
+        if (updates.length) {
+            gridApi.applyTransaction({ update: updates });
         }
-    );
 
+        if (adds.length) {
+            gridApi.applyTransaction({
+                add: adds,
+                addIndex: 5,
+            });
+        }
+    });
 </script>
 
 <div class="grid-layout" style="height: {layout}vh;">
@@ -192,10 +201,14 @@
 
     <!-- GRID BODY -->
     <div class="grid-body">
-        <div bind:this={gridEl} class="ag-theme-quartz-dark" id="finsphereGrid" style="height: {height}%"></div>
+        <div
+            bind:this={gridEl}
+            class="ag-theme-quartz-dark"
+            id="finsphereGrid"
+            style="height: {height}%"
+        ></div>
     </div>
 </div>
-
 
 <style>
     .grid-layout {
@@ -211,5 +224,4 @@
         flex: 1;
         min-height: 0; /* 🔥 AG GRID FIX */
     }
-
 </style>
