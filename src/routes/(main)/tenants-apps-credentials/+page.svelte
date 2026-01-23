@@ -1,5 +1,5 @@
 <script>
-    import ModalPermissions from "$lib/components/molecules/modals/ModalPermissions.svelte";
+    import ModalTenantsAppsCredentials from "$lib/components/molecules/modals/ModalTenantsAppsCredentials.svelte";
     import ClientGrid from "$lib/directives/grids/ClientGrid.svelte";
     import modalStore from "$lib/directives/modal/functions/modal-store.js";
     import { applicationStore } from "$lib/stores/applicationStore";
@@ -16,7 +16,7 @@
         modalStore.setup({
             id: `modal-${data.tableName}`,
             size: "xl",
-            component: ModalPermissions,
+            component: ModalTenantsAppsCredentials,
             params: data,
         });
     });
@@ -36,20 +36,25 @@
                 {excel}
                 {refresh}
                 createNewModal={[{
-                    label: "Create New Permission",
-                    title: "Create new permission",
+                    label: "Create New Tenant App Credential",
+                    title: "Create new tenant app credential",
                     subTitle: "",
-                    icon: "bi-card-checklist",
+                    icon: "bi-list-ol",
                 }]}
                 on:selected={(e) => console.log("selected", e.detail)}
                 on:quickFilter={(e) => (quickFilterFn = e.detail)}
                 on:refresh={(e) => (refresh = e.detail)}
                 on:excel={(e) => (excel = e.detail)}
                 on:doubleClicked={(e) =>
-                    modalStore.open(`modal-${data.tableName}`, "Update data permission", "", {
-                        actions: "update",
-                        uid: e.detail.permissionUid,
-                    })}
+                    modalStore.open(
+                        `modal-${data.tableName}`,
+                        "Update data tenant app credential",
+                        "",
+                        {
+                            actions: "update",
+                            uid: e.detail.tenantAppCredentialUid,
+                        },
+                    )}
             />
         </div>
     </div>
