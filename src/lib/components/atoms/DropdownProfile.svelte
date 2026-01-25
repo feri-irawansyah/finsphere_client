@@ -55,12 +55,12 @@
         </div>
         <hr class="m-0 mb-3" />
         <li class="m-2">
-            <a class="dropdown-item text-muted" href="/usersactivities"
+            <a class="dropdown-item text-muted" href="/users-activities"
                 ><i class="bi bi-bell me-2"></i>Profile Activity</a
             >
         </li>
         <li class="m-2">
-            <a class="dropdown-item text-muted" href="/userspolicy"
+            <a class="dropdown-item text-muted" href="/users-policy"
                 ><i class="bi bi-gear me-2"></i>Account Policy</a
             >
         </li>

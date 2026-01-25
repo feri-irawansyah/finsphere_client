@@ -22,7 +22,7 @@
         excel = null,
         refresh = null,
         quickFilterFn = null,
-        createNewModal = [{}],
+        createNewModal = null,
         createNewImportModal = {},
         wizardParams = {},
     } = $props();
