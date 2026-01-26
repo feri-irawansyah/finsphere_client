@@ -35,12 +35,12 @@
                 {quickFilterFn}
                 {excel}
                 {refresh}
-                createNewModal={{
+                createNewModal={[{
                     label: "Create New Api Permission",
                     title: "Create New Api Permission",
                     subTitle: "",
                     icon: "bi-text-paragraph",
-                }}
+                }]}
                 on:selected={(e) => console.log("selected", e.detail)}
                 on:quickFilter={(e) => (quickFilterFn = e.detail)}
                 on:refresh={(e) => (refresh = e.detail)}

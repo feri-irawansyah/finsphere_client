@@ -150,6 +150,8 @@
             });
         });
     });
+
+    console.log("createNewModal", createNewModal);
 </script>
 
 <div class="d-flex justify-content-between">
