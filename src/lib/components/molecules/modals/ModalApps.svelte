@@ -29,7 +29,7 @@
         try {
             const resPermissionsList = await fetcher(
                 fetch,
-                `${applicationStore.urlPlatformConsole}/permissionsbyserviceidregistered`,
+                `${applicationStore.urlPlatformConsole}/apipermissionsbyserviceidregistered`,
             );
 
             availablePermissions = resPermissionsList.map((item) => ({
@@ -48,19 +48,19 @@
 
             const resSelectedPermissionsList = await fetcher(
                 fetch,
-                `${applicationStore.urlPlatformConsole}/appspermissionsbyappuid/${uid}`,
+                `${applicationStore.urlPlatformConsole}/appsapipermissionsbyappuid/${uid}`,
             );
 
             const apiPermissionUids = resSelectedPermissionsList.map(
-                (rp) => rp.appPermissionUid,
+                (rp) => rp.apiPermissionUid,
             );
 
             selectedPermissions = availablePermissions.filter((p) =>
-                apiPermissionUids.includes(p.appPermissionUid),
+                apiPermissionUids.includes(p.apiPermissionUid),
             );
 
             availablePermissions = availablePermissions.filter(
-                (p) => !apiPermissionUids.includes(p.appPermissionUid),
+                (p) => !apiPermissionUids.includes(p.apiPermissionUid),
             );
         } catch (error) {
             console.error("error", error);
@@ -69,13 +69,13 @@
 
      function existsInSelected(apiPermissionUid) {
         return selectedPermissions.some(
-            (p) => p.appPermissionUid === apiPermissionUid,
+            (p) => p.apiPermissionUid === apiPermissionUid,
         );
     }
 
     function moveRight() {
         const selectedSet = new Set(
-            selectedPermissions.map((p) => p.appPermissionUid),
+            selectedPermissions.map((p) => p.apiPermissionUid),
         );
 
         const moved = availablePermissions.filter((p) => p.checked);
@@ -86,7 +86,7 @@
             ...selectedPermissions,
             ...moved
                 .map((p) => ({ ...p, checked: false }))
-                .filter((p) => !selectedSet.has(p.appPermissionUid)),
+                .filter((p) => !selectedSet.has(p.apiPermissionUid)),
         ];
     }
 
@@ -95,7 +95,7 @@
             ...selectedPermissions,
             ...availablePermissions
                 .map((p) => ({ ...p, checked: false }))
-                .filter((p) => !existsInSelected(p.appPermissionUid)),
+                .filter((p) => !existsInSelected(p.apiPermissionUid)),
         ];
 
         availablePermissions = [];
@@ -131,7 +131,7 @@
                 .filter(
                     (p) =>
                         !availablePermissions.some(
-                            (x) => x.permissionUid === p.permissionUid,
+                            (x) => x.apiPermissionUid === p.apiPermissionUid,
                         ),
                 ),
         ];
