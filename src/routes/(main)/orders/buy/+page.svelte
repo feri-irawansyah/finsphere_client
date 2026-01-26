@@ -40,6 +40,7 @@
     let isSubmitting = false;
     let isFormDisabled = $state(false);
     let disableBroker = $state(true);
+    let disablePrice = $state(false);
 
     // const clientId = field("clientId", "", [required()]);
     // const counterpartId = field("counterpartId", "", [required()]);
@@ -75,17 +76,17 @@
 
         if (!selected) return;
 
-        if (formData.clientId) {
+        if (formData.sid) {
             disableBroker = false;
-            formData.sid = selected.optionalvalue;
+            formData.clientId = selected.optionalvalue;
         } else {
             disableBroker = true;
-            formData.sid = "";
+            formData.clientId = "";
         }
     }
 
     function onClientClear() {
-        console.log("onClientClear", formData.clientId);
+        console.log("onClientClear", formData.sid);
 
         formData.clientId = "";
         formData.sid = "";
@@ -98,24 +99,24 @@
 
         if (!selected) return;
 
-        if (formData.clientId && formData.counterpartId) {
+        if (formData.sid && formData.counterpartId) {
             if (
-                formData.clientId == "FUND001" &&
-                formData.counterpartId == "GI"
+                formData.sid == "IDD456" &&
+                formData.counterpartId == "IC"
             )
                 formData.limit = formatCurrencyNoIDR(100000000);
             else if (
-                formData.clientId == "FUND001" &&
+                formData.sid == "IDD456" &&
                 formData.counterpartId == "VZ"
             )
                 formData.limit = formatCurrencyNoIDR(200000000);
             else if (
-                formData.clientId == "FUND002" &&
+                formData.sid == "IDD123" &&
                 formData.counterpartId == "IC"
             )
                 formData.limit = formatCurrencyNoIDR(150000000);
             else if (
-                formData.clientId == "FUND002" &&
+                formData.sid == "IDD123" &&
                 formData.counterpartId == "VZ"
             )
                 formData.limit = formatCurrencyNoIDR(250000000);
@@ -138,7 +139,7 @@
     }
 
     function onSymbolClear() {
-        console.log("clientid", formData.clientId);
+        console.log("sid", formData.sid);
         formData.symbolId = "";
     }
 
@@ -166,6 +167,7 @@
         formData.spotOrder = "";
         formData.algoOrder = "";
         formData.orderStrategyFinal = "";
+        disablePrice = false;
     }
 
     function onSpotOrderChange(e) {
@@ -175,12 +177,22 @@
 
         if (formData.orderStrategy === "SPOT_ORDER") {
             formData.orderStrategyFinal = formData.spotOrder;
+
+            if(formData.spotOrder === "FAK" || formData.spotOrder === "FOK" || formData.spotOrder === "MTL") {
+                formData.price = 0;
+                disablePrice = true;
+            }
+            else {
+                disablePrice = false;
+            }
         }
     }
 
     function onSpotOrderClear() {
         console.log("spotOrder", formData.spotOrder);
         formData.spotOrder = "";
+        disablePrice = false;
+        formData.price = 0;
 
         if (formData.orderStrategy === "CARED_ORDER") {
             formData.orderStrategyFinal = "CARED_ORDER";
@@ -229,7 +241,7 @@
             StockId: formData.symbolId,
             ExternalReference: "0000-1111-2222-3333",
             BuySell: "BUY",
-            Volume: formData.lot * 100,
+            Volume: formData.lot,
             Price: formData.price,
             OrderStrategy: formData.orderStrategyFinal,
         };
@@ -264,10 +276,10 @@
                                 <div class="col-9">
                                     <AutoSelect
                                         lookup="clientidorderrouting"
-                                        bind:value={formData.clientId}
+                                        bind:value={formData.sid}
                                         labelKey={["clientId", "formData.sid"]}
-                                        valueKey="clientId"
-                                        valueKeyOptional="sid"
+                                        valueKey="sid"
+                                        valueKeyOptional="clientId"
                                         placeholder="Choose One Option"
                                         required
                                         disabled={isFormDisabled}
@@ -288,9 +300,9 @@
                                 </div>
                                 <div class="col-9">
                                     <AutoSelect
-                                        lookup="broker"
-                                        params={{ clientId: formData.clientId }}
-                                        pathParams={["clientId"]}
+                                        lookup="brokerbysid"
+                                        params={{ sid: formData.sid }}
+                                        pathParams={["sid"]}
                                         bind:value={formData.counterpartId}
                                         labelKey={[
                                             "counterpartId",
@@ -457,6 +469,7 @@
                                         bind:value={formData.price}
                                         onblur={onBlur}
                                         required
+                                        disabled={disablePrice}
                                     />
                                 </div>
                             </div>

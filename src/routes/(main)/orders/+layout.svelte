@@ -2,6 +2,7 @@
     import { refreshTable } from "$lib";
     import ClientGrid from "$lib/directives/grids/ClientGrid.svelte";
     import orderStore from "$lib/stores/gridStore.js";
+    import { goto } from '$app/navigation';
 
     const { children, data } = $props();
 
@@ -84,16 +85,16 @@
                                     <span>Refresh Table</span>
                                 </button>
                             </div>
-                            <!-- <div class="flex-column">
+                            <div class="flex-column">
                         <button type="button" class="btn btn-outline-success" onclick={excel}>
                             <i class="bi bi-file-earmark-excel"></i>
                             <span>Excel</span>
                         </button>
-                        <button type="button" class="btn btn-gradient-primary"  data-bs-toggle="modal" data-bs-target="#modal-users" onclick={() => modalStore.open()}>
+                        <button type="button" class="btn btn-gradient-primary" onclick={() => goto('/orders/buy')}>
                             <i class="bi bi-person-plus"></i>
                             <span>Add New Orders</span>
                         </button>
-                    </div> -->
+                    </div>
                         </div>
                     </ClientGrid>
                 </section>

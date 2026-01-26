@@ -50,19 +50,19 @@
 
         if (!selected) return;
 
-        console.log("ddclient", selected.raw.sid);
+        console.log("ddclient", selected.optionalvalue);
 
-        if (formData.clientId) {
+        if (formData.sid) {
             disableBroker = false;
-            formData.sid = selected.raw.sid;
+            formData.clientId = selected.optionalvalue;
         } else {
             disableBroker = true;
-            formData.sid = "";
+            formData.clientId = "";
         }
     }
 
     function onClientClear() {
-        console.log("clientid", formData.clientId);
+        console.log("sid", formData.sid);
 
         formData.clientId = "";
         formData.sid = "";
@@ -75,24 +75,24 @@
 
         if (!selected) return;
 
-        if (formData.clientId && formData.counterpartId) {
+        if (formData.sid && formData.counterpartId) {
             if (
-                formData.clientId == "FUND001" &&
-                formData.counterpartId == "GI"
+                formData.sid == "IDD456" &&
+                formData.counterpartId == "IC"
             )
                 formData.limit = formatCurrencyNoIDR(100000000);
             else if (
-                formData.clientId == "FUND001" &&
+                formData.sid == "IDD456" &&
                 formData.counterpartId == "VZ"
             )
                 formData.limit = formatCurrencyNoIDR(200000000);
             else if (
-                formData.clientId == "FUND002" &&
+                formData.sid == "IDD123" &&
                 formData.counterpartId == "IC"
             )
                 formData.limit = formatCurrencyNoIDR(150000000);
             else if (
-                formData.clientId == "FUND002" &&
+                formData.sid == "IDD123" &&
                 formData.counterpartId == "VZ"
             )
                 formData.limit = formatCurrencyNoIDR(250000000);
@@ -136,7 +136,7 @@
 
         if (dataRow !== undefined) {
             formData.orderUid = dataRow?.orderUid;
-            formData.clientId = dataRow?.clientId;
+            formData.sid = dataRow?.sid;
             formData.counterpartId = dataRow?.partyId;
             formData.price = formatCurrencyNoIDR(dataRow?.price);
             formData.lot = formatCurrencyNoIDR(dataRow?.volume / 100);
@@ -192,9 +192,10 @@
                                 <div class="col-9">
                                     <AutoSelect
                                         lookup="clientidorderrouting"
-                                        bind:value={formData.clientId}
+                                        bind:value={formData.sid}
                                         labelKey={["clientId", "formData.sid"]}
-                                        valueKey="clientId"
+                                        valueKey="sid"
+                                        valueKeyOptional="clientId"
                                         placeholder="Choose One Option"
                                         required
                                         disabled
@@ -215,9 +216,9 @@
                                 </div>
                                 <div class="col-9">
                                     <AutoSelect
-                                        lookup="broker"
-                                        params={{ clientId: formData.clientId }}
-                                        pathParams={["clientId"]}
+                                        lookup="brokerbysid"
+                                        params={{ sid: formData.sid }}
+                                        pathParams={["sid"]}
                                         bind:value={formData.counterpartId}
                                         labelKey={[
                                             "counterpartId",
